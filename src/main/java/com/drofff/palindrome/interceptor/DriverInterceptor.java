@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.enums.Role;
 import com.drofff.palindrome.service.DriverServiceImpl;
 
 public class DriverInterceptor extends HandlerInterceptorAdapter {
@@ -46,11 +45,7 @@ public class DriverInterceptor extends HandlerInterceptorAdapter {
 	}
 
 	private boolean needsDriverProfile(User user) {
-		return isDriver(user) && driverService.hasNoDriverProfile(user);
-	}
-
-	private boolean isDriver(User user) {
-		return user.getAuthorities().contains(Role.DRIVER);
+		return user.isDriver() && driverService.hasNoDriverProfile(user);
 	}
 
 }

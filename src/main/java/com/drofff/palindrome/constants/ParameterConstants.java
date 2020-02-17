@@ -10,6 +10,8 @@ public class ParameterConstants {
 
 	public static final String USER_ID_PARAM = "userId";
 
+	public static final String SUCCESS_PARAM = "success";
+
 	private ParameterConstants() {}
 
 }

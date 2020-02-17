@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 
 public interface DriverService {
@@ -17,5 +18,9 @@ public interface DriverService {
 	Driver getDriverByUserId(String userId);
 
 	Optional<Driver> getDriverByUserIdIfPresent(String userId);
+
+	void addToDriverOwnedCars(Car car, Driver driver);
+
+	void deleteFromDriverOwnedCars(Car car, Driver driver);
 
 }

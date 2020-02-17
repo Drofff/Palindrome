@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Palindrome - Driver Info</title>
+	<title>Palindrome - Update Driver Info</title>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
 	<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
@@ -35,21 +35,7 @@
 		</div>
 	</header>
 	<main class="mdl-layout__content">
-		<div class="page-content">
-
-			<dialog class="mdl-dialog">
-				<div class="mdl-dialog__content">
-					<p>
-						<#if message??>
-						    ${message}
-						</#if>
-					</p>
-				</div>
-				<div class="mdl-dialog__actions">
-					<button type="button" class="mdl-button close">Закрити</button>
-				</div>
-			</dialog>
-
+		<form class="page-content" action="/driver/update" method="post">
 			<div class="mdl-grid" style="margin-top: 3%;">
 				<div class="mdl-cell mdl-cell--3-col">
 				</div>
@@ -58,8 +44,19 @@
 						<div class="mdl-card__title mdl-card--expand"></div>
 					</div>
 				</div>
-				<div class="mdl-cell mdl-cell--3-col" style="font-size: 20px">
-					<b>${driver.firstName} <#if driver.middleName??>${driver.middleName}</#if> ${driver.lastName}</b>
+				<div class="mdl-cell mdl-cell--3-col">
+					<div class="mdl-textfield mdl-js-textfield">
+						<input class="mdl-textfield__input" value="${driver.firstName}" name="firstName" type="text" id="sample1" required>
+						<label class="mdl-textfield__label" for="sample1">Ім'я</label>
+					</div>
+					<div class="mdl-textfield mdl-js-textfield">
+						<input class="mdl-textfield__input" value="${driver.middleName}" name="middleName" type="text" id="sample2" required>
+						<label class="mdl-textfield__label" for="sample2">По батькові</label>
+					</div>
+					<div class="mdl-textfield mdl-js-textfield">
+						<input class="mdl-textfield__input" value="${driver.lastName}" name="lastName" type="text" id="sample3" required>
+						<label class="mdl-textfield__label" for="sample3">Прізвище</label>
+					</div>
 				</div>
 				<div class="mdl-cell mdl-cell--3-col"></div>
 			</div>
@@ -68,36 +65,35 @@
 				</div>
 				<div class="mdl-cell mdl-cell--6-col">
 					<div>
-						<p><b>Електронна пошта:</b> ${email}</p>
-						<p><b>Адреса:</b> ${driver.address}</p>
-						<p><b>Номер посвідчення водія:</b> ${driver.licenceNumber}</p>
+						<p><b>Адреса:</b>
+							<div class="mdl-textfield mdl-js-textfield">
+								<input class="mdl-textfield__input" value="${driver.address}" name="address" type="text" id="sample4" required>
+								<label class="mdl-textfield__label" for="sample4">Адреса</label>
+							</div>
+						</p>
+						<p><b>Номер посвідчення водія:</b>
+							<div class="mdl-textfield mdl-js-textfield">
+								<input class="mdl-textfield__input" value="${driver.licenceNumber}" name="licenceNumber" type="text" id="sample5" required>
+								<label class="mdl-textfield__label" for="sample5">Номер посвідчення водія</label>
+							</div>
+						</p>
 					</div>
 					<div style="margin-top: 2%;">
-						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/driver/update">
-							Редагувати
-						</a>
-						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/driver/update/photo">
-							Змінити фото
-						</a>
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+						<#if driver.id??>
+							<input type="hidden" name="id" value="${driver.id}">
+						</#if>
+						<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
+							Зберегти
+						</button>
 					</div>
 				</div>
 			</div>
-		</div>
+		</form>
 	</main>
 	<form action="/logout" method="post" id="logout">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 	</form>
 </div>
-<script>
-    var dialog = document.querySelector('dialog');
-    dialog.querySelector('.close').addEventListener('click', function() {
-        dialog.close();
-    });
-    $(function() {
-        <#if message??>
-            dialog.showModal();
-        </#if>
-    });
-</script>
 </body>
 </html>

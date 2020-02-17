@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.PalindromeException;
@@ -50,10 +51,21 @@ public class DriverServiceImpl implements DriverService {
 	@Override
 	public void updateDriverProfile(Driver driver) {
 		validate(driver);
+		validateHasId(driver);
 		User currentUser = getCurrentUser();
 		Driver originalDriver = getDriverByUserId(currentUser.getId());
 		mergeDriverMappings(originalDriver, driver);
 		driverRepository.save(driver);
+	}
+
+	private void validateHasId(Driver driver) {
+		if(hasNoId(driver)) {
+			throw new ValidationException("Id is required to update driver profile");
+		}
+	}
+
+	private boolean hasNoId(Driver driver) {
+		return Objects.isNull(driver.getId());
 	}
 
 	private void mergeDriverMappings(Driver from, Driver to) {
@@ -98,6 +110,17 @@ public class DriverServiceImpl implements DriverService {
 	@Override
 	public Optional<Driver> getDriverByUserIdIfPresent(String userId) {
 		return driverRepository.findByUserId(userId);
+	}
+
+	public void addToDriverOwnedCars(Car car, Driver driver) {
+		driver.getOwnedCarIds().add(car.getId());
+		driverRepository.save(driver);
+	}
+
+	@Override
+	public void deleteFromDriverOwnedCars(Car car, Driver driver) {
+		driver.getOwnedCarIds().remove(car.getId());
+		driverRepository.save(driver);
 	}
 
 }

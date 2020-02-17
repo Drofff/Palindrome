@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Palindrome - Driver Info</title>
+	<title>Palindrome - Change Driver Photo</title>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
 	<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
@@ -9,16 +9,15 @@
 			integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
 			crossorigin="anonymous"></script>
 	<link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
+	<script src="https://kit.fontawesome.com/79433ece4b.js" crossorigin="anonymous"></script>
 	<style>
-		.demo-card-image.mdl-card {
-			width: 256px;
-			height: 256px;
-			background: url('data:image/png;base64, ${photo}') center / cover;
+		.demo-card-wide.mdl-card {
+			width: 512px;
 		}
-		.demo-card-image {
-			height: 52px;
-			padding: 16px;
-			background: rgba(0, 0, 0, 0.2);
+		.demo-card-wide > .mdl-card__title {
+			color: #fff;
+			height: 176px;
+			background: url('https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80') center / cover;
 		}
 	</style>
 </head>
@@ -35,54 +34,48 @@
 		</div>
 	</header>
 	<main class="mdl-layout__content">
-		<div class="page-content">
+		<form class="page-content" action="/driver/update/photo" method="post" enctype="multipart/form-data">
 
 			<dialog class="mdl-dialog">
 				<div class="mdl-dialog__content">
-					<p>
-						<#if message??>
-						    ${message}
-						</#if>
-					</p>
+					<#if error_message??>
+						<p style="color: red">
+                            ${error_message}
+						</p>
+					</#if>
 				</div>
 				<div class="mdl-dialog__actions">
 					<button type="button" class="mdl-button close">Закрити</button>
 				</div>
 			</dialog>
 
-			<div class="mdl-grid" style="margin-top: 3%;">
-				<div class="mdl-cell mdl-cell--3-col">
-				</div>
-				<div class="mdl-cell mdl-cell--3-col">
-					<div class="demo-card-image mdl-card mdl-shadow--2dp">
-						<div class="mdl-card__title mdl-card--expand"></div>
+            <#if success?? && success>
+				<div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-left: 30%; margin-top: 5%;">
+					<div class="mdl-card__title">
+						<h2 class="mdl-card__title-text">Оберіть нове фото</h2>
+					</div>
+					<div class="mdl-card__supporting-text">
+						<i class="fas fa-check-circle" style="color: green"></i> Фото успішно оновлено
 					</div>
 				</div>
-				<div class="mdl-cell mdl-cell--3-col" style="font-size: 20px">
-					<b>${driver.firstName} <#if driver.middleName??>${driver.middleName}</#if> ${driver.lastName}</b>
-				</div>
-				<div class="mdl-cell mdl-cell--3-col"></div>
-			</div>
-			<div class="mdl-grid">
-				<div class="mdl-cell mdl-cell--3-col">
-				</div>
-				<div class="mdl-cell mdl-cell--6-col">
-					<div>
-						<p><b>Електронна пошта:</b> ${email}</p>
-						<p><b>Адреса:</b> ${driver.address}</p>
-						<p><b>Номер посвідчення водія:</b> ${driver.licenceNumber}</p>
+			<#else>
+				<div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-left: 30%; margin-top: 5%;">
+					<div class="mdl-card__title">
+						<h2 class="mdl-card__title-text">Оберіть нове фото</h2>
 					</div>
-					<div style="margin-top: 2%;">
-						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/driver/update">
-							Редагувати
-						</a>
-						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/driver/update/photo">
-							Змінити фото
-						</a>
+					<div class="mdl-card__supporting-text">
+						<input type="file" name="photo">
+					</div>
+					<div class="mdl-card__actions mdl-card--border">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+						<button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" type="submit">
+							Зберегти
+						</button>
 					</div>
 				</div>
-			</div>
-		</div>
+			</#if>
+
+		</form>
 	</main>
 	<form action="/logout" method="post" id="logout">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
@@ -94,8 +87,8 @@
         dialog.close();
     });
     $(function() {
-        <#if message??>
-            dialog.showModal();
+        <#if error_message??>
+        dialog.showModal();
         </#if>
     });
 </script>

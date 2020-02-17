@@ -101,4 +101,8 @@ public class User implements UserDetails {
 		return active;
 	}
 
+	public boolean isDriver() {
+		return role == Role.DRIVER;
+	}
+
 }

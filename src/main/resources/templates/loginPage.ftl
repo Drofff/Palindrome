@@ -60,11 +60,18 @@
 							<input class="mdl-textfield__input" readonly onfocus="this.removeAttribute('readonly');" name="password" type="password" id="password">
 							<label class="mdl-textfield__label" for="password">Пароль</label>
 						</div>
+						<div style="margin-bottom: 5%;">
+							<label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-1">
+								<input type="checkbox" id="checkbox-1" class="mdl-checkbox__input" name="remember-me">
+								<span class="mdl-checkbox__label">Залишатись в системі</span>
+							</label>
+						</div>
 						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 						<div>
 							<button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
 								Вхід
 							</button>
+							<a href="/forgot-password" style="color: cornflowerblue; margin-left: 10%;">Забули пароль?</a>
 						</div>
 					</form>
 				</div>

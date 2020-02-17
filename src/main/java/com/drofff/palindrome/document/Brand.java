@@ -1,8 +1,10 @@
 package com.drofff.palindrome.document;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-public class LicenceCategory {
+@Document
+public class Brand {
 
 	@Id
 	private String id;

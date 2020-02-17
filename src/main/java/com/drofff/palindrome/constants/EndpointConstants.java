@@ -18,8 +18,6 @@ public class EndpointConstants {
 
 	public static final String CREATE_DRIVER_PROFILE_ENDPOINT = "/driver/create";
 
-	public static final String ADD_CAR_ENDPOINT = "/car/add";
-
 	private EndpointConstants() {}
 
 }
