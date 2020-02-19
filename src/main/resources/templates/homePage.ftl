@@ -18,6 +18,15 @@
 			height: 60px;
 			background: #3E4EB8;
 		}
+		 .demo-card-square.mdl-card {
+			 width: 140px;
+			 height: 60px;
+		 }
+		.demo-card-square > .mdl-card__title {
+			color: #fff;
+			background:
+					url('https://imageog.flaticon.com/icons/png/512/55/55283.png?size=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF') center / cover;
+		}
 	</style>
 </head>
 <body>
@@ -26,7 +35,7 @@
 		<div class="mdl-layout__header-row">
 			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome</span>
 			<div class="mdl-layout-spacer"></div>
-			<#if is_authenticated?? && is_authenticated>
+			<#if authenticated?? && authenticated>
 				<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		    <#else>
 			    <nav class="mdl-navigation mdl-layout--large-screen-only">
@@ -57,45 +66,87 @@
 				</div>
 			</dialog>
 
-			<div class="mdl-grid" style="margin-top: 3%;">
-				<div class="mdl-cell mdl-cell--1-col"></div>
+			<#if authenticated?? && authenticated>
+				<div class="mdl-grid" style="margin-top: 3%;">
+					<div class="mdl-cell mdl-cell--1-col"></div>
 
-				<div class="mdl-cell mdl-cell--4-col">
-					<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-						<div class="mdl-card__title">
-							<h2 class="mdl-card__title-text">Мої автомобілі</h2>
+					<div class="mdl-cell mdl-cell--4-col">
+						<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__title">
+								<h2 class="mdl-card__title-text">Мої автомобілі</h2>
+							</div>
+							<div class="mdl-card__supporting-text">
+								<div class="mdl-grid" style="margin-left: -10px">
+                                    <#list cars as car>
+										<div class="mdl-cell mdl-cell--4-col" style="margin-right: 20px; cursor: pointer">
+											<div class="demo-card-square mdl-card mdl-shadow--2dp" onclick="window.location.href='/car/${car.id}'">
+												<div class="mdl-card__title mdl-card--expand">
+												</div>
+												<div class="mdl-card__supporting-text" style="text-align: center; font-size: 20px; margin-left: -10px">
+                                                    <#if car.model?length gt 7>
+														<b>${car.model?substring(0, 7)}..</b>
+                                                    <#else>
+														<b>${car.model}</b>
+                                                    </#if>
+												</div>
+											</div>
+										</div>
+                                    </#list>
+									<div class="mdl-cell mdl-cell--1-col" style="cursor: pointer">
+										<div class="demo-card-square mdl-card mdl-shadow--2dp" onclick="window.location.href='/car/create'">
+											<div class="mdl-card__title mdl-card--expand" style="background: url('https://img.icons8.com/pastel-glyph/2x/plus.png') center / cover">
+											</div>
+											<div class="mdl-card__supporting-text" style="text-align: center; font-size: 20px; margin-left: -10px">
+												Додати авто
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="mdl-card__actions mdl-card--border">
+								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/car">
+									Переглянути всі
+								</a>
+							</div>
 						</div>
-						<div class="mdl-card__supporting-text">
-							<#list cars as car>
-								${car.model}
-							</#list>
-						</div>
-					</div>
 
-					<div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-top: 10%;">
-						<div class="mdl-card__title">
-							<h2 class="mdl-card__title-text">Квитанції до оплати</h2>
-						</div>
-						<div class="mdl-card__supporting-text">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-							Mauris sagittis pellentesque lacus eleifend lacinia...
-						</div>
-					</div>
-				</div>
-				<div class="mdl-cell mdl-cell--1-col"></div>
-				<div class="mdl-cell mdl-cell--4-col">
-					<div class="demo-card-wide mdl-card mdl-shadow--2dp">
-						<div class="mdl-card__title">
-							<h2 class="mdl-card__title-text">Мої порушення</h2>
-						</div>
-						<div class="mdl-card__supporting-text">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-							Mauris sagittis pellentesque lacus eleifend lacinia...
+						<div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-top: 10%;">
+							<div class="mdl-card__title">
+								<h2 class="mdl-card__title-text">Квитанції до оплати</h2>
+							</div>
+							<div class="mdl-card__supporting-text">
+								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+								Mauris sagittis pellentesque lacus eleifend lacinia...
+							</div>
+							<div class="mdl-card__actions mdl-card--border">
+								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+									Переглянути всі
+								</a>
+							</div>
 						</div>
 					</div>
+					<div class="mdl-cell mdl-cell--1-col"></div>
+					<div class="mdl-cell mdl-cell--4-col">
+						<div class="demo-card-wide mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__title">
+								<h2 class="mdl-card__title-text">Мої порушення</h2>
+							</div>
+							<div class="mdl-card__supporting-text">
+								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+								Mauris sagittis pellentesque lacus eleifend lacinia...
+							</div>
+							<div class="mdl-card__actions mdl-card--border">
+								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+									Переглянути всі
+								</a>
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--1-col"></div>
 				</div>
-				<div class="mdl-cell mdl-cell--1-col"></div>
-			</div>
+			<#else>
+
+			</#if>
 
 		</div>
 	</main>

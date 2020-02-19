@@ -24,7 +24,8 @@ public class CarDtoMapper extends Mapper<Car, CarDto> {
 	public CarDtoMapper(ModelMapper modelMapper) {
 		super(modelMapper);
 		toEntityTypeMap = modelMapper.createTypeMap(CarDto.class, Car.class)
-				.addMappings(dateMapping());
+				.addMappings(dateMapping())
+				.addMappings(skipIdMapping());
 	}
 
 	private ExpressionMap<CarDto, Car> dateMapping() {
@@ -35,6 +36,10 @@ public class CarDtoMapper extends Mapper<Car, CarDto> {
 
 	private Converter<String, LocalDate> strToDateConverter() {
 		return context -> parseDateFromStr(context.getSource());
+	}
+
+	private ExpressionMap<CarDto, Car> skipIdMapping() {
+		return mapping -> mapping.skip(Car::setId);
 	}
 
 	@Override

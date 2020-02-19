@@ -7,4 +7,5 @@ import com.drofff.palindrome.document.Car;
 
 @Repository
 public interface CarRepository extends MongoRepository<Car, String> {
+
 }

@@ -5,6 +5,7 @@ import static com.drofff.palindrome.utils.ValidationUtils.validate;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -90,7 +91,13 @@ public class CarServiceImpl implements CarService {
 	}
 
 	@Override
-	public Car getById(String id) {
+	public List<Car> getCarsOfDriver(Driver driver) {
+		return driver.getOwnedCarIds().stream()
+				.map(this::getById)
+				.collect(Collectors.toList());
+	}
+
+	private Car getById(String id) {
 		return carRepository.findById(id)
 				.orElseThrow(() -> new ValidationException("Car with such id doesn't exist"));
 	}

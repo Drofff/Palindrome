@@ -12,6 +12,12 @@ public class ParameterConstants {
 
 	public static final String SUCCESS_PARAM = "success";
 
+	public static final String PAGE_PAYLOAD_PARAM = "page_payload";
+
+	public static final String PAGE_NUMBER_PARAM = "page_number";
+
+	public static final String PAGES_COUNT_PARAM = "pages_count";
+
 	private ParameterConstants() {}
 
 }

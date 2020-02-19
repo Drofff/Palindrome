@@ -1,6 +1,9 @@
 package com.drofff.palindrome.service;
 
+import java.util.List;
+
 import com.drofff.palindrome.document.Car;
+import com.drofff.palindrome.document.Driver;
 
 public interface CarService {
 
@@ -10,6 +13,6 @@ public interface CarService {
 
 	void deleteCarById(String id);
 
-	Car getById(String id);
+	List<Car> getCarsOfDriver(Driver driver);
 
 }
