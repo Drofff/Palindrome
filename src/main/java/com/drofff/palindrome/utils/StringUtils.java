@@ -8,4 +8,16 @@ public class StringUtils {
 		return !str0.equals(str1);
 	}
 
+	public static String removeStrPart(String str, String part) {
+		return str.replace(part, "");
+	}
+
+	public static String removeAllDigits(String str) {
+		return str.replaceAll("\\d", "");
+	}
+
+	public static String removeAllNonDigits(String str) {
+		return str.replaceAll("\\D", "");
+	}
+
 }

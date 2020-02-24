@@ -1,5 +1,7 @@
 package com.drofff.palindrome.service;
 
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+
 import java.io.IOException;
 import java.util.Base64;
 import java.util.UUID;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.PalindromeException;
+import com.drofff.palindrome.exception.ValidationException;
 
 @Service
 public class PhotoServiceImpl implements PhotoService {
@@ -26,12 +29,28 @@ public class PhotoServiceImpl implements PhotoService {
 	@Override
 	public String savePhotoForUser(MultipartFile photo, User user) {
 		try {
+			validatePhoto(photo);
 			String filename = generatePhotoFilenameForUser(user);
 			saveFileWithName(photo, filename);
 			return filename;
 		} catch(IOException e) {
 			throw new PalindromeException("Error while saving photo");
 		}
+	}
+
+	private void validatePhoto(MultipartFile photo) throws IOException {
+		validateNotNull(photo, "Photo should be provided");
+		validateFileIsNotEmpty(photo);
+	}
+
+	private void validateFileIsNotEmpty(MultipartFile file) throws IOException {
+		if(isFileEmpty(file)) {
+			throw new ValidationException("Photo is empty");
+		}
+	}
+
+	private boolean isFileEmpty(MultipartFile file) throws IOException {
+		return file.getBytes().length == 0;
 	}
 
 	private String generatePhotoFilenameForUser(User user) {
@@ -45,9 +64,9 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	public String loadEncodedPhotoByUri(String photoUri) {
+		validateNotNull(photoUri, "Photo uri is required");
 		byte[] fileByUri = fileService.getFileByName(photoUri);
-		byte[] encodedPhoto = BASE_64_ENCODER.encode(fileByUri);
-		return new String(encodedPhoto);
+		return BASE_64_ENCODER.encodeToString(fileByUri);
 	}
 
 }

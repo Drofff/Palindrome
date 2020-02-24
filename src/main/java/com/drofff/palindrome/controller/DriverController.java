@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.DriverDto;
 import com.drofff.palindrome.dto.UpdateDriverDto;
 import com.drofff.palindrome.exception.ValidationException;
@@ -56,7 +55,7 @@ public class DriverController {
 	@GetMapping
 	public String getDriverProfilePage(@RequestParam(required = false, name = MESSAGE_PARAM) String message, Model model) {
 		model.addAttribute(MESSAGE_PARAM, message);
-		Driver driver = getCurrentDriverProfile();
+		Driver driver = driverService.getCurrentDriver();
 		model.addAttribute(DRIVER_PARAM, driver);
 		String photo = photoService.loadEncodedPhotoByUri(driver.getPhotoUri());
 		model.addAttribute(PHOTO_PARAM, photo);
@@ -85,7 +84,7 @@ public class DriverController {
 
 	@GetMapping("/update")
 	public String getUpdateDriverProfilePage(Model model) {
-		Driver driverProfile = getCurrentDriverProfile();
+		Driver driverProfile = driverService.getCurrentDriver();
 		model.addAttribute(DRIVER_PARAM, driverProfile);
 		String encodedPhoto = photoService.loadEncodedPhotoByUri(driverProfile.getPhotoUri());
 		model.addAttribute(PHOTO_PARAM, encodedPhoto);
@@ -123,13 +122,8 @@ public class DriverController {
 	}
 
 	private String getCurrentDriverPhoto() {
-		Driver driver = getCurrentDriverProfile();
+		Driver driver = driverService.getCurrentDriver();
 		return photoService.loadEncodedPhotoByUri(driver.getPhotoUri());
-	}
-
-	private Driver getCurrentDriverProfile() {
-		User currentUser = getCurrentUser();
-		return driverService.getDriverByUserId(currentUser.getId());
 	}
 
 }

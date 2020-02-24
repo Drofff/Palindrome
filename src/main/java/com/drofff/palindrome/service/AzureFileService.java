@@ -1,5 +1,7 @@
 package com.drofff.palindrome.service;
 
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.drofff.palindrome.configuration.properties.AzureProperties;
 import com.drofff.palindrome.exception.PalindromeException;
+import com.drofff.palindrome.exception.ValidationException;
 
 @Service
 public class AzureFileService implements FileService {
@@ -38,15 +41,39 @@ public class AzureFileService implements FileService {
 
 	@Override
 	public void saveFile(String filename, byte[] data) {
+		validateFilename(filename);
+		validateFileSize(data.length);
 		BlobClient blobClient = blobContainerClient.getBlobClient(filename);
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
 		blobClient.upload(inputStream, data.length);
 	}
 
+	private void validateFileSize(int size) {
+		if(isInvalidFileSize(size)) {
+			throw new ValidationException("File is of size greater than maximum allowed size " + azureProperties.getMaxFileSize());
+		}
+	}
+
+	private boolean isInvalidFileSize(int size) {
+		return size > azureProperties.getMaxFileSizeBytes();
+	}
+
 	@Override
 	public byte[] getFileByName(String filename) {
+		validateFilename(filename);
 		BlobClient blobClient = blobContainerClient.getBlobClient(filename);
 		return downloadFileFromClient(blobClient);
+	}
+
+	private void validateFilename(String filename) {
+		validateNotNull(filename, "Filename should be provided");
+		validateFilenameNotEmpty(filename);
+	}
+
+	private void validateFilenameNotEmpty(String filename) {
+		if(filename.isEmpty()) {
+			throw new ValidationException("Filename should not be empty");
+		}
 	}
 
 	private byte[] downloadFileFromClient(BlobClient blobClient) {

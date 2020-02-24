@@ -18,6 +18,8 @@ public class ParameterConstants {
 
 	public static final String PAGES_COUNT_PARAM = "pages_count";
 
+	public static final String USER_PARAM = "user";
+
 	private ParameterConstants() {}
 
 }

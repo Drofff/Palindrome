@@ -10,6 +10,12 @@ import javax.validation.constraints.Pattern;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.repository.BodyTypeRepository;
+import com.drofff.palindrome.repository.BrandRepository;
+import com.drofff.palindrome.repository.EngineTypeRepository;
+import com.drofff.palindrome.repository.LicenceCategoryRepository;
+
 @Document
 public class Car {
 
@@ -24,12 +30,14 @@ public class Car {
 	private String bodyNumber;
 
 	@NotNull(message = "Brand should be provided")
+	@FromRepository(BrandRepository.class)
 	private String brandId;
 
 	@NotNull(message = "Model should be provided")
 	private String model;
 
 	@NotNull(message = "Body type should be specified")
+	@FromRepository(BodyTypeRepository.class)
 	private String bodyTypeId;
 
 	@NotNull(message = "Color is required")
@@ -40,6 +48,7 @@ public class Car {
 	private Float weight;
 
 	@NotNull(message = "Select licence category of your car")
+	@FromRepository(LicenceCategoryRepository.class)
 	private String licenceCategoryId;
 
 	@NotNull(message = "Engine volume should be provided")
@@ -47,6 +56,7 @@ public class Car {
 	private Float engineVolume;
 
 	@NotNull(message = "Engine type is required")
+	@FromRepository(EngineTypeRepository.class)
 	private String engineTypeId;
 
 	@NotNull(message = "Registration date is required")

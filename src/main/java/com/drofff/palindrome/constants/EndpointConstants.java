@@ -10,13 +10,15 @@ public class EndpointConstants {
 
 	public static final String ACTIVATE_ACCOUNT_ENDPOINT = "/activate";
 
-	public static final String ERROR_ENDPOINT = "/error_page";
+	public static final String ERROR_ENDPOINT = "/error-page";
 
 	public static final String FORGOT_PASS_ENDPOINT = "/forgot-password";
 
 	public static final String PASS_RECOVERY_ENDPOINT = "/password-recovery";
 
 	public static final String CREATE_DRIVER_PROFILE_ENDPOINT = "/driver/create";
+
+	public static final String USER_IS_BLOCKED_ENDPOINT = "/user-is-blocked";
 
 	private EndpointConstants() {}
 

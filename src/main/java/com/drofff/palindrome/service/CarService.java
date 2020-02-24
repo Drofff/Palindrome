@@ -15,4 +15,6 @@ public interface CarService {
 
 	List<Car> getCarsOfDriver(Driver driver);
 
+	Car getById(String id);
+
 }

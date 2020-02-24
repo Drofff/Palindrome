@@ -4,19 +4,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PageableUtils {
+import com.drofff.palindrome.type.CollectionPage;
 
-	private PageableUtils() {}
+public class CollectionPageUtils {
 
-	public static <T> List<T> getCollectionPageOfSize(Collection<T> collection, int page, int pageSize) {
-		int offset = page * pageSize;
-		return collection.stream()
+	private CollectionPageUtils() {}
+
+	public static <T> List<T> getContentOfPage(CollectionPage<T> collectionPage) {
+		int pageSize = collectionPage.getPageSize();
+		int offset = collectionPage.getPageNumber() * pageSize;
+		return collectionPage.getCollection().stream()
 				.skip(offset)
 				.limit(pageSize)
 				.collect(Collectors.toList());
 	}
 
-	public static int countPagesOfCollection(Collection<?> collection, int pageSize) {
+	public static int countPages(CollectionPage<?> collectionPage) {
+		Collection<?> collection = collectionPage.getCollection();
+		int pageSize = collectionPage.getPageSize();
 		int pagesCount = collection.size() / pageSize;
 		if(hasAdditionalPage(collection, pageSize)) {
 			pagesCount++;

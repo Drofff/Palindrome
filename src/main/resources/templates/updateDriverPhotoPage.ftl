@@ -33,6 +33,7 @@
 			</nav>
 		</div>
 	</header>
+    <#include "menu.ftl">
 	<main class="mdl-layout__content">
 		<form class="page-content" action="/driver/update/photo" method="post" enctype="multipart/form-data">
 

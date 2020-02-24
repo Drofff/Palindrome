@@ -34,6 +34,7 @@
 			</nav>
 		</div>
 	</header>
+    <#include "menu.ftl">
 	<main class="mdl-layout__content">
 		<div class="page-content">
 

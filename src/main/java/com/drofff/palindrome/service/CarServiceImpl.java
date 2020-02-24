@@ -1,7 +1,7 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.CarRepository;
 
@@ -35,8 +34,7 @@ public class CarServiceImpl implements CarService {
 	public void addCar(Car car) {
 		validate(car);
 		validateCarProperties(car);
-		User currentUser = getCurrentUser();
-		Driver driver = driverService.getDriverByUserId(currentUser.getId());
+		Driver driver = driverService.getCurrentDriver();
 		carRepository.save(car);
 		driverService.addToDriverOwnedCars(car, driver);
 	}
@@ -46,8 +44,7 @@ public class CarServiceImpl implements CarService {
 		validate(car);
 		validateHasId(car);
 		validateCarProperties(car);
-		User currentUser = getCurrentUser();
-		Driver driver = driverService.getDriverByUserId(currentUser.getId());
+		Driver driver = driverService.getCurrentDriver();
 		validateDriverIsOwnerOfCar(driver, car);
 		carRepository.save(car);
 	}
@@ -68,9 +65,9 @@ public class CarServiceImpl implements CarService {
 
 	@Override
 	public void deleteCarById(String id) {
+		validateCarId(id);
 		Car car = getById(id);
-		User currentUser = getCurrentUser();
-		Driver driver = driverService.getDriverByUserId(currentUser.getId());
+		Driver driver = driverService.getCurrentDriver();
 		validateDriverIsOwnerOfCar(driver, car);
 		driverService.deleteFromDriverOwnedCars(car, driver);
 		carRepository.delete(car);
@@ -97,9 +94,15 @@ public class CarServiceImpl implements CarService {
 				.collect(Collectors.toList());
 	}
 
-	private Car getById(String id) {
+	@Override
+	public Car getById(String id) {
+		validateCarId(id);
 		return carRepository.findById(id)
 				.orElseThrow(() -> new ValidationException("Car with such id doesn't exist"));
+	}
+
+	private void validateCarId(String id) {
+		validateNotNull(id, "Car id is required");
 	}
 
 }

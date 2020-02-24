@@ -9,6 +9,7 @@ import static com.drofff.palindrome.constants.EndpointConstants.REGISTRATION_END
 import static com.drofff.palindrome.constants.ParameterConstants.ERROR_MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
 import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
@@ -72,7 +73,7 @@ public class AuthenticationController {
 			authenticationService.registerDriverAccount(user);
 			return "activateAccountPage";
 		} catch(ValidationException e) {
-			model.addAttribute("user", userDto);
+			model.addAttribute(USER_PARAM, userDto);
 			putValidationExceptionIntoModel(e, model);
 			return REGISTRATION_VIEW;
 		}

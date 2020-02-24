@@ -102,13 +102,17 @@ public class DriverServiceImpl implements DriverService {
 	}
 
 	@Override
-	public Driver getDriverByUserId(String userId) {
+	public Driver getCurrentDriver() {
+		User currentUser = getCurrentUser();
+		return getDriverByUserId(currentUser.getId());
+	}
+
+	private Driver getDriverByUserId(String userId) {
 		return getDriverByUserIdIfPresent(userId)
 				.orElseThrow(() -> new PalindromeException("User has no driver profile"));
 	}
 
-	@Override
-	public Optional<Driver> getDriverByUserIdIfPresent(String userId) {
+	private Optional<Driver> getDriverByUserIdIfPresent(String userId) {
 		return driverRepository.findByUserId(userId);
 	}
 

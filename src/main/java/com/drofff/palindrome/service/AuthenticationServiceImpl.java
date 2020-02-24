@@ -9,6 +9,7 @@ import static com.drofff.palindrome.utils.MailUtils.getActivationMailWithLinkAnd
 import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMailWithLink;
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	public void registerDriverAccount(User user) {
 		validate(user);
 		validateHasUniqueUsername(user);
-		user.setActive(Boolean.FALSE);
-		user.setRole(Role.DRIVER);
+		initDefaultDriverParams(user);
 		encodeUserPassword(user);
 		user.setActivationToken(generateToken());
 		userRepository.save(user);
@@ -69,6 +69,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return userRepository.findByUsername(username).isPresent();
 	}
 
+	private void initDefaultDriverParams(User user) {
+		user.setActive(Boolean.FALSE);
+		user.setRole(Role.DRIVER);
+	}
+
 	private String generateActivationLinkForUser(User user) {
 		String activationEndpointUri = applicationUrl + ACTIVATE_ACCOUNT_ENDPOINT;
 		List<Pair<String, String>> activationParams = tokenAndUserIdParams(user.getActivationToken(), user.getId());
@@ -82,6 +87,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public void activateUserAccountByToken(String userId, String token) {
+		validateNotNull(token, "Token is required");
 		User user = getUserById(userId);
 		validateUserIsNotActive(user);
 		validateTokenForUser(token, user);
@@ -112,8 +118,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private User getUserByUsername(String username) {
+		validateNotNull(username, "Username should be provided");
 		return userRepository.findByUsername(username)
-				.orElseThrow(() -> new PalindromeException("User with such email doesn't exist"));
+				.orElseThrow(() -> new PalindromeException("User with such username doesn't exist"));
 	}
 
 	private String generateToken() {
@@ -154,12 +161,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		TokenCache.removeTokenForUser(user);
 	}
 
-	private User getUserById(String id) {
+	public User getUserById(String id) {
+		validateNotNull(id, "User id should be provided");
 		return userRepository.findById(id)
 				.orElseThrow(() -> new PalindromeException("User with such id doesn't exist"));
 	}
 
 	private void validateRecoveryVerificationTokenForUser(String token, User user) {
+		validateNotNull(token, "Token is required");
 		String originalToken = getVerificationTokenForUser(user);
 		if(areNotEqual(originalToken, token)) {
 			throw new PalindromeException("Invalid verification token");
@@ -174,6 +183,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private void encodeUserPassword(User user) {
 		String encodedPassword = passwordEncoder.encode(user.getPassword());
 		user.setPassword(encodedPassword);
+	}
+
+	@Override
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
+	}
+
+	@Override
+	public List<Role> getAllRoles() {
+		Role[] roles = Role.values();
+		return Arrays.asList(roles);
 	}
 
 }

@@ -41,10 +41,4 @@ public class BrandServiceImpl implements BrandService, CarPropertyService {
 		return brandRepository.findById(id).isPresent();
 	}
 
-	@Override
-	public Brand getById(String id) {
-		return brandRepository.findById(id)
-				.orElseThrow(() -> new ValidationException("Brand with such id doesn't exist"));
-	}
-
 }

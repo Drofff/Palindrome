@@ -33,9 +33,9 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 	<header class="mdl-layout__header">
 		<div class="mdl-layout__header-row">
-			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome</span>
+			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <#if user?? && user.isAdmin()><font color="#ffd700">Admin</font></#if></span>
 			<div class="mdl-layout-spacer"></div>
-			<#if authenticated?? && authenticated>
+			<#if user??>
 				<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		    <#else>
 			    <nav class="mdl-navigation mdl-layout--large-screen-only">
@@ -45,6 +45,9 @@
 			</#if>
 		</div>
 	</header>
+	<#if user?? && user.isDriver()>
+        <#include "menu.ftl">
+	</#if>
 	<main class="mdl-layout__content">
 		<div class="page-content">
 
@@ -66,7 +69,7 @@
 				</div>
 			</dialog>
 
-			<#if authenticated?? && authenticated>
+			<#if user?? && user.isDriver()>
 				<div class="mdl-grid" style="margin-top: 3%;">
 					<div class="mdl-cell mdl-cell--1-col"></div>
 
@@ -132,8 +135,23 @@
 								<h2 class="mdl-card__title-text">Мої порушення</h2>
 							</div>
 							<div class="mdl-card__supporting-text">
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								Mauris sagittis pellentesque lacus eleifend lacinia...
+								<ul class="demo-list-item mdl-list">
+                                    <#if !violations?? || violations?size == 0>
+	                                    <li class="mdl-list__item">
+										    <span class="mdl-list__item-primary-content" style="font-size: 20px; color: rgba(0, 0, 0, 0.54)">
+											    <b>Немає порушень</b>
+										    </span>
+	                                    </li>
+                                    <#else>
+                                        <#list violations as violation>
+	                                        <li class="mdl-list__item">
+											    <span class="mdl-list__item-primary-content">
+											      ${violation.violationType.name} ${violation.dateTime}
+											    </span>
+	                                        </li>
+                                        </#list>
+                                    </#if>
+								</ul>
 							</div>
 							<div class="mdl-card__actions mdl-card--border">
 								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
@@ -144,7 +162,9 @@
 					</div>
 					<div class="mdl-cell mdl-cell--1-col"></div>
 				</div>
-			<#else>
+			</#if>
+
+			<#if user?? && user.isAdmin()>
 
 			</#if>
 

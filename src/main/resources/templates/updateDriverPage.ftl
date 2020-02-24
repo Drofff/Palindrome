@@ -34,6 +34,7 @@
 			</nav>
 		</div>
 	</header>
+    <#include "menu.ftl">
 	<main class="mdl-layout__content">
 		<form class="page-content" action="/driver/update" method="post">
 			<div class="mdl-grid" style="margin-top: 3%;">

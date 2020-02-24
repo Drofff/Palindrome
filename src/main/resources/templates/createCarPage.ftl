@@ -30,6 +30,7 @@
 			<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		</div>
 	</header>
+    <#include "menu.ftl">
 	<main class="mdl-layout__content">
 		<div class="page-content">
 

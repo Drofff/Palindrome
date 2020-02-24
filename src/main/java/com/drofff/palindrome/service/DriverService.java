@@ -1,7 +1,5 @@
 package com.drofff.palindrome.service;
 
-import java.util.Optional;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import com.drofff.palindrome.document.Car;
@@ -15,9 +13,7 @@ public interface DriverService {
 
 	void updateDriverPhoto(MultipartFile photo);
 
-	Driver getDriverByUserId(String userId);
-
-	Optional<Driver> getDriverByUserIdIfPresent(String userId);
+	Driver getCurrentDriver();
 
 	void addToDriverOwnedCars(Car car, Driver driver);
 

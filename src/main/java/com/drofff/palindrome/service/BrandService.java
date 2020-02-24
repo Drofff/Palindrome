@@ -8,6 +8,4 @@ public interface BrandService {
 
 	List<Brand> getAll();
 
-	Brand getById(String id);
-
 }

@@ -35,6 +35,7 @@
 			<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		</div>
 	</header>
+    <#include "menu.ftl">
 	<main class="mdl-layout__content">
 		<div class="page-content">
 
@@ -47,7 +48,11 @@
 					</p>
 					<p>
                         <#if message??>
-                            ${message}
+	                        <#if message == "Successfully deleted car">
+		                        Автомобіль успішно видалено
+	                        <#else>
+                                ${message}
+	                        </#if>
                         </#if>
 					</p>
 				</div>
@@ -61,6 +66,10 @@
 				<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/car/create" style="margin-bottom: 3%;">
 					Додати
 				</a>
+
+				<#if !page_payload?? || page_payload?size == 0>
+				    <h5 style="margin-right: 30%;">Тут поки немає нічого. Додайте свій автомобіль аби поповинити цей список</h5>
+				</#if>
 
 				<#assign counter = page_payload?size - 1>
 	            <#list page_payload as car>
