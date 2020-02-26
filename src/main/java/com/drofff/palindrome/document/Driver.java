@@ -8,6 +8,9 @@ import javax.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.repository.UserRepository;
+
 @Document
 public class Driver {
 
@@ -32,6 +35,7 @@ public class Driver {
 
 	private Set<String> ownedCarIds = new HashSet<>();
 
+	@FromRepository(UserRepository.class)
 	private String userId;
 
 	public String getId() {

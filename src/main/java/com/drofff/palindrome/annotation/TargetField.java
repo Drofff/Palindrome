@@ -5,12 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FromRepository {
+public @interface TargetField {
 
-	Class<? extends MongoRepository<?, String>> value();
+	String name();
 
 }

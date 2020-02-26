@@ -1,7 +1,10 @@
 package com.drofff.palindrome.controller;
 
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
+import static com.drofff.palindrome.constants.ParameterConstants.DRIVER_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.EMAIL_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.SUCCESS_PARAM;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
@@ -36,9 +39,6 @@ public class DriverController {
 	private static final String UPDATE_DRIVER_VIEW = "updateDriverPage";
 	private static final String UPDATE_DRIVER_PHOTO_VIEW = "updateDriverPhotoPage";
 
-	private static final String DRIVER_PARAM = "driver";
-	private static final String PHOTO_PARAM = "photo";
-
 	private final DriverService driverService;
 	private final PhotoService photoService;
 	private final DriverDtoMapper driverDtoMapper;
@@ -60,7 +60,7 @@ public class DriverController {
 		String photo = photoService.loadEncodedPhotoByUri(driver.getPhotoUri());
 		model.addAttribute(PHOTO_PARAM, photo);
 		String email = getCurrentUser().getUsername();
-		model.addAttribute("email", email);
+		model.addAttribute(EMAIL_PARAM, email);
 		return "driverPage";
 	}
 

@@ -28,7 +28,7 @@ public class FormattingUtils {
 		return putParamsIntoText(textWithParam, params);
 	}
 
-	public static String putParamIntoText(String text, Pair<String, String> param) {
+	private static String putParamIntoText(String text, Pair<String, String> param) {
 		return text.replace(param.getFirst(), param.getSecond());
 	}
 

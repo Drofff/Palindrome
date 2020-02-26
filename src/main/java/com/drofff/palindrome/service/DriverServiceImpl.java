@@ -3,6 +3,7 @@ package com.drofff.palindrome.service;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -107,7 +108,8 @@ public class DriverServiceImpl implements DriverService {
 		return getDriverByUserId(currentUser.getId());
 	}
 
-	private Driver getDriverByUserId(String userId) {
+	@Override
+	public Driver getDriverByUserId(String userId) {
 		return getDriverByUserIdIfPresent(userId)
 				.orElseThrow(() -> new PalindromeException("User has no driver profile"));
 	}
@@ -125,6 +127,17 @@ public class DriverServiceImpl implements DriverService {
 	public void deleteFromDriverOwnedCars(Car car, Driver driver) {
 		driver.getOwnedCarIds().remove(car.getId());
 		driverRepository.save(driver);
+	}
+
+	@Override
+	public Driver getOwnerOfCar(Car car) {
+		return driverRepository.findByCarId(car.getId())
+				.orElseThrow(() -> new ValidationException("Can not find an owner of the car"));
+	}
+
+	@Override
+	public List<Driver> getAllDrivers() {
+		return driverRepository.findAll();
 	}
 
 }

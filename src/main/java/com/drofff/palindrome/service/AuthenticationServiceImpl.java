@@ -4,8 +4,10 @@ import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT
 import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
 import static com.drofff.palindrome.utils.MailUtils.getActivationMailWithLinkAndUsername;
+import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
 import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMailWithLink;
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
@@ -13,10 +15,14 @@ import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +37,8 @@ import com.drofff.palindrome.type.Mail;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
+
+	private static final int ALL_USERS_PAGE_SIZE = 12;
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -57,16 +65,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		userRepository.save(user);
 		String activationLink = generateActivationLinkForUser(user);
 		sendActivationLinkToUserByMail(activationLink, user);
-	}
-
-	private void validateHasUniqueUsername(User user) {
-		if(existsUserWithUsername(user.getUsername())) {
-			throw new ValidationException("User with such username already exists");
-		}
-	}
-
-	private boolean existsUserWithUsername(String username) {
-		return userRepository.findByUsername(username).isPresent();
 	}
 
 	private void initDefaultDriverParams(User user) {
@@ -180,20 +178,76 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				.orElseThrow(() -> new PalindromeException("No recovery request detected for user"));
 	}
 
-	private void encodeUserPassword(User user) {
-		String encodedPassword = passwordEncoder.encode(user.getPassword());
-		user.setPassword(encodedPassword);
+	@Override
+	public Page<User> getAllUsersAtPage(int page) {
+		Pageable pageable = PageRequest.of(page, ALL_USERS_PAGE_SIZE);
+		return userRepository.findAll(pageable);
 	}
 
 	@Override
-	public List<User> getAllUsers() {
-		return userRepository.findAll();
+	public long countUsers() {
+		return userRepository.count();
 	}
 
 	@Override
 	public List<Role> getAllRoles() {
 		Role[] roles = Role.values();
 		return Arrays.asList(roles);
+	}
+
+	@Override
+	public void createUser(User user) {
+		validateCurrentUserIsAdmin();
+		validateHasUniqueUsername(user);
+		validateHasRole(user);
+		user.setActive(Boolean.TRUE);
+		String generatedPassword = generatePassword();
+		user.setPassword(generatedPassword);
+		encodeUserPassword(user);
+		validate(user);
+		userRepository.save(user);
+		sendCredentialsByMail(user.getUsername(), generatedPassword);
+	}
+
+	private void validateCurrentUserIsAdmin() {
+		User currentUser = getCurrentUser();
+		if(currentUser.isNotAdmin()) {
+			throw new ValidationException("User should obtain a role of an administrator");
+		}
+	}
+
+	private void validateHasUniqueUsername(User user) {
+		if(existsUserWithUsername(user.getUsername())) {
+			throw new ValidationException("User with such username already exists");
+		}
+	}
+
+	private boolean existsUserWithUsername(String username) {
+		return userRepository.findByUsername(username).isPresent();
+	}
+
+	private void validateHasRole(User user) {
+		if(hasNoRole(user)) {
+			throw new ValidationException("User role is required");
+		}
+	}
+
+	private boolean hasNoRole(User user) {
+		return Objects.isNull(user.getRole());
+	}
+
+	private String generatePassword() {
+		return UUID.randomUUID().toString();
+	}
+
+	private void encodeUserPassword(User user) {
+		String encodedPassword = passwordEncoder.encode(user.getPassword());
+		user.setPassword(encodedPassword);
+	}
+
+	private void sendCredentialsByMail(String username, String password) {
+		Mail credentialsMail = getCredentialsMail(username, password);
+		mailService.sendMailTo(credentialsMail, username);
 	}
 
 }

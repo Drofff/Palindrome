@@ -25,12 +25,15 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 	<header class="mdl-layout__header">
 		<div class="mdl-layout__header-row">
-			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome</span>
+			<#if user?? && user.isAdmin()>
+				<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Admin</font></span>
+			<#else>
+				<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome</span>
+			</#if>
 			<a class="mdl-navigation__link" href="/">Головна</a>
 			<div class="mdl-layout-spacer"></div>
 		</div>
 	</header>
-    <#include "menu.ftl">
 	<main class="mdl-layout__content">
 		<div class="page-content">
 

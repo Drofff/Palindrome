@@ -1,6 +1,8 @@
 package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.MailUtils.getAccountBlockedMailWithReason;
+import static com.drofff.palindrome.utils.MailUtils.getAccountUnblockedMail;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
@@ -13,15 +15,18 @@ import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.document.UserBlock;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.UserBlockRepository;
+import com.drofff.palindrome.type.Mail;
 
 @Service
 public class UserBlockServiceImpl implements UserBlockService {
 
 	private final UserBlockRepository userBlockRepository;
+	private final MailService mailService;
 
 	@Autowired
-	public UserBlockServiceImpl(UserBlockRepository userBlockRepository) {
+	public UserBlockServiceImpl(UserBlockRepository userBlockRepository, MailService mailService) {
 		this.userBlockRepository = userBlockRepository;
+		this.mailService = mailService;
 	}
 
 	@Override
@@ -33,6 +38,7 @@ public class UserBlockServiceImpl implements UserBlockService {
 		UserBlock userBlock = createUserBlockWithReason(user, reason);
 		validate(userBlock);
 		userBlockRepository.save(userBlock);
+		sendUserBlockReasonByMail(user, reason);
 	}
 
 	private void validateReason(String reason) {
@@ -60,6 +66,11 @@ public class UserBlockServiceImpl implements UserBlockService {
 				.build();
 	}
 
+	private void sendUserBlockReasonByMail(User user, String reason) {
+		Mail mail = getAccountBlockedMailWithReason(reason);
+		mailService.sendMailTo(mail, user.getUsername());
+	}
+
 	@Override
 	public void unblockUser(User user) {
 		User currentUser = getCurrentUser();
@@ -67,16 +78,13 @@ public class UserBlockServiceImpl implements UserBlockService {
 		validateIsBlocked(user);
 		getUserBlockForUserIfPresent(user)
 				.ifPresent(userBlockRepository::delete);
+		sendUserUnblockedNotificationByMail(user);
 	}
 
 	private void validateIsAdmin(User user) {
-		if(isNotAdmin(user)) {
+		if(user.isNotAdmin()) {
 			throw new ValidationException("User should obtain admin role");
 		}
-	}
-
-	private boolean isNotAdmin(User user) {
-		return !user.isAdmin();
 	}
 
 	private void validateIsBlocked(User user) {
@@ -97,6 +105,16 @@ public class UserBlockServiceImpl implements UserBlockService {
 	@Override
 	public Optional<UserBlock> getUserBlockForUserIfPresent(User user) {
 		return userBlockRepository.findByUserId(user.getId());
+	}
+
+	private void sendUserUnblockedNotificationByMail(User user) {
+		Mail accountUnblockedMail = getAccountUnblockedMail();
+		mailService.sendMailTo(accountUnblockedMail, user.getUsername());
+	}
+
+	@Override
+	public long countBlockedUsers() {
+		return userBlockRepository.count();
 	}
 
 }

@@ -8,6 +8,7 @@
 			src="https://code.jquery.com/jquery-3.4.1.js"
 			integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
 			crossorigin="anonymous"></script>
+	<link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
 	<style>
 		.demo-card-wide.mdl-card {
@@ -27,13 +28,26 @@
 			background:
 					url('https://imageog.flaticon.com/icons/png/512/55/55283.png?size=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF') center / cover;
 		}
+		 .demo-card-square.mdl-card {
+			 width: 220px;
+			 height: 20px;
+			 text-align: center;
+			 color: black;
+		 }
 	</style>
 </head>
-<body>
+<body <#if user?? && user.isAdmin()>
+    style="background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1') center / cover"
+</#if> >
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 	<header class="mdl-layout__header">
 		<div class="mdl-layout__header-row">
 			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <#if user?? && user.isAdmin()><font color="#ffd700">Admin</font></#if></span>
+            <#if user?? && user.isAdmin()>
+				<a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
+	            <a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
+	            <a class="mdl-navigation__link" href="/admin/requests" style="cursor: pointer">Запити</a>
+            </#if>
 			<div class="mdl-layout-spacer"></div>
 			<#if user??>
 				<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
@@ -49,7 +63,7 @@
         <#include "menu.ftl">
 	</#if>
 	<main class="mdl-layout__content">
-		<div class="page-content">
+		<div class="page-content" <#if user?? && user.isAdmin()>style="display: flex; flex-flow: column; height: 100%;"</#if> >
 
 			<dialog class="mdl-dialog">
 				<div class="mdl-dialog__content">
@@ -165,6 +179,44 @@
 			</#if>
 
 			<#if user?? && user.isAdmin()>
+
+				<div class="mdl-grid" style="margin-left: 10%; margin-right: 10%; margin-top: 5%;">
+					<div class="mdl-cell mdl-cell--4-col">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__supporting-text" style="margin-top: 12%;">
+								<p><b style="font-size: 30px">${online_counter}</b></p>
+								<p>Користувачів онлайн</p>
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--4-col">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__supporting-text" style="margin-top: 12%;">
+								<p><b style="font-size: 30px">${users_count}</b></p>
+								<p>Зареєстровано користувачів в системі</p>
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--4-col">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__supporting-text" style="margin-top: 12%;">
+								<p><b style="font-size: 30px">${blocked_users_count}</b></p>
+								<p>Заблокованих користувачів</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div style="width: 100%; min-height: 300px; flex-grow : 1; background: white; margin-top: 13%; font-family: 'Nunito', sans-serif;">
+					<br/>
+					<br/>
+					<p style="font-size: 40px; margin-left: 10%;">Вітаємо, ${user.username}!</p>
+                    <#if requests?? && requests?size gt 0>
+						<p style="font-size: 40px; margin-left: 10%;">${requests} не розглянутих запитів</p>
+                    <#else>
+						<p style="font-size: 40px; margin-left: 10%;">Наразі запити відсутні</p>
+                    </#if>
+				</div>
 
 			</#if>
 

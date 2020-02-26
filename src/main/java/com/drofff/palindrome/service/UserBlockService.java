@@ -15,4 +15,6 @@ public interface UserBlockService {
 
 	Optional<UserBlock> getUserBlockForUserIfPresent(User user);
 
+	long countBlockedUsers();
+
 }

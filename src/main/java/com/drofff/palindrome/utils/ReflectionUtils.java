@@ -1,6 +1,8 @@
 package com.drofff.palindrome.utils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import com.drofff.palindrome.exception.PalindromeException;
@@ -8,6 +10,11 @@ import com.drofff.palindrome.exception.PalindromeException;
 public class ReflectionUtils {
 
 	private ReflectionUtils() {}
+
+	public static Type[] getGenericTypeParameters(Type type) {
+		ParameterizedType parameterizedType = (ParameterizedType) type;
+		return parameterizedType.getActualTypeArguments();
+	}
 
 	public static Optional<Field> getFieldFromClassByName(String name, Class<?> clazz) {
 		try {

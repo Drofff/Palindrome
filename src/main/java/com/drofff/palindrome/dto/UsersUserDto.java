@@ -1,10 +1,14 @@
 package com.drofff.palindrome.dto;
 
+import com.drofff.palindrome.enums.Role;
+
 public class UsersUserDto {
 
 	private String id;
 
 	private String username;
+
+	private Role role;
 
 	private boolean enabled;
 
@@ -30,6 +34,14 @@ public class UsersUserDto {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	public boolean isEnabled() {

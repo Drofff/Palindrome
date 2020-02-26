@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -21,6 +22,7 @@ public class User implements UserDetails {
 	private String id;
 
 	@NotNull(message = "Email is required")
+	@NotBlank(message = "Email should not be blank")
 	@Email(message = "Invalid email format")
 	private String username;
 
@@ -52,6 +54,10 @@ public class User implements UserDetails {
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public Role getRole() {
+		return role;
 	}
 
 	public void setActive(boolean active) {
@@ -103,6 +109,10 @@ public class User implements UserDetails {
 
 	public boolean isDriver() {
 		return role == Role.DRIVER;
+	}
+
+	public boolean isNotAdmin() {
+		return !isAdmin();
 	}
 
 	public boolean isAdmin() {

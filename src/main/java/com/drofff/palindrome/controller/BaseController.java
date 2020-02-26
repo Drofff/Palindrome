@@ -1,12 +1,15 @@
 package com.drofff.palindrome.controller;
 
+import static com.drofff.palindrome.cache.OnlineCache.getOnlineCounterValue;
 import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.USER_IS_BLOCKED_ENDPOINT;
+import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.putUserBlockIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectTo;
 
@@ -27,6 +30,7 @@ import com.drofff.palindrome.document.UserBlock;
 import com.drofff.palindrome.document.Violation;
 import com.drofff.palindrome.dto.HomeViolationDto;
 import com.drofff.palindrome.mapper.HomeViolationDtoMapper;
+import com.drofff.palindrome.service.AuthenticationService;
 import com.drofff.palindrome.service.CarService;
 import com.drofff.palindrome.service.DriverService;
 import com.drofff.palindrome.service.MappingsResolver;
@@ -42,20 +46,23 @@ public class BaseController {
 	private final DriverService driverService;
 	private final CarService carService;
 	private final ViolationService violationService;
-	private final HomeViolationDtoMapper homeViolationDtoMapper;
 	private final MappingsResolver mappingsResolver;
 	private final UserBlockService userBlockService;
+	private final AuthenticationService authenticationService;
+	private final HomeViolationDtoMapper homeViolationDtoMapper;
 
 	@Autowired
-	public BaseController(DriverService driverService, CarService carService, ViolationService violationService,
-	                      HomeViolationDtoMapper homeViolationDtoMapper, MappingsResolver mappingsResolver,
-	                      UserBlockService userBlockService) {
+	public BaseController(DriverService driverService, CarService carService,
+	                      ViolationService violationService, MappingsResolver mappingsResolver,
+	                      UserBlockService userBlockService, AuthenticationService authenticationService,
+	                      HomeViolationDtoMapper homeViolationDtoMapper) {
 		this.driverService = driverService;
 		this.carService = carService;
 		this.violationService = violationService;
-		this.homeViolationDtoMapper = homeViolationDtoMapper;
 		this.mappingsResolver = mappingsResolver;
 		this.userBlockService = userBlockService;
+		this.authenticationService = authenticationService;
+		this.homeViolationDtoMapper = homeViolationDtoMapper;
 	}
 
 	@GetMapping(HOME_ENDPOINT)
@@ -64,6 +71,7 @@ public class BaseController {
 		model.addAttribute(MESSAGE_PARAM, message);
 		putCurrentUserIntoModelIfAuthenticated(model);
 		putHomeParamsIntoModelIfDriver(model);
+		putAdminParamsIntoModelIfNeeded(model);
 		return "homePage";
 	}
 
@@ -86,9 +94,10 @@ public class BaseController {
 	private void putHomeParamsIntoModel(Model model) {
 		Driver driver = driverService.getCurrentDriver();
 		List<Car> cars = getDriverOwnedCars(driver);
-		model.addAttribute("cars", cars);
+		model.addAttribute(CARS_PARAM, cars);
 		List<Violation> violations = getDriverViolations(driver);
-		model.addAttribute("violations", toHomeViolationDtos(violations));
+		List<HomeViolationDto> homeViolationDtos = applyToEachListElement(this::toHomeViolationDto, violations);
+		model.addAttribute("violations", homeViolationDtos);
 	}
 
 	private List<Car> getDriverOwnedCars(Driver driver) {
@@ -103,15 +112,21 @@ public class BaseController {
 				.collect(Collectors.toList());
 	}
 
-	private List<HomeViolationDto> toHomeViolationDtos(List<Violation> violations) {
-		return violations.stream()
-				.map(this::toHomeViolationDto)
-				.collect(Collectors.toList());
-	}
-
 	private HomeViolationDto toHomeViolationDto(Violation violation) {
 		HomeViolationDto homeViolationDto = homeViolationDtoMapper.toDto(violation);
 		return mappingsResolver.resolveMappings(violation, homeViolationDto);
+	}
+
+	private void putAdminParamsIntoModelIfNeeded(Model model) {
+		if(isAuthenticatedAdmin()) {
+			model.addAttribute("online_counter", getOnlineCounterValue());
+			model.addAttribute("users_count", authenticationService.countUsers());
+			model.addAttribute("blocked_users_count", userBlockService.countBlockedUsers());
+		}
+	}
+
+	private boolean isAuthenticatedAdmin() {
+		return isAuthenticated() && getCurrentUser().isAdmin();
 	}
 
 	@GetMapping(USER_IS_BLOCKED_ENDPOINT)
@@ -128,6 +143,9 @@ public class BaseController {
 	@GetMapping(ERROR_ENDPOINT)
 	public String getErrorPage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                           Model model) {
+		if(isAuthenticated()) {
+			model.addAttribute(USER_PARAM, getCurrentUser());
+		}
 		model.addAttribute(MESSAGE_PARAM, message);
 		return "errorPage";
 	}

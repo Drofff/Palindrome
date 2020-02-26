@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.drofff.palindrome.document.Car;
@@ -17,6 +20,8 @@ import com.drofff.palindrome.repository.CarRepository;
 
 @Service
 public class CarServiceImpl implements CarService {
+
+	private static final int ALL_CARS_PAGE_SIZE = 12;
 
 	private final CarRepository carRepository;
 	private final DriverService driverService;
@@ -103,6 +108,12 @@ public class CarServiceImpl implements CarService {
 
 	private void validateCarId(String id) {
 		validateNotNull(id, "Car id is required");
+	}
+
+	@Override
+	public Page<Car> getAllCarsAtPage(int page) {
+		Pageable pageable = PageRequest.of(page, ALL_CARS_PAGE_SIZE);
+		return carRepository.findAll(pageable);
 	}
 
 }

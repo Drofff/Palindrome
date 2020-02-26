@@ -5,12 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.drofff.palindrome.filter.ComparisonStrategy;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface FromRepository {
+public @interface Strategy {
 
-	Class<? extends MongoRepository<?, String>> value();
+	Class<? extends ComparisonStrategy> value();
 
 }

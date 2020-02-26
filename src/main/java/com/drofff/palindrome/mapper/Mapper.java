@@ -1,6 +1,7 @@
 package com.drofff.palindrome.mapper;
 
-import java.lang.reflect.ParameterizedType;
+import static com.drofff.palindrome.utils.ReflectionUtils.getGenericTypeParameters;
+
 import java.lang.reflect.Type;
 
 import org.modelmapper.ModelMapper;
@@ -18,14 +19,10 @@ abstract class Mapper<E, D> {
 	}
 
 	private void initTypes() {
-		entityType = getGenericTypeParameterAtPosition(0);
-		dtoType = getGenericTypeParameterAtPosition(1);
-	}
-
-	private Type getGenericTypeParameterAtPosition(int position) {
-		ParameterizedType parameterizedType = (ParameterizedType) getClass().getGenericSuperclass();
-		Type[] typeArgs = parameterizedType.getActualTypeArguments();
-		return typeArgs[position];
+		Type superClass = getClass().getGenericSuperclass();
+		Type[] genericTypeParams = getGenericTypeParameters(superClass);
+		entityType = genericTypeParams[0];
+		dtoType = genericTypeParams[1];
 	}
 
 	public D toDto(E entity) {

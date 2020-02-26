@@ -1,14 +1,18 @@
 package com.drofff.palindrome.controller;
 
 import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
+import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.BRANDS_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.SUCCESS_PARAM;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.putCollectionPageIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,10 +50,6 @@ public class CarController {
 	private static final String CREATE_CAR_VIEW = "createCarPage";
 	private static final String UPDATE_CAR_VIEW = "updateCarPage";
 
-	private static final String BRANDS_PARAM = "brands";
-	private static final String BODY_TYPES_PARAM = "body_types";
-	private static final String LICENCE_CATEGORIES_PARAM = "licence_categories";
-	private static final String ENGINE_TYPES_PARAM = "engine_types";
 	private static final String CAR_PARAM = "car";
 
 	private static final String CAR_ENDPOINT_PREFIX = "/car/";
@@ -91,7 +91,7 @@ public class CarController {
 	                               Model model) {
 		Driver driver = driverService.getCurrentDriver();
 		List<Car> ownedCars = carService.getCarsOfDriver(driver);
-		List<OwnedCarsCarDto> ownedCarsCarDtos = toOwnedCarsCarDtos(ownedCars);
+		List<OwnedCarsCarDto> ownedCarsCarDtos = applyToEachListElement(this::toOwnedCarsCarDto, ownedCars);
 		CollectionPage<OwnedCarsCarDto> ownedCarsPage = CollectionPage.Builder.ofCollection(ownedCarsCarDtos)
 				.atPage(page)
 				.withPageSize(OWNED_CARS_PAGE_SIZE)
@@ -99,12 +99,6 @@ public class CarController {
 		putCollectionPageIntoModel(ownedCarsPage, model);
 		model.addAttribute(MESSAGE_PARAM, message);
 		return "ownedCarsPage";
-	}
-
-	private List<OwnedCarsCarDto> toOwnedCarsCarDtos(List<Car> cars) {
-		return cars.stream()
-				.map(this::toOwnedCarsCarDto)
-				.collect(Collectors.toList());
 	}
 
 	private OwnedCarsCarDto toOwnedCarsCarDto(Car car) {

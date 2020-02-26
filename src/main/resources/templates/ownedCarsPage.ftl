@@ -98,9 +98,11 @@
 		            </#if>
                     <#assign counter -= 1>
 	            </#list>
-				<div style="margin-left: 13%; margin-bottom: 2%; margin-top: 3%;">
-				<#include "pagination.ftl">
-				</div>
+				<#if page_payload?size gt 0 >
+					<div style="margin-left: 13%; margin-bottom: 2%; margin-top: 3%;">
+                        <#include "pagination.ftl">
+					</div>
+				</#if>
 			</div>
 		</div>
 	</main>
