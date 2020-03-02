@@ -1,5 +1,7 @@
 package com.drofff.palindrome.utils;
 
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -9,6 +11,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
+import com.drofff.palindrome.enums.Role;
 import com.drofff.palindrome.exception.ValidationException;
 
 public class ValidationUtils {
@@ -45,6 +48,20 @@ public class ValidationUtils {
 		if(Objects.isNull(object)) {
 			throw new ValidationException(errorMessage);
 		}
+	}
+
+	public static void validateCurrentUserHasRole(Role role) {
+		if(currentUserNotObtainRole(role)) {
+			throw new ValidationException("User should obtain " + role.name() + " role");
+		}
+	}
+
+	private static boolean currentUserNotObtainRole(Role role) {
+		return !currentUserObtainRole(role);
+	}
+
+	private static boolean currentUserObtainRole(Role role) {
+		return getCurrentUser().getAuthorities().contains(role);
 	}
 
 }

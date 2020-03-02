@@ -6,6 +6,7 @@ import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.USER_IS_BLOCKED_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.REQUESTS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
@@ -32,6 +33,7 @@ import com.drofff.palindrome.dto.HomeViolationDto;
 import com.drofff.palindrome.mapper.HomeViolationDtoMapper;
 import com.drofff.palindrome.service.AuthenticationService;
 import com.drofff.palindrome.service.CarService;
+import com.drofff.palindrome.service.ChangeRequestService;
 import com.drofff.palindrome.service.DriverService;
 import com.drofff.palindrome.service.MappingsResolver;
 import com.drofff.palindrome.service.UserBlockService;
@@ -49,19 +51,21 @@ public class BaseController {
 	private final MappingsResolver mappingsResolver;
 	private final UserBlockService userBlockService;
 	private final AuthenticationService authenticationService;
+	private final ChangeRequestService changeRequestService;
 	private final HomeViolationDtoMapper homeViolationDtoMapper;
 
 	@Autowired
 	public BaseController(DriverService driverService, CarService carService,
 	                      ViolationService violationService, MappingsResolver mappingsResolver,
 	                      UserBlockService userBlockService, AuthenticationService authenticationService,
-	                      HomeViolationDtoMapper homeViolationDtoMapper) {
+	                      ChangeRequestService changeRequestService, HomeViolationDtoMapper homeViolationDtoMapper) {
 		this.driverService = driverService;
 		this.carService = carService;
 		this.violationService = violationService;
 		this.mappingsResolver = mappingsResolver;
 		this.userBlockService = userBlockService;
 		this.authenticationService = authenticationService;
+		this.changeRequestService = changeRequestService;
 		this.homeViolationDtoMapper = homeViolationDtoMapper;
 	}
 
@@ -122,6 +126,7 @@ public class BaseController {
 			model.addAttribute("online_counter", getOnlineCounterValue());
 			model.addAttribute("users_count", authenticationService.countUsers());
 			model.addAttribute("blocked_users_count", userBlockService.countBlockedUsers());
+			model.addAttribute(REQUESTS_PARAM, changeRequestService.countChangeRequests());
 		}
 	}
 

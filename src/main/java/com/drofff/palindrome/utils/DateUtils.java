@@ -2,6 +2,7 @@ package com.drofff.palindrome.utils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 public class DateUtils {
@@ -18,6 +19,10 @@ public class DateUtils {
 
 	public static String dateTimeToStr(LocalDateTime dateTime) {
 		return dateTime.format(DATE_TIME_FORMATTER);
+	}
+
+	public static int dateTimeToEpochSeconds(LocalDateTime dateTime) {
+		return (int) dateTime.toEpochSecond(ZoneOffset.UTC);
 	}
 
 }

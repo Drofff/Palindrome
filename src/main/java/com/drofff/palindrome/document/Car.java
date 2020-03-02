@@ -17,7 +17,7 @@ import com.drofff.palindrome.repository.EngineTypeRepository;
 import com.drofff.palindrome.repository.LicenceCategoryRepository;
 
 @Document
-public class Car {
+public class Car implements Entity {
 
 	@Id
 	private String id;

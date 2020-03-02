@@ -4,13 +4,14 @@ import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT
 import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.enums.Role.ADMIN;
 import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
 import static com.drofff.palindrome.utils.MailUtils.getActivationMailWithLinkAndUsername;
 import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
 import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMailWithLink;
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.Arrays;
@@ -197,7 +198,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public void createUser(User user) {
-		validateCurrentUserIsAdmin();
+		validateCurrentUserHasRole(ADMIN);
 		validateHasUniqueUsername(user);
 		validateHasRole(user);
 		user.setActive(Boolean.TRUE);
@@ -207,13 +208,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		validate(user);
 		userRepository.save(user);
 		sendCredentialsByMail(user.getUsername(), generatedPassword);
-	}
-
-	private void validateCurrentUserIsAdmin() {
-		User currentUser = getCurrentUser();
-		if(currentUser.isNotAdmin()) {
-			throw new ValidationException("User should obtain a role of an administrator");
-		}
 	}
 
 	private void validateHasUniqueUsername(User user) {

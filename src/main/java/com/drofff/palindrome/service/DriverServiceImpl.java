@@ -9,18 +9,21 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.Entity;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.DriverRepository;
 
 @Service
-public class DriverServiceImpl implements DriverService {
+@Qualifier("driver")
+public class DriverServiceImpl implements DriverService, EntityManager {
 
 	private final DriverRepository driverRepository;
 	private final PhotoService photoService;
@@ -47,6 +50,23 @@ public class DriverServiceImpl implements DriverService {
 		if(hasDriverProfile(user)) {
 			throw new ValidationException("User already has a driver profile");
 		}
+	}
+
+	@Override
+	public void update(Entity entity) {
+		validateIsDriverEntity(entity);
+		updateDriverProfile((Driver) entity);
+	}
+
+	private void validateIsDriverEntity(Entity entity) {
+		Class<? extends Entity> entityClass = entity.getClass();
+		if(isNotDriverClass(entityClass)) {
+			throw new ValidationException("Unexpected entity of class " + entityClass.getName() + ". Driver entity should be provided");
+		}
+	}
+
+	private boolean isNotDriverClass(Class<? extends Entity> clazz) {
+		return !isDriverClass(clazz);
 	}
 
 	@Override
@@ -138,6 +158,21 @@ public class DriverServiceImpl implements DriverService {
 	@Override
 	public List<Driver> getAllDrivers() {
 		return driverRepository.findAll();
+	}
+
+	@Override
+	public Driver getDriverById(String id) {
+		return driverRepository.findById(id)
+				.orElseThrow(() -> new ValidationException("Driver with such id doesn't exist"));
+	}
+
+	@Override
+	public boolean isManagingEntityOfClass(Class<?> clazz) {
+		return isDriverClass(clazz);
+	}
+
+	private boolean isDriverClass(Class<?> clazz) {
+		return Driver.class.isAssignableFrom(clazz);
 	}
 
 }

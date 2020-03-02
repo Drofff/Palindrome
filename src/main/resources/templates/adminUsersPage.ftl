@@ -22,7 +22,7 @@
 			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Admin</font></span>
 			<a class="mdl-navigation__link" href="/" style="cursor: pointer">Головна</a>
 			<a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
-			<a class="mdl-navigation__link" href="/admin/requests" style="cursor: pointer">Запити</a>
+			<a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
 			<div class="mdl-layout-spacer"></div>
 			<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		</div>
@@ -138,7 +138,7 @@
 					<li class="mdl-list__item mdl-list__item--two-line">
 					    <span class="mdl-list__item-primary-content">
 					      <i class="material-icons mdl-list__item-avatar">person</i>
-					      <span <#if user.isDriver()>onclick="window.location.href='/admin/users/driver/${user.id}'"</#if> style="cursor: pointer">${user.username}</span>
+					      <span <#if user.isDriver()>onclick="window.location.href='/admin/users/driver/${user.id}?type=USER_ID'"</#if> style="cursor: pointer">${user.username}</span>
 						    <#if !user.enabled>
 							    <span class="mdl-list__item-sub-title">Не активований</span>
 						    <#else>

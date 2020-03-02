@@ -12,7 +12,7 @@ import com.drofff.palindrome.annotation.FromRepository;
 import com.drofff.palindrome.repository.UserRepository;
 
 @Document
-public class Driver {
+public class Driver implements Entity {
 
 	@Id
 	private String id;

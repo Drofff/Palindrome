@@ -19,14 +19,20 @@ public class MailUtils {
 	private static final String USERNAME_PARAM = "${username}";
 	private static final String REASON_PARAM = "${reason}";
 	private static final String PASSWRD_PARAM = "${password}";
+	private static final String NUMBER_PARAM = "${number}";
 
 	private static final String ACTIVATION_MAIL_KEY = "activation";
 	private static final String REMIND_PASS_MAIL_KEY = "remind-password";
 	private static final String ACCOUNT_BLOCKED_MAIL_KEY = "account-blocked";
 	private static final String ACCOUNT_UNBLOCKED_MAIL_KEY = "account-unblocked";
 	private static final String CREDENTIALS_MAIL_KEY = "credentials-created";
+	private static final String CAR_UPDATE_MAIL_KEY = "car-update";
 
 	private MailUtils() {}
+
+	public static Mail getCarUpdateMail(String carNumber) {
+		 return mailByKeyWithParams(CAR_UPDATE_MAIL_KEY, NUMBER_PARAM, carNumber);
+	}
 
 	public static Mail getCredentialsMail(String username, String password) {
 		return mailByKeyWithParams(CREDENTIALS_MAIL_KEY, USERNAME_PARAM, username, PASSWRD_PARAM, password);

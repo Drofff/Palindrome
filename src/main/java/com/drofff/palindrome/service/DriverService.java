@@ -27,4 +27,6 @@ public interface DriverService {
 
 	List<Driver> getAllDrivers();
 
+	Driver getDriverById(String id);
+
 }

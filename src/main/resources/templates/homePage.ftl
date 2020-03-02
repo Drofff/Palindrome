@@ -19,7 +19,7 @@
 			height: 60px;
 			background: #3E4EB8;
 		}
-		 .demo-card-square.mdl-card {
+		 .car-card {
 			 width: 140px;
 			 height: 60px;
 		 }
@@ -28,7 +28,7 @@
 			background:
 					url('https://imageog.flaticon.com/icons/png/512/55/55283.png?size=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF') center / cover;
 		}
-		 .demo-card-square.mdl-card {
+		 .admin-card {
 			 width: 220px;
 			 height: 20px;
 			 text-align: center;
@@ -46,7 +46,7 @@
             <#if user?? && user.isAdmin()>
 				<a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
 	            <a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
-	            <a class="mdl-navigation__link" href="/admin/requests" style="cursor: pointer">Запити</a>
+	            <a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
             </#if>
 			<div class="mdl-layout-spacer"></div>
 			<#if user??>
@@ -96,7 +96,7 @@
 								<div class="mdl-grid" style="margin-left: -10px">
                                     <#list cars as car>
 										<div class="mdl-cell mdl-cell--4-col" style="margin-right: 20px; cursor: pointer">
-											<div class="demo-card-square mdl-card mdl-shadow--2dp" onclick="window.location.href='/car/${car.id}'">
+											<div class="demo-card-square mdl-card mdl-shadow--2dp car-card" onclick="window.location.href='/car/${car.id}'">
 												<div class="mdl-card__title mdl-card--expand">
 												</div>
 												<div class="mdl-card__supporting-text" style="text-align: center; font-size: 20px; margin-left: -10px">
@@ -110,7 +110,7 @@
 										</div>
                                     </#list>
 									<div class="mdl-cell mdl-cell--1-col" style="cursor: pointer">
-										<div class="demo-card-square mdl-card mdl-shadow--2dp" onclick="window.location.href='/car/create'">
+										<div class="demo-card-square mdl-card mdl-shadow--2dp car-card" onclick="window.location.href='/car/create'">
 											<div class="mdl-card__title mdl-card--expand" style="background: url('https://img.icons8.com/pastel-glyph/2x/plus.png') center / cover">
 											</div>
 											<div class="mdl-card__supporting-text" style="text-align: center; font-size: 20px; margin-left: -10px">
@@ -182,7 +182,7 @@
 
 				<div class="mdl-grid" style="margin-left: 10%; margin-right: 10%; margin-top: 5%;">
 					<div class="mdl-cell mdl-cell--4-col">
-						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp admin-card">
 							<div class="mdl-card__supporting-text" style="margin-top: 12%;">
 								<p><b style="font-size: 30px">${online_counter}</b></p>
 								<p>Користувачів онлайн</p>
@@ -190,7 +190,7 @@
 						</div>
 					</div>
 					<div class="mdl-cell mdl-cell--4-col">
-						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp admin-card">
 							<div class="mdl-card__supporting-text" style="margin-top: 12%;">
 								<p><b style="font-size: 30px">${users_count}</b></p>
 								<p>Зареєстровано користувачів в системі</p>
@@ -198,7 +198,7 @@
 						</div>
 					</div>
 					<div class="mdl-cell mdl-cell--4-col">
-						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp admin-card">
 							<div class="mdl-card__supporting-text" style="margin-top: 12%;">
 								<p><b style="font-size: 30px">${blocked_users_count}</b></p>
 								<p>Заблокованих користувачів</p>
@@ -211,8 +211,12 @@
 					<br/>
 					<br/>
 					<p style="font-size: 40px; margin-left: 10%;">Вітаємо, ${user.username}!</p>
-                    <#if requests?? && requests?size gt 0>
-						<p style="font-size: 40px; margin-left: 10%;">${requests} не розглянутих запитів</p>
+                    <#if requests?? && requests gt 0>
+	                    <#if requests == 1>
+		                    <p style="font-size: 40px; margin-left: 10%;">1 запит очікує рішення</p>
+	                    <#else>
+		                    <p style="font-size: 40px; margin-left: 10%;">${requests} запитів очікують рішення</p>
+	                    </#if>
                     <#else>
 						<p style="font-size: 40px; margin-left: 10%;">Наразі запити відсутні</p>
                     </#if>

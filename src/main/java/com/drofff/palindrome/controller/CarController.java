@@ -3,6 +3,7 @@ package com.drofff.palindrome.controller;
 import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
 import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.BRANDS_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.CAR_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
@@ -49,8 +50,6 @@ public class CarController {
 
 	private static final String CREATE_CAR_VIEW = "createCarPage";
 	private static final String UPDATE_CAR_VIEW = "updateCarPage";
-
-	private static final String CAR_PARAM = "car";
 
 	private static final String CAR_ENDPOINT_PREFIX = "/car/";
 
@@ -109,7 +108,7 @@ public class CarController {
 	@GetMapping("/{id}")
 	public String getCar(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                     @PathVariable String id, Model model) {
-		Car car = carService.getById(id);
+		Car car = carService.getOwnedCarById(id);
 		model.addAttribute(CAR_PARAM, toCarFatDto(car));
 		model.addAttribute(MESSAGE_PARAM, message);
 		return "carPage";
@@ -142,7 +141,7 @@ public class CarController {
 
 	@GetMapping("/update/{id}")
 	public String getUpdateCarPage(@PathVariable String id, Model model) {
-		Car car = carService.getById(id);
+		Car car = carService.getOwnedCarById(id);
 		model.addAttribute(CAR_PARAM, car);
 		putCarPropertiesIntoModel(model);
 		return UPDATE_CAR_VIEW;

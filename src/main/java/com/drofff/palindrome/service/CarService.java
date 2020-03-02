@@ -17,7 +17,9 @@ public interface CarService {
 
 	List<Car> getCarsOfDriver(Driver driver);
 
-	Car getById(String id);
+	Car getOwnedCarById(String id);
+
+	Car getCarById(String id);
 
 	Page<Car> getAllCarsAtPage(int page);
 

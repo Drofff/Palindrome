@@ -51,7 +51,7 @@
 					<h2 class="mdl-card__title-text">Новий пароль</h2>
 				</div>
 				<div class="mdl-card__supporting-text">
-					<form action="/verify-recovery" method="post" id="recovery-form">
+					<form action="/password-recovery" method="post" id="recovery-form">
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 							<input class="mdl-textfield__input" readonly onfocus="this.removeAttribute('readonly');" name="password" type="password" id="password">
 							<label class="mdl-textfield__label" for="email">Пароль</label>

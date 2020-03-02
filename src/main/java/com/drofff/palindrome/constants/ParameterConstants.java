@@ -38,6 +38,10 @@ public class ParameterConstants {
 
 	public static final String ENGINE_TYPES_PARAM = "engine_types";
 
+	public static final String CAR_PARAM = "car";
+
+	public static final String REQUESTS_PARAM = "requests";
+
 	private ParameterConstants() {}
 
 }

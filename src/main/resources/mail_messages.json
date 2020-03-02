@@ -18,5 +18,9 @@
   "credentials-created" : {
     "topic" : "Palindrome - Вітаємо в системі!",
     "text" : "Вітаємо в <b>Palindrome</b>! Ми робимо вза'ємодію з поліцією зручнішою! Використайте логін та пароль нижче, аби ввійти у свій аккаунт. <b>Не забудьте змінити пароль</b><br/><br/>Логін:<input type='text' readonly value='${username}'><br/>Пароль:<input type='text' readonly value='${password}'>"
+  },
+  "car-update" : {
+    "topic" : "Palindrome - Зміна даних автомобіля",
+    "text" : "Доброго дня!<br/><br/> Дані вашого автомобіля з номером <b>${number}</b> були щойно змінені адміністрацією сервісу. Дякуємо!"
   }
 }

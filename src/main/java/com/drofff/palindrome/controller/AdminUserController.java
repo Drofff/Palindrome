@@ -8,6 +8,7 @@ import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
+import static com.drofff.palindrome.enums.DriverIdType.DRIVER_ID;
 import static com.drofff.palindrome.utils.FilterUtils.filter;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
@@ -17,6 +18,7 @@ import static com.drofff.palindrome.utils.ModelUtils.redirectToReferrerOfRequest
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,6 +38,7 @@ import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.BlockUserDto;
 import com.drofff.palindrome.dto.CreateUserDto;
 import com.drofff.palindrome.dto.UsersUserDto;
+import com.drofff.palindrome.enums.DriverIdType;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.filter.UserFilter;
 import com.drofff.palindrome.mapper.CreateUserDtoMapper;
@@ -48,11 +51,13 @@ import com.drofff.palindrome.service.UserBlockService;
 @Controller
 @RequestMapping("/admin/users")
 @PreAuthorize("hasAuthority('ADMIN')")
-public class UserController {
+public class AdminUserController {
 
 	private static final String CREATE_USER_VIEW = "createUserPage";
 
 	private static final String ROLES_PARAM = "roles";
+
+	private static final DriverIdType DEFAULT_DRIVER_PAGE_ID_TYPE = DRIVER_ID;
 
 	private final AuthenticationService authenticationService;
 	private final UserBlockService userBlockService;
@@ -62,9 +67,9 @@ public class UserController {
 	private final CreateUserDtoMapper createUserDtoMapper;
 
 	@Autowired
-	public UserController(AuthenticationService authenticationService, UserBlockService userBlockService,
-	                      DriverService driverService, PhotoService photoService, UsersUserDtoMapper usersUserDtoMapper,
-	                      CreateUserDtoMapper createUserDtoMapper) {
+	public AdminUserController(AuthenticationService authenticationService, UserBlockService userBlockService,
+	                           DriverService driverService, PhotoService photoService, UsersUserDtoMapper usersUserDtoMapper,
+	                           CreateUserDtoMapper createUserDtoMapper) {
 		this.authenticationService = authenticationService;
 		this.userBlockService = userBlockService;
 		this.driverService = driverService;
@@ -95,9 +100,9 @@ public class UserController {
 	}
 
 	@GetMapping("/driver/{id}")
-	public String viewDriverProfile(@PathVariable String id, Model model) {
-		User user = authenticationService.getUserById(id);
-		Driver driver = driverService.getDriverByUserId(user.getId());
+	public String viewDriverProfile(@PathVariable String id, @RequestParam(required = false) DriverIdType type, Model model) {
+		Driver driver = getDriverByIdOfType(id, type);
+		User user = authenticationService.getUserById(driver.getUserId());
 		model.addAttribute(DRIVER_PARAM, driver);
 		model.addAttribute(EMAIL_PARAM, user.getUsername());
 		model.addAttribute(USER_ID_PARAM, user.getId());
@@ -105,6 +110,13 @@ public class UserController {
 		model.addAttribute(PHOTO_PARAM, encodedPhoto);
 		model.addAttribute("blocked", userBlockService.isUserBlocked(user));
 		return "viewDriverProfilePage";
+	}
+
+	private Driver getDriverByIdOfType(String id, DriverIdType type) {
+		return Optional.ofNullable(type)
+				.orElse(DEFAULT_DRIVER_PAGE_ID_TYPE)
+				.getFindDriverFunctionFromService(driverService)
+				.apply(id);
 	}
 
 	@GetMapping("/create")

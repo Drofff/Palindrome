@@ -22,13 +22,31 @@
 			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Admin</font></span>
 			<a class="mdl-navigation__link" href="/" style="cursor: pointer">Головна</a>
 			<a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
-			<a class="mdl-navigation__link" href="/admin/requests" style="cursor: pointer">Запити</a>
+			<a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
 			<div class="mdl-layout-spacer"></div>
 			<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		</div>
 	</header>
 	<main class="mdl-layout__content">
 		<div class="page-content">
+
+			<dialog class="mdl-dialog">
+				<div class="mdl-dialog__content">
+					<p style="color: red">
+                        <#if error_message??>
+                            ${error_message}
+                        </#if>
+					</p>
+					<p>
+                        <#if message??>
+                            ${message}
+                        </#if>
+					</p>
+				</div>
+				<div class="mdl-dialog__actions">
+					<button type="button" class="mdl-button close">Закрити</button>
+				</div>
+			</dialog>
 
 			<div class="mdl-grid" style="margin-left: 10%; margin-top: 2%;">
 				<div class="mdl-cell mdl-cell--4-col">
@@ -109,7 +127,7 @@
 							<li class="mdl-list__item mdl-list__item--two-line">
 					    <span class="mdl-list__item-primary-content">
 					      <i class="material-icons mdl-list__item-avatar">directions_car</i>
-					      <span>${car.brand.name} ${car.model} (${car.number})</span>
+					      <span onclick="window.location.href='/admin/cars/${car.id}'" style="cursor: pointer">${car.brand.name} ${car.model} (${car.number})</span>
 					      <span class="mdl-list__item-sub-title">${car.bodyType.name} (${car.licenceCategory.name})</span>
 					    </span>
 							</li>
@@ -130,6 +148,18 @@
 	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 </form>
 <script>
+
+    var dialog = document.querySelector('dialog');
+    dialog.querySelector('.close').addEventListener('click', function() {
+        dialog.close();
+    });
+
+    $(function() {
+        <#if error_message?? || message??>
+        dialog.showModal();
+        </#if>
+    });
+
 	function next_page() {
 		var page = ${page_number};
 		var total_pages = ${pages_count};
@@ -148,6 +178,7 @@
 		    $("#search").submit();
 		}
 	}
+
 </script>
 </body>
 </html>

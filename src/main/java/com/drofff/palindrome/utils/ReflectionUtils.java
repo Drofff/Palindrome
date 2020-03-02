@@ -43,4 +43,12 @@ public class ReflectionUtils {
 		}
 	}
 
+	public static Class<?> classByName(String name) {
+		try {
+			return Class.forName(name);
+		} catch(ClassNotFoundException e) {
+			throw new PalindromeException("Can not find a class with name " + name);
+		}
+	}
+
 }

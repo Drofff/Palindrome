@@ -30,7 +30,7 @@
 			<a class="mdl-navigation__link" href="/" style="cursor: pointer">Головна</a>
 			<a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
 			<a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
-			<a class="mdl-navigation__link" href="/admin/requests" style="cursor: pointer">Запити</a>
+			<a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
 			<div class="mdl-layout-spacer"></div>
 			<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		</div>
@@ -92,6 +92,9 @@
 						<p><b>Номер посвідчення водія:</b> ${driver.licenceNumber}</p>
 					</div>
 					<div style="margin-top: 2%;">
+						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/admin/cars?ownerId=${driver.id}" style="margin-right: 3%;">
+							Показати автомобілі
+						</a>
 						<#if blocked?? && blocked>
 							<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="unblock_user()" style="background-color: green">
 								Розблокувати
