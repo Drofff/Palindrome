@@ -75,6 +75,20 @@
 					</div>
 
 				</div>
+				<div class="mdl-cell mdl-cell--4-col" style="margin-left: 10%;">
+					<div>
+						<img src="data:img/png;base64, ${photo}" style="border-radius: 50%; margin-right: 3%;" width="40px" height="40px" alt=" ">
+                        ${police.firstName} ${police.lastName}
+					</div>
+					<div style="margin-top: 3%;">
+                        <#if change_request.comment?? && change_request.comment?has_content>
+							<p>Коментар: ${change_request.comment}</p>
+                        </#if>
+						<p>
+							Отримано: <#if change_request.dateTime.hour lt 10>0${change_request.dateTime.hour}<#else>${change_request.dateTime.hour}</#if>:<#if change_request.dateTime.minute lt 10>0${change_request.dateTime.minute}<#else>${change_request.dateTime.minute}</#if>, ${change_request.dateTime.dayOfMonth} of ${change_request.dateTime.month.name()?capitalize} ${change_request.dateTime.year?c}
+						</p>
+					</div>
+				</div>
 			</div>
 
 		</div>
@@ -84,11 +98,11 @@
 	</form>
 	<form action="/change-request/refuse" method="post" id="refuse-form">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-		<input type="hidden" name="id" value="${request_id}">
+		<input type="hidden" name="id" value="${change_request.id}">
 	</form>
 	<form action="/change-request/approve" method="post" id="approve-form">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-		<input type="hidden" name="id" value="${request_id}">
+		<input type="hidden" name="id" value="${change_request.id}">
 	</form>
 </div>
 </body>

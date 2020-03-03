@@ -17,6 +17,8 @@ public class ChangeRequest {
 
 	private Entity targetValue;
 
+	private String targetOwnerId;
+
 	private String senderId;
 
 	private LocalDateTime dateTime;
@@ -53,6 +55,14 @@ public class ChangeRequest {
 
 	public void setTargetValue(Entity targetValue) {
 		this.targetValue = targetValue;
+	}
+
+	public String getTargetOwnerId() {
+		return targetOwnerId;
+	}
+
+	public void setTargetOwnerId(String targetOwnerId) {
+		this.targetOwnerId = targetOwnerId;
 	}
 
 	public String getSenderId() {
@@ -102,6 +112,11 @@ public class ChangeRequest {
 		public Builder forCar(Car car) {
 			changeRequest.targetClassName = Car.class.getName();
 			changeRequest.targetValue = car;
+			return this;
+		}
+
+		public Builder targetOwnerId(String id) {
+			changeRequest.targetOwnerId = id;
 			return this;
 		}
 

@@ -8,6 +8,7 @@ import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PA
 import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.POLICE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.REQUESTS_PARAM;
 import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
 import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.ChangeRequest;
 import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.dto.CarDto;
 import com.drofff.palindrome.dto.CarFatDto;
 import com.drofff.palindrome.dto.UpdateDriverDto;
@@ -47,6 +49,7 @@ import com.drofff.palindrome.service.EngineTypeService;
 import com.drofff.palindrome.service.LicenceCategoryService;
 import com.drofff.palindrome.service.MappingsResolver;
 import com.drofff.palindrome.service.PhotoService;
+import com.drofff.palindrome.service.PoliceService;
 
 @Controller
 @RequestMapping("/change-request")
@@ -55,7 +58,7 @@ public class ChangeRequestController {
 	private static final String DRIVER_CHANGE_REQUEST_VIEW = "driverSendChangeRequestPage";
 	private static final String CAR_CHANGE_REQUEST_VIEW = "carSendChangeRequestPage";
 
-	private static final String REQUEST_ID_PARAM = "request_id";
+	private static final String CHANGE_REQUEST_PARAM = "change_request";
 	private static final String COMMENT_PARAM = "comment";
 
 	private static final String CHANGE_REQUESTS_ENDPOINT = "/change-request";
@@ -68,6 +71,7 @@ public class ChangeRequestController {
 	private final BodyTypeService bodyTypeService;
 	private final EngineTypeService engineTypeService;
 	private final LicenceCategoryService licenceCategoryService;
+	private final PoliceService policeService;
 	private final UpdateDriverDtoMapper updateDriverDtoMapper;
 	private final CarDtoMapper carDtoMapper;
 	private final CarFatDtoMapper carFatDtoMapper;
@@ -78,8 +82,9 @@ public class ChangeRequestController {
 	                               CarService carService, PhotoService photoService,
 	                               BrandService brandService, BodyTypeService bodyTypeService,
 	                               EngineTypeService engineTypeService, LicenceCategoryService licenceCategoryService,
-	                               UpdateDriverDtoMapper updateDriverDtoMapper, CarDtoMapper carDtoMapper,
-	                               CarFatDtoMapper carFatDtoMapper, MappingsResolver mappingsResolver) {
+	                               PoliceService policeService, UpdateDriverDtoMapper updateDriverDtoMapper,
+	                               CarDtoMapper carDtoMapper, CarFatDtoMapper carFatDtoMapper,
+	                               MappingsResolver mappingsResolver) {
 		this.changeRequestService = changeRequestService;
 		this.driverService = driverService;
 		this.carService = carService;
@@ -88,6 +93,7 @@ public class ChangeRequestController {
 		this.bodyTypeService = bodyTypeService;
 		this.engineTypeService = engineTypeService;
 		this.licenceCategoryService = licenceCategoryService;
+		this.policeService = policeService;
 		this.updateDriverDtoMapper = updateDriverDtoMapper;
 		this.carDtoMapper = carDtoMapper;
 		this.carFatDtoMapper = carFatDtoMapper;
@@ -113,11 +119,12 @@ public class ChangeRequestController {
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public String getDriverChangeRequestPage(@PathVariable String id, Model model) {
 		ChangeRequest changeRequest = changeRequestService.getDriverChangeRequestById(id);
+		model.addAttribute(CHANGE_REQUEST_PARAM, changeRequest);
 		Driver changedDriver = (Driver) changeRequest.getTargetValue();
 		model.addAttribute("changed_driver", changedDriver);
 		Driver originalDriver = driverService.getDriverById(changedDriver.getId());
 		model.addAttribute(DRIVER_PARAM, originalDriver);
-		model.addAttribute(REQUEST_ID_PARAM, id);
+		putChangeRequestSenderIntoModel(changeRequest, model);
 		return "driverChangeRequestPage";
 	}
 
@@ -125,12 +132,21 @@ public class ChangeRequestController {
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public String getCarChangeRequestPage(@PathVariable String id, Model model) {
 		ChangeRequest changeRequest = changeRequestService.getCarChangeRequestById(id);
+		model.addAttribute(CHANGE_REQUEST_PARAM, changeRequest);
 		Car changedCar = (Car) changeRequest.getTargetValue();
 		model.addAttribute("changed_car", toCarFatDto(changedCar));
 		Car originalCar = carService.getCarById(changedCar.getId());
 		model.addAttribute(CAR_PARAM, toCarFatDto(originalCar));
-		model.addAttribute(REQUEST_ID_PARAM, id);
+		putChangeRequestSenderIntoModel(changeRequest, model);
 		return "carChangeRequestPage";
+	}
+
+	private void putChangeRequestSenderIntoModel(ChangeRequest changeRequest, Model model) {
+		String senderId = changeRequest.getSenderId();
+		Police police = policeService.getPoliceByUserId(senderId);
+		model.addAttribute(POLICE_PARAM, police);
+		String encodedPhoto = photoService.loadEncodedPhotoByUri(police.getPhotoUri());
+		model.addAttribute(PHOTO_PARAM, encodedPhoto);
 	}
 
 	private CarFatDto toCarFatDto(Car car) {

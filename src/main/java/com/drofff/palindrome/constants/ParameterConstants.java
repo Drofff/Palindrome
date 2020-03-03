@@ -42,6 +42,8 @@ public class ParameterConstants {
 
 	public static final String REQUESTS_PARAM = "requests";
 
+	public static final String POLICE_PARAM = "police";
+
 	private ParameterConstants() {}
 
 }

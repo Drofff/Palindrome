@@ -20,6 +20,7 @@ public class MailUtils {
 	private static final String REASON_PARAM = "${reason}";
 	private static final String PASSWRD_PARAM = "${password}";
 	private static final String NUMBER_PARAM = "${number}";
+	private static final String FIRST_NAME_PARAM = "${firstName}";
 
 	private static final String ACTIVATION_MAIL_KEY = "activation";
 	private static final String REMIND_PASS_MAIL_KEY = "remind-password";
@@ -27,8 +28,23 @@ public class MailUtils {
 	private static final String ACCOUNT_UNBLOCKED_MAIL_KEY = "account-unblocked";
 	private static final String CREDENTIALS_MAIL_KEY = "credentials-created";
 	private static final String CAR_UPDATE_MAIL_KEY = "car-update";
+	private static final String CHANGE_REQUEST_APPROVED_SENDER_MAIL = "request-approved-sender";
+	private static final String CHANGE_REQUEST_APPROVED_DRIVER_MAIL = "request-approved-driver";
+	private static final String CHANGE_REQUEST_REFUSED_MAIL = "request-refused";
 
 	private MailUtils() {}
+
+	public static Mail getChangeRequestApprovedSenderMail(String senderFirstName, String driverUsername) {
+		return mailByKeyWithParams(CHANGE_REQUEST_APPROVED_SENDER_MAIL, FIRST_NAME_PARAM, senderFirstName, USERNAME_PARAM, driverUsername);
+	}
+
+	public static Mail getChangeRequestApprovedDriverMail(String driverFirstName) {
+		return mailByKeyWithParams(CHANGE_REQUEST_APPROVED_DRIVER_MAIL, FIRST_NAME_PARAM, driverFirstName);
+	}
+
+	public static Mail getChangeRequestRefusedMail(String senderFirstName, String driverUsername) {
+		return mailByKeyWithParams(CHANGE_REQUEST_REFUSED_MAIL, FIRST_NAME_PARAM, senderFirstName, USERNAME_PARAM, driverUsername);
+	}
 
 	public static Mail getCarUpdateMail(String carNumber) {
 		 return mailByKeyWithParams(CAR_UPDATE_MAIL_KEY, NUMBER_PARAM, carNumber);
@@ -38,15 +54,15 @@ public class MailUtils {
 		return mailByKeyWithParams(CREDENTIALS_MAIL_KEY, USERNAME_PARAM, username, PASSWRD_PARAM, password);
 	}
 
-	public static Mail getAccountBlockedMailWithReason(String reason) {
+	public static Mail getAccountBlockedMail(String reason) {
 		return mailByKeyWithParams(ACCOUNT_BLOCKED_MAIL_KEY, REASON_PARAM, reason);
 	}
 
-	public static Mail getActivationMailWithLinkAndUsername(String link, String username) {
+	public static Mail getActivationMail(String link, String username) {
 		return mailByKeyWithParams(ACTIVATION_MAIL_KEY, LINK_PARAM, link, USERNAME_PARAM, username);
 	}
 
-	public static Mail getRemindPasswordMailWithLink(String link) {
+	public static Mail getRemindPasswordMail(String link) {
 		return mailByKeyWithParams(REMIND_PASS_MAIL_KEY, LINK_PARAM, link);
 	}
 

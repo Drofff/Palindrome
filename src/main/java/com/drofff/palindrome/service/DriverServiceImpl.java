@@ -2,6 +2,7 @@ package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.List;
 import java.util.Objects;
@@ -109,11 +110,10 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	}
 
 	private void validatePhoto(MultipartFile photo) {
-		if(Objects.isNull(photo)) {
-			throw new ValidationException("Photo is required");
-		}
+		validateNotNull(photo, "Photo is required");
 	}
 
+	@Override
 	public boolean hasNoDriverProfile(User user) {
 		return !hasDriverProfile(user);
 	}

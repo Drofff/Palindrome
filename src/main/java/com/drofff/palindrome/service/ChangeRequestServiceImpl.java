@@ -3,6 +3,9 @@ package com.drofff.palindrome.service;
 import static com.drofff.palindrome.enums.Role.ADMIN;
 import static com.drofff.palindrome.enums.Role.POLICE;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.MailUtils.getChangeRequestApprovedDriverMail;
+import static com.drofff.palindrome.utils.MailUtils.getChangeRequestApprovedSenderMail;
+import static com.drofff.palindrome.utils.MailUtils.getChangeRequestRefusedMail;
 import static com.drofff.palindrome.utils.ReflectionUtils.classByName;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
@@ -18,18 +21,31 @@ import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.ChangeRequest;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.Entity;
+import com.drofff.palindrome.document.Police;
+import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ChangeRequestRepository;
+import com.drofff.palindrome.type.Mail;
 
 @Service
 public class ChangeRequestServiceImpl implements ChangeRequestService {
 
 	private final ChangeRequestRepository changeRequestRepository;
+	private final MailService mailService;
+	private final PoliceService policeService;
+	private final DriverService driverService;
+	private final AuthenticationService authenticationService;
 	private final List<EntityManager> entityManagers;
 
 	@Autowired
-	public ChangeRequestServiceImpl(ChangeRequestRepository changeRequestRepository, List<EntityManager> entityManagers) {
+	public ChangeRequestServiceImpl(ChangeRequestRepository changeRequestRepository, MailService mailService,
+	                                PoliceService policeService, DriverService driverService,
+	                                AuthenticationService authenticationService, List<EntityManager> entityManagers) {
 		this.changeRequestRepository = changeRequestRepository;
+		this.mailService = mailService;
+		this.policeService = policeService;
+		this.driverService = driverService;
+		this.authenticationService = authenticationService;
 		this.entityManagers = entityManagers;
 	}
 
@@ -43,7 +59,10 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	}
 
 	private ChangeRequest changeRequestForDriverWithComment(Driver driver, String comment) {
-		return changeRequestWithComment(comment).forDriver(driver).build();
+		return changeRequestWithComment(comment)
+				.forDriver(driver)
+				.targetOwnerId(driver.getUserId())
+				.build();
 	}
 
 	@Override
@@ -70,7 +89,11 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	}
 
 	private ChangeRequest changeRequestForCarWithComment(Car car, String comment) {
-		return changeRequestWithComment(comment).forCar(car).build();
+		Driver carOwner = driverService.getOwnerOfCar(car);
+		return changeRequestWithComment(comment)
+				.forCar(car)
+				.targetOwnerId(carOwner.getUserId())
+				.build();
 	}
 
 	private ChangeRequest.Builder changeRequestWithComment(String comment) {
@@ -87,6 +110,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 		ChangeRequest changeRequest = getNotApprovedRequestById(id);
 		applyChange(changeRequest);
 		approveChangeRequest(changeRequest);
+		notifyChangeRequestApproved(changeRequest);
 	}
 
 	private void applyChange(ChangeRequest changeRequest) {
@@ -108,11 +132,59 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 		changeRequestRepository.save(changeRequest);
 	}
 
+	private void notifyChangeRequestApproved(ChangeRequest changeRequest) {
+		notifyDriverChangeRequestApproved(changeRequest);
+		notifySenderChangeRequestApproved(changeRequest);
+	}
+
+	private void notifyDriverChangeRequestApproved(ChangeRequest changeRequest) {
+		Mail requestApprovedMail = getApprovedDriverMailForRequest(changeRequest);
+		sendMailToRequestTargetOwner(requestApprovedMail, changeRequest);
+	}
+
+	private Mail getApprovedDriverMailForRequest(ChangeRequest changeRequest) {
+		Driver driver = driverService.getDriverByUserId(changeRequest.getSenderId());
+		return getChangeRequestApprovedDriverMail(driver.getFirstName());
+	}
+
+	private void sendMailToRequestTargetOwner(Mail mail, ChangeRequest changeRequest) {
+		User targetOwner = authenticationService.getUserById(changeRequest.getTargetOwnerId());
+		mailService.sendMailTo(mail, targetOwner.getUsername());
+	}
+
+	private void notifySenderChangeRequestApproved(ChangeRequest changeRequest) {
+		Mail requestApprovedMail = getApprovedSenderMailForRequest(changeRequest);
+		sendMailToRequestSender(requestApprovedMail, changeRequest);
+	}
+
+	private Mail getApprovedSenderMailForRequest(ChangeRequest changeRequest) {
+		Police police = policeService.getPoliceByUserId(changeRequest.getSenderId());
+		User targetOwner = authenticationService.getUserById(changeRequest.getSenderId());
+		return getChangeRequestApprovedSenderMail(police.getFirstName(), targetOwner.getUsername());
+	}
+
 	@Override
 	public void refuseChangeById(String id) {
 		validateCurrentUserHasRole(ADMIN);
 		ChangeRequest changeRequest = getNotApprovedRequestById(id);
 		changeRequestRepository.delete(changeRequest);
+		notifyChangeRequestRefuse(changeRequest);
+	}
+
+	private void notifyChangeRequestRefuse(ChangeRequest changeRequest) {
+		Mail requestRefuseMail = getRefuseMailForRequest(changeRequest);
+		sendMailToRequestSender(requestRefuseMail, changeRequest);
+	}
+
+	private Mail getRefuseMailForRequest(ChangeRequest changeRequest) {
+		Police police = policeService.getPoliceByUserId(changeRequest.getSenderId());
+		User targetOwner = authenticationService.getUserById(changeRequest.getTargetOwnerId());
+		return getChangeRequestRefusedMail(police.getFirstName(), targetOwner.getUsername());
+	}
+
+	private void sendMailToRequestSender(Mail mail, ChangeRequest request) {
+		User sender = authenticationService.getUserById(request.getSenderId());
+		mailService.sendMailTo(mail, sender.getUsername());
 	}
 
 	@Override

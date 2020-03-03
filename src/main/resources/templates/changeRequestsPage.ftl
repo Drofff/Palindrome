@@ -81,7 +81,7 @@
                                 <#if request.comment??>
 									<p>Коментар: ${request.comment}</p>
                                 </#if>
-								<p>Отримано: ${request.dateTime.hour}:${request.dateTime.minute}, ${request.dateTime.dayOfMonth} of ${request.dateTime.month.name()?capitalize} ${request.dateTime.year?c}</p>
+								<p>Отримано: <#if request.dateTime.hour lt 10>0${request.dateTime.hour}<#else>${request.dateTime.hour}</#if>:<#if request.dateTime.minute lt 10>0${request.dateTime.minute}<#else>${request.dateTime.minute}</#if>, ${request.dateTime.dayOfMonth} of ${request.dateTime.month.name()?capitalize} ${request.dateTime.year?c}</p>
 							</div>
 							<div class="mdl-card__actions mdl-card--border">
 								<a href="/change-request/driver/${request.id}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
@@ -98,7 +98,7 @@
                                 <#if request.comment??>
 									<p>Коментар: ${request.comment}</p>
                                 </#if>
-								<p>Отримано: ${request.dateTime.hour}:${request.dateTime.minute}, ${request.dateTime.dayOfMonth} of ${request.dateTime.month.name()?capitalize} ${request.dateTime.year?c}</p>
+								<p>Отримано: <#if request.dateTime.hour lt 10>0${request.dateTime.hour}<#else>${request.dateTime.hour}</#if>:<#if request.dateTime.minute lt 10>0${request.dateTime.minute}<#else>${request.dateTime.minute}</#if>, ${request.dateTime.dayOfMonth} of ${request.dateTime.month.name()?capitalize} ${request.dateTime.year?c}</p>
 							</div>
 							<div class="mdl-card__actions mdl-card--border">
 								<a href="/change-request/car/${request.id}" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">

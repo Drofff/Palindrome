@@ -8,7 +8,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
 import com.drofff.palindrome.interceptor.DriverInterceptor;
-import com.drofff.palindrome.service.DriverServiceImpl;
+import com.drofff.palindrome.interceptor.PoliceInterceptor;
+import com.drofff.palindrome.service.DriverService;
+import com.drofff.palindrome.service.PoliceService;
 import com.drofff.palindrome.service.UserBlockService;
 
 @Configuration
@@ -16,15 +18,19 @@ import com.drofff.palindrome.service.UserBlockService;
 public class WebConfiguration implements WebMvcConfigurer {
 
 	@Autowired
-	private DriverServiceImpl driverService;
+	private DriverService driverService;
 
 	@Autowired
 	private UserBlockService userBlockService;
+
+	@Autowired
+	private PoliceService policeService;
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new DriverInterceptor(driverService));
 		registry.addInterceptor(new BlockedUserInterceptor(userBlockService));
+		registry.addInterceptor(new PoliceInterceptor(policeService));
 	}
 
 }

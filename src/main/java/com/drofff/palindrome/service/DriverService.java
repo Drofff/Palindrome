@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.User;
 
 public interface DriverService {
 
@@ -14,6 +15,8 @@ public interface DriverService {
 	void updateDriverProfile(Driver driver);
 
 	void updateDriverPhoto(MultipartFile photo);
+
+	boolean hasNoDriverProfile(User user);
 
 	Driver getCurrentDriver();
 

@@ -1,7 +1,7 @@
 package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.MailUtils.getAccountBlockedMailWithReason;
+import static com.drofff.palindrome.utils.MailUtils.getAccountBlockedMail;
 import static com.drofff.palindrome.utils.MailUtils.getAccountUnblockedMail;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
@@ -67,7 +67,7 @@ public class UserBlockServiceImpl implements UserBlockService {
 	}
 
 	private void sendUserBlockReasonByMail(User user, String reason) {
-		Mail mail = getAccountBlockedMailWithReason(reason);
+		Mail mail = getAccountBlockedMail(reason);
 		mailService.sendMailTo(mail, user.getUsername());
 	}
 

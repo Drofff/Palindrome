@@ -6,9 +6,9 @@ import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
 import static com.drofff.palindrome.enums.Role.ADMIN;
 import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
-import static com.drofff.palindrome.utils.MailUtils.getActivationMailWithLinkAndUsername;
+import static com.drofff.palindrome.utils.MailUtils.getActivationMail;
 import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
-import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMailWithLink;
+import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMail;
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
@@ -80,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private void sendActivationLinkToUserByMail(String link, User user) {
-		Mail activationMail = getActivationMailWithLinkAndUsername(link, user.getUsername());
+		Mail activationMail = getActivationMail(link, user.getUsername());
 		mailService.sendMailTo(activationMail, user.getUsername());
 	}
 
@@ -139,7 +139,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private void sendRecoveryLinkToUserByMail(String link, User user) {
-		Mail remindPasswordMail = getRemindPasswordMailWithLink(link);
+		Mail remindPasswordMail = getRemindPasswordMail(link);
 		mailService.sendMailTo(remindPasswordMail, user.getUsername());
 	}
 

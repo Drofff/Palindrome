@@ -20,6 +20,8 @@ public class EndpointConstants {
 
 	public static final String USER_IS_BLOCKED_ENDPOINT = "/user-is-blocked";
 
+	public static final String CREATE_POLICE_PROFILE_ENDPOINT = "/police/create";
+
 	private EndpointConstants() {}
 
 }
