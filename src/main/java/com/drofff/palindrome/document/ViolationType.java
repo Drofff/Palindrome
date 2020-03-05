@@ -11,7 +11,7 @@ public class ViolationType {
 
 	private String name;
 
-	private Float feeAmount;
+	private Fee fee;
 
 	public String getId() {
 		return id;
@@ -29,12 +29,12 @@ public class ViolationType {
 		this.name = name;
 	}
 
-	public Float getFeeAmount() {
-		return feeAmount;
+	public Fee getFee() {
+		return fee;
 	}
 
-	public void setFeeAmount(Float feeAmount) {
-		this.feeAmount = feeAmount;
+	public void setFee(Fee fee) {
+		this.fee = fee;
 	}
 
 }

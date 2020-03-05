@@ -6,7 +6,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.drofff.palindrome.annotation.FromRepository;
-import com.drofff.palindrome.repository.TicketRepository;
 import com.drofff.palindrome.repository.ViolationTypeRepository;
 
 @Document
@@ -22,8 +21,7 @@ public class Violation {
 	@FromRepository(ViolationTypeRepository.class)
 	private String violationTypeId;
 
-	@FromRepository(TicketRepository.class)
-	private String ticketId;
+	private boolean paid;
 
 	private String violatorId;
 
@@ -61,12 +59,12 @@ public class Violation {
 		this.violationTypeId = violationTypeId;
 	}
 
-	public String getTicketId() {
-		return ticketId;
+	public boolean isPaid() {
+		return paid;
 	}
 
-	public void setTicketId(String ticketId) {
-		this.ticketId = ticketId;
+	public void setPaid(boolean paid) {
+		this.paid = paid;
 	}
 
 	public String getViolatorId() {

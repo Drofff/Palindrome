@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
@@ -31,6 +32,12 @@ public class WebConfiguration implements WebMvcConfigurer {
 		registry.addInterceptor(new DriverInterceptor(driverService));
 		registry.addInterceptor(new BlockedUserInterceptor(userBlockService));
 		registry.addInterceptor(new PoliceInterceptor(policeService));
+	}
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/api/resources/img/**")
+				.addResourceLocations("classpath:/static/img/");
 	}
 
 }
