@@ -1,5 +1,6 @@
 package com.drofff.palindrome.service;
 
+import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class PhotoServiceImpl implements PhotoService {
 
 	private String generatePhotoFilenameForUser(User user) {
 		String photoId = UUID.randomUUID().toString();
-		return user.getUsername() + "/" + photoId;
+		return concatPathSegments(user.getUsername(), photoId);
 	}
 
 	private void saveFileWithName(MultipartFile photo, String filename) throws IOException {

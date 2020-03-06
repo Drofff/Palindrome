@@ -52,4 +52,8 @@ public class FormattingUtils {
 		return Long.parseLong(digitsStr);
 	}
 
+	public static String concatPathSegments(String ... segments) {
+		return String.join("/", segments);
+	}
+
 }

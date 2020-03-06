@@ -16,9 +16,18 @@ public class JsonUtils {
 
 	private JsonUtils() {}
 
-	public static JSONObject getObjectFromFileByKey(String filename, String key) {
+	public static <T> T getValueOfClassFromFileByKey(String filename, String key, Class<T> valueClass) {
+		Object value = getNodeFromFileByKey(filename, key);
+		return valueClass.cast(value);
+	}
+
+	public static JSONObject getJSONObjectFromFileByKey(String filename, String key) {
+		return (JSONObject) getNodeFromFileByKey(filename, key);
+	}
+
+	private static Object getNodeFromFileByKey(String filename, String key) {
 		JSONObject json = loadJsonFileByName(filename);
-		return (JSONObject) json.get(key);
+		return json.get(key);
 	}
 
 	private static JSONObject loadJsonFileByName(String filename) {

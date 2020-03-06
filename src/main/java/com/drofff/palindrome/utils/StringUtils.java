@@ -38,4 +38,8 @@ public class StringUtils {
 		return Objects.isNull(str) || str.trim().isEmpty();
 	}
 
+	public static String joinWithSpace(Object o0, Object o1) {
+		return o0 + " " + o1;
+	}
+
 }

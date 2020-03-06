@@ -1,10 +1,11 @@
 package com.drofff.palindrome.service;
 
 import com.drofff.palindrome.type.Payment;
+import com.drofff.palindrome.type.PaymentHistory;
 
 public interface PaymentService {
 
-	void executePayment(Payment payment);
+	PaymentHistory executePayment(Payment payment);
 
 	String getPublicKey();
 

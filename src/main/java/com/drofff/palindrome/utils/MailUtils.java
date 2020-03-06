@@ -1,6 +1,7 @@
 package com.drofff.palindrome.utils;
 
 import static com.drofff.palindrome.utils.FormattingUtils.putParamsIntoText;
+import static com.drofff.palindrome.utils.JsonUtils.getJSONObjectFromFileByKey;
 
 import java.util.Arrays;
 import java.util.Deque;
@@ -84,7 +85,7 @@ public class MailUtils {
 	}
 
 	private static Mail getMailTemplateFromFileByKey(String key) {
-		JSONObject jsonObject = JsonUtils.getObjectFromFileByKey(MAIL_MESSAGES_FILE, key);
+		JSONObject jsonObject = getJSONObjectFromFileByKey(MAIL_MESSAGES_FILE, key);
 		return Mail.fromJSONObject(jsonObject);
 	}
 

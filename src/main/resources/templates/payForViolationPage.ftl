@@ -54,7 +54,7 @@
 				</div>
 				<div class="mdl-card__supporting-text">
 					<p style="font-size: 15px; margin-top: 2%;"><b>${violation.violationType.name}</b> (${violation.dateTime})</p>
-				   <p style="font-family: 'Nunito', sans-serif; font-size: 40px; margin-top: 5%; margin-bottom: 5%;">До оплати: ${violation.violationType.fee.amount} ${violation.violationType.fee.currency}</p>
+				   <p style="font-family: 'Nunito', sans-serif; font-size: 40px; margin-top: 5%; margin-bottom: 5%;">До оплати: ${violation.violationType.fee.amount / 100} ${violation.violationType.fee.currency}</p>
 					<form action='/pay/${violation.id}' method='POST' id='checkout-form'>
 						<input type="hidden" value="${_csrf.token}" name="${_csrf.parameterName}">
 						<script
@@ -78,6 +78,18 @@
 	<form action="/logout" method="post" id="logout">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 	</form>
+	<script>
+        var dialog = document.querySelector('dialog');
+        dialog.querySelector('.close').addEventListener('click', function() {
+            dialog.close();
+        });
+
+        $(function() {
+            <#if error_message?? || message??>
+            dialog.showModal();
+            </#if>
+        });
+	</script>
 </div>
 </body>
 </html>

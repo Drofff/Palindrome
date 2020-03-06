@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.drofff.palindrome.configuration.properties.StripeProperties;
 import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.type.Payment;
+import com.drofff.palindrome.type.PaymentHistory;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -30,12 +31,13 @@ public class StripePaymentService implements PaymentService {
 	}
 
 	@Override
-	public void executePayment(Payment payment) {
+	public PaymentHistory executePayment(Payment payment) {
 		validateNotNull(payment, "Missing payment data");
 		validate(payment);
 		ChargeCreateParams chargeCreateParams = chargeParamsFromPayment(payment);
 		Charge charge = createChargeWithParams(chargeCreateParams);
 		validateIsSuccessful(charge);
+		return historyOfPaymentWithChargeId(payment, charge.getId());
 	}
 
 	private ChargeCreateParams chargeParamsFromPayment(Payment payment) {
@@ -67,6 +69,14 @@ public class StripePaymentService implements PaymentService {
 
 	private boolean hasStatusSucceeded(Charge charge) {
 		return charge.getStatus().equals(SUCCEEDED_STATUS);
+	}
+
+	private PaymentHistory historyOfPaymentWithChargeId(Payment payment, String chargeId) {
+		return new PaymentHistory.Builder()
+				.amount(payment.getAmount())
+				.currency(payment.getCurrency())
+				.chargeId(chargeId)
+				.build();
 	}
 
 	@Override

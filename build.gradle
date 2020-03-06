@@ -24,6 +24,7 @@ dependencies {
     compile group: 'com.azure', name: 'azure-storage-blob', version: '12.4.0'
     compile group: 'com.azure', name: 'azure-storage-queue', version: '12.3.0'
     compile group: 'com.stripe', name: 'stripe-java', version: '17.16.0'
+    compile group: 'com.itextpdf', name: 'itext7-core', version: '7.1.10'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

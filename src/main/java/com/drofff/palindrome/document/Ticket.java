@@ -17,6 +17,13 @@ public class Ticket {
 
 	private String path;
 
+	public Ticket() {}
+
+	public Ticket(String violationId, String path) {
+		this.violationId = violationId;
+		this.path = path;
+	}
+
 	public String getId() {
 		return id;
 	}

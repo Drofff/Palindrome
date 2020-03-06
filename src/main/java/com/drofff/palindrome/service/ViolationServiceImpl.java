@@ -51,7 +51,7 @@ public class ViolationServiceImpl implements ViolationService {
 		return violation;
 	}
 
-	private Violation getViolationById(String id) {
+	public Violation getViolationById(String id) {
 		return violationRepository.findById(id)
 				.orElseThrow(() -> new ValidationException("Violation with such id doesn't exist"));
 	}

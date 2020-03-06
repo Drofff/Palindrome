@@ -22,9 +22,11 @@ import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.PaymentViolationDtoMapper;
 import com.drofff.palindrome.service.MappingsResolver;
 import com.drofff.palindrome.service.PaymentService;
+import com.drofff.palindrome.service.TicketService;
 import com.drofff.palindrome.service.ViolationService;
 import com.drofff.palindrome.service.ViolationTypeService;
 import com.drofff.palindrome.type.Payment;
+import com.drofff.palindrome.type.PaymentHistory;
 
 @Controller
 @RequestMapping("/pay")
@@ -40,16 +42,18 @@ public class PaymentController {
 	private final ViolationService violationService;
 	private final PaymentService paymentService;
 	private final ViolationTypeService violationTypeService;
+	private final TicketService ticketService;
 	private final PaymentViolationDtoMapper paymentViolationDtoMapper;
 	private final MappingsResolver mappingsResolver;
 
 	@Autowired
 	public PaymentController(ViolationService violationService, PaymentService paymentService,
-	                         ViolationTypeService violationTypeService, PaymentViolationDtoMapper paymentViolationDtoMapper,
-	                         MappingsResolver mappingsResolver) {
+	                         ViolationTypeService violationTypeService, TicketService ticketService,
+	                         PaymentViolationDtoMapper paymentViolationDtoMapper, MappingsResolver mappingsResolver) {
 		this.violationService = violationService;
 		this.paymentService = paymentService;
 		this.violationTypeService = violationTypeService;
+		this.ticketService = ticketService;
 		this.paymentViolationDtoMapper = paymentViolationDtoMapper;
 		this.mappingsResolver = mappingsResolver;
 	}
@@ -75,8 +79,10 @@ public class PaymentController {
 		ViolationType violationType = violationTypeService.getViolationTypeById(violation.getViolationTypeId());
 		Payment payment = paymentForViolationTypeWithToken(violationType, stripeToken);
 		try {
-			paymentService.executePayment(payment);
+			PaymentHistory paymentHistory = paymentService.executePayment(payment);
+			paymentHistory.setViolationId(violation.getId());
 			violationService.markAsPaid(violation);
+			ticketService.saveTicketForPayment(paymentHistory);
 			return PAYMENT_SUCCESS_VIEW;
 		} catch(ValidationException e) {
 			model.addAttribute(VIOLATION_PARAM, toPaymentViolationDto(violation));

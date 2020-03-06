@@ -17,6 +17,8 @@ public interface ViolationService {
 
 	Violation getViolationOfUserById(User user, String id);
 
+	Violation getViolationById(String id);
+
 	void markAsPaid(Violation violation);
 
 }
