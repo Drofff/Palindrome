@@ -11,6 +11,7 @@ import static com.drofff.palindrome.utils.TicketUtils.getViolationIdTitle;
 import static com.itextpdf.kernel.font.PdfFontFactory.createFont;
 import static com.itextpdf.kernel.geom.PageSize.A4;
 import static com.itextpdf.layout.property.HorizontalAlignment.CENTER;
+import static org.springframework.http.MediaType.APPLICATION_PDF;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.TicketRepository;
 import com.drofff.palindrome.type.PaymentHistory;
+import com.drofff.palindrome.type.TicketFile;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.font.PdfFont;
@@ -216,9 +218,35 @@ public class PdfTicketService implements TicketService {
 	}
 
 	private void saveAtPermanentStorage(String filename, byte[] content) {
-		String username = getCurrentUser().getUsername();
-		String permanentFilename = concatPathSegments(username, filename);
+		String permanentFilename = toPermanentFilename(filename);
 		fileService.saveFile(permanentFilename, content);
+	}
+
+	@Override
+	public TicketFile getPayedViolationTicket(Violation violation) {
+		Ticket ticket = ticketRepository.findByViolationId(violation.getId())
+				.orElseThrow(() -> new ValidationException("Ticket for the violation is not present"));
+		String filename = ticket.getPath();
+		byte[] ticketContent = getFromPermanentStorage(filename);
+		return toTicketFile(filename, ticketContent);
+	}
+
+	private byte[] getFromPermanentStorage(String filename) {
+		String permanentFilename = toPermanentFilename(filename);
+		return fileService.getFileByName(permanentFilename);
+	}
+
+	private String toPermanentFilename(String filename) {
+		String username = getCurrentUser().getUsername();
+		return concatPathSegments(username, filename);
+	}
+
+	private TicketFile toTicketFile(String filename, byte[] content) {
+		return new TicketFile.Builder()
+				.name(filename)
+				.contentType(APPLICATION_PDF.toString())
+				.content(content)
+				.build();
 	}
 
 }

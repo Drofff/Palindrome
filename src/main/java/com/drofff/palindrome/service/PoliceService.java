@@ -13,4 +13,6 @@ public interface PoliceService {
 
 	Police getPoliceByUserId(String id);
 
+	Police getPoliceById(String id);
+
 }

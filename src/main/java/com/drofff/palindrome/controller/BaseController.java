@@ -8,6 +8,7 @@ import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.REQUESTS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.VIOLATIONS_PARAM;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
@@ -101,7 +102,7 @@ public class BaseController {
 		model.addAttribute(CARS_PARAM, cars);
 		List<Violation> violations = getDriverViolations(driver);
 		List<HomeViolationDto> homeViolationDtos = applyToEachListElement(this::toHomeViolationDto, violations);
-		model.addAttribute("violations", homeViolationDtos);
+		model.addAttribute(VIOLATIONS_PARAM, homeViolationDtos);
 	}
 
 	private List<Car> getDriverOwnedCars(Driver driver) {

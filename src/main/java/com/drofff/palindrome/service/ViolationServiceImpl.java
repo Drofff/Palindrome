@@ -30,13 +30,13 @@ public class ViolationServiceImpl implements ViolationService {
 	@Override
 	public List<Violation> getDriverViolations(Driver driver) {
 		validateDriver(driver);
-		return violationRepository.findByViolatorId(driver.getId());
+		return violationRepository.findByViolatorId(driver.getUserId());
 	}
 
 	@Override
 	public Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable) {
 		validateDriver(driver);
-		return violationRepository.findByViolatorId(driver.getId(), pageable);
+		return violationRepository.findByViolatorId(driver.getUserId(), pageable);
 	}
 
 	private void validateDriver(Driver driver) {

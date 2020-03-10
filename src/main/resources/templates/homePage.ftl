@@ -133,27 +133,25 @@
 							<div class="mdl-card__title">
 								<h2 class="mdl-card__title-text">Мої порушення</h2>
 							</div>
-							<div class="mdl-card__supporting-text">
-								<ul class="demo-list-item mdl-list">
+							<div class="mdl-card__supporting-text" style="padding: 0; min-height: 100px; width: 512px;">
                                     <#if !violations?? || violations?size == 0>
-	                                    <li class="mdl-list__item">
-										    <span class="mdl-list__item-primary-content" style="font-size: 20px; color: rgba(0, 0, 0, 0.54)">
-											    <b>Немає порушень</b>
-										    </span>
-	                                    </li>
+									    <b>Немає порушень</b>
                                     <#else>
-                                        <#list violations as violation>
-	                                        <li class="mdl-list__item">
-											    <span class="mdl-list__item-primary-content">
-											      ${violation.violationType.name} ${violation.dateTime}
-											    </span>
-	                                        </li>
-                                        </#list>
+	                                    <table class="mdl-data-table mdl-js-data-table mdl-data-table--selectable mdl-shadow--2dp" style="height: 100%; width: 100%;">
+		                                    <tbody>
+                                            <#list violations as violation>
+	                                            <tr style="cursor: pointer" onclick="window.location.href='/violation/${violation.id}'">
+		                                            <td class="mdl-data-table__cell--non-numeric">${violation.violationType.name}</td>
+		                                            <td class="mdl-data-table__cell--non-numeric"><#if violation.dateTime.hour lt 10>0${violation.dateTime.hour}<#else>${violation.dateTime.hour}</#if>:<#if violation.dateTime.minute lt 10>0${violation.dateTime.minute}<#else>${violation.dateTime.minute}</#if> ${violation.dateTime.dayOfMonth}/${violation.dateTime.month.ordinal() + 1}/${violation.dateTime.year?c}</small></h4></td>
+	                                                <td class="mdl-data-table__cell--non-numeric"><#if violation.paid><b style="color: green;">Оплачено</b><#else><b style="color: red;">Очікує оплати</b></#if></td>
+	                                            </tr>
+                                            </#list>
+		                                    </tbody>
+	                                    </table>
                                     </#if>
-								</ul>
 							</div>
 							<div class="mdl-card__actions mdl-card--border">
-								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/violation">
 									Переглянути всі
 								</a>
 							</div>

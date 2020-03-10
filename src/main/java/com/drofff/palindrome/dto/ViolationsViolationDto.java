@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import com.drofff.palindrome.document.ViolationType;
 
-public class HomeViolationDto {
+public class ViolationsViolationDto {
 
 	private String id;
 

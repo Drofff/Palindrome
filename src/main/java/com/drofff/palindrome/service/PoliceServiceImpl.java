@@ -79,4 +79,10 @@ public class PoliceServiceImpl implements PoliceService {
 				.orElseThrow(() -> new ValidationException("User with such id has no police profile"));
 	}
 
+	@Override
+	public Police getPoliceById(String id) {
+		return policeRepository.findById(id)
+				.orElseThrow(() -> new ValidationException("Police with such id doesn't exist"));
+	}
+
 }

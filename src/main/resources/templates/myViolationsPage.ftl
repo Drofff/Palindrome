@@ -9,6 +9,26 @@
 			integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
 			crossorigin="anonymous"></script>
 	<link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
+	<style>
+		.demo-card-event.mdl-card {
+			width: 256px;
+			height: 256px;
+			float: left;
+			margin: 1rem;
+			position: relative;
+		}
+		.demo-card-event > .mdl-card__title {
+			align-items: flex-start;
+		}
+		.demo-card-event > .mdl-card__title > h4 {
+			margin-top: 0;
+		}
+		.demo-card-event > .mdl-card__actions {
+			display: flex;
+			box-sizing:border-box;
+			align-items: center;
+		}
+	</style>
 </head>
 <body>
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
@@ -41,6 +61,32 @@
 				</div>
 			</dialog>
 
+			<div style="margin-top: 5%; margin-left: 5%; margin-right: 5%;">
+				<#list violations as violation>
+					<div class="demo-card-event mdl-card mdl-shadow--2dp" style="<#if violation.paid>background: green;</#if>">
+						<div class="mdl-card__title mdl-card--expand" style="background: rgb(255,255,255); margin-top: 1%; margin-left: 1%; margin-right: 1%; cursor: pointer"
+						     onclick="window.location.href='/violation/${violation.id}'">
+							<h4>${violation.violationType.name}<br/><small>
+							<#if violation.dateTime.hour lt 10>0${violation.dateTime.hour}<#else>${violation.dateTime.hour}</#if>:<#if violation.dateTime.minute lt 10>0${violation.dateTime.minute}<#else>${violation.dateTime.minute}</#if> ${violation.dateTime.dayOfMonth}/${violation.dateTime.month.ordinal() + 1}/${violation.dateTime.year?c}</small></h4>
+						</div>
+						<div class="mdl-card__actions mdl-card--border" style="background: rgb(255,255,255);
+						 margin-bottom: 1%; margin-left: 1%; margin-right: 1%; width: 98%; <#if violation.paid>border-color: green;<#else>border-color: #3E4EB8;</#if>">
+							<#if violation.paid>
+								<a class="mdl-button mdl-button--colored" style="color: green">
+									Оплачено
+								</a>
+							<#else>
+							    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" href="/pay/${violation.id}">
+								    Оплатити
+							    </a>
+							</#if>
+						</div>
+					</div>
+				</#list>
+			</div>
+			<div style="margin-left: 37%; margin-top: 2%; bottom: 20%; position: absolute">
+                <#include "pagination.ftl">
+			</div>
 		</div>
 	</main>
 </div>
@@ -60,22 +106,22 @@
         </#if>
     });
 
-    function next_page() {
-        var page = ${page_number};
-        var total_pages = ${pages_count};
-        if(page < (total_pages - 1)) {
-            var next_page = page + 1;
-            window.location.href = '/car?page=' + next_page;
-        }
-    }
+	function next_page() {
+	    var page = ${page_number};
+	    var total_pages = ${pages_count};
+	    if(page < (total_pages - 1)) {
+	        var next_page = page + 1;
+	        window.location.href = '/violation?page=' + next_page;
+	    }
+	}
 
-    function prev_page() {
-        var page = ${page_number};
-        if(page > 0) {
-            var previous_page = page - 1;
-            window.location.href = '/car?page=' + previous_page;
-        }
-    }
+	function prev_page() {
+	    var page = ${page_number};
+	    if(page > 0) {
+	        var prev_page = page - 1;
+	        window.location.href = '/violation?page=' + prev_page;
+	    }
+	}
 
 </script>
 </body>
