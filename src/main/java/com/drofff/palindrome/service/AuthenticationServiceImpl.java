@@ -1,13 +1,16 @@
 package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.CONFIRM_PASS_CHANGE_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
 import static com.drofff.palindrome.enums.Role.ADMIN;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
 import static com.drofff.palindrome.utils.MailUtils.getActivationMail;
 import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
+import static com.drofff.palindrome.utils.MailUtils.getPasswordChangeConfirmationMail;
 import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMail;
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
@@ -15,6 +18,7 @@ import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHas
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,6 +32,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.drofff.palindrome.cache.PasswordCache;
 import com.drofff.palindrome.cache.TokenCache;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.enums.Role;
@@ -75,8 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	private String generateActivationLinkForUser(User user) {
 		String activationEndpointUri = applicationUrl + ACTIVATE_ACCOUNT_ENDPOINT;
-		List<Pair<String, String>> activationParams = tokenAndUserIdParams(user.getActivationToken(), user.getId());
-		return uriWithQueryParams(activationEndpointUri, activationParams);
+		return tokenAndUserIdToEndpoint(user.getActivationToken(), user.getId(), activationEndpointUri);
 	}
 
 	private void sendActivationLinkToUserByMail(String link, User user) {
@@ -86,7 +90,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public void activateUserAccountByToken(String userId, String token) {
-		validateNotNull(token, "Token is required");
+		validateToken(token);
 		User user = getUserById(userId);
 		validateUserIsNotActive(user);
 		validateTokenForUser(token, user);
@@ -122,14 +126,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				.orElseThrow(() -> new PalindromeException("User with such username doesn't exist"));
 	}
 
-	private String generateToken() {
-		return UUID.randomUUID().toString();
-	}
-
 	private String generateRecoveryLinkForUser(String token, User user) {
 		String recoveryUri = applicationUrl + PASS_RECOVERY_ENDPOINT;
-		List<Pair<String, String>> recoveryParams = tokenAndUserIdParams(token, user.getId());
-		return uriWithQueryParams(recoveryUri, recoveryParams);
+		return tokenAndUserIdToEndpoint(token, user.getId(), recoveryUri);
+	}
+
+	private String tokenAndUserIdToEndpoint(String token, String userId, String uri) {
+		List<Pair<String, String>> params = tokenAndUserIdParams(token, userId);
+		return uriWithQueryParams(uri, params);
 	}
 
 	private List<Pair<String, String>> tokenAndUserIdParams(String token, String userId) {
@@ -167,7 +171,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private void validateRecoveryVerificationTokenForUser(String token, User user) {
-		validateNotNull(token, "Token is required");
+		validateToken(token);
 		String originalToken = getVerificationTokenForUser(user);
 		if(areNotEqual(originalToken, token)) {
 			throw new PalindromeException("Invalid verification token");
@@ -177,6 +181,82 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private String getVerificationTokenForUser(User user) {
 		return TokenCache.getTokenForUser(user)
 				.orElseThrow(() -> new PalindromeException("No recovery request detected for user"));
+	}
+
+	@Override
+	public void changeUserPassword(String password, String newPassword) {
+		User currentUser = getCurrentUser();
+		validateUserHasPassword(currentUser, password);
+		currentUser.setPassword(newPassword);
+		validate(currentUser);
+		encodeUserPassword(currentUser);
+		userRepository.save(currentUser);
+	}
+
+	private void validateUserHasPassword(User user, String password) {
+		if(hasNotPassword(user, password)) {
+			throw new ValidationException("Invalid password");
+		}
+	}
+
+	private boolean hasNotPassword(User user, String password) {
+		return !hasPassword(user, password);
+	}
+
+	private boolean hasPassword(User user, String password) {
+		String originalPassword = user.getPassword();
+		return passwordEncoder.matches(password, originalPassword);
+	}
+
+	@Override
+	public void changeUserPasswordByMail(String newPassword) {
+		User currentUser = getCurrentUser();
+		currentUser.setPassword(newPassword);
+		validate(currentUser);
+		encodeUserPassword(currentUser);
+		PasswordCache.savePasswordForUser(currentUser.getPassword(), currentUser);
+		String confirmationToken = generateToken();
+		TokenCache.saveTokenForUser(confirmationToken, currentUser);
+		String confirmationLink = generatePasswordChangeConfirmationLinkWithToken(confirmationToken);
+		sendPasswordChangeConfirmationLinkByMail(confirmationLink, currentUser.getUsername());
+	}
+
+	private String generateToken() {
+		return UUID.randomUUID().toString();
+	}
+
+	private String generatePasswordChangeConfirmationLinkWithToken(String confirmationToken) {
+		String uri = applicationUrl + CONFIRM_PASS_CHANGE_ENDPOINT;
+		Pair<String, String> tokenParam = Pair.of(TOKEN_PARAM, confirmationToken);
+		return uriWithQueryParams(uri, Collections.singletonList(tokenParam));
+	}
+
+	private void sendPasswordChangeConfirmationLinkByMail(String link, String username) {
+		Mail confirmationMail = getPasswordChangeConfirmationMail(link);
+		mailService.sendMailTo(confirmationMail, username);
+	}
+
+	@Override
+	public void confirmUserPasswordChangeByToken(String token) {
+		User currentUser = getCurrentUser();
+		String originalToken = TokenCache.getTokenForUser(currentUser)
+				.orElseThrow(() -> new ValidationException("No active change requests are present for user"));
+		validatePasswordChangeConfirmationToken(originalToken, token);
+		TokenCache.removeTokenForUser(currentUser);
+		String newPassword = PasswordCache.popPasswordForUser(currentUser);
+		currentUser.setPassword(newPassword);
+		userRepository.save(currentUser);
+	}
+
+	private void validatePasswordChangeConfirmationToken(String originalToken, String token) {
+		validateToken(token);
+		if(areNotEqual(originalToken, token)) {
+			throw new ValidationException("Invalid confirmation token");
+		}
+	}
+
+	private void validateToken(String token) {
+		validateNotNull(token, "Token is required");
 	}
 
 	@Override

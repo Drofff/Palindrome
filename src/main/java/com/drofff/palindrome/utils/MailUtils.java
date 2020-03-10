@@ -32,8 +32,13 @@ public class MailUtils {
 	private static final String CHANGE_REQUEST_APPROVED_SENDER_MAIL = "request-approved-sender";
 	private static final String CHANGE_REQUEST_APPROVED_DRIVER_MAIL = "request-approved-driver";
 	private static final String CHANGE_REQUEST_REFUSED_MAIL = "request-refused";
+	private static final String CHANGE_PASS_CONFIRMATION_MAIL = "change-password";
 
 	private MailUtils() {}
+
+	public static Mail getPasswordChangeConfirmationMail(String link) {
+		return mailByKeyWithParams(CHANGE_PASS_CONFIRMATION_MAIL, LINK_PARAM, link);
+	}
 
 	public static Mail getChangeRequestApprovedSenderMail(String senderFirstName, String driverUsername) {
 		return mailByKeyWithParams(CHANGE_REQUEST_APPROVED_SENDER_MAIL, FIRST_NAME_PARAM, senderFirstName, USERNAME_PARAM, driverUsername);

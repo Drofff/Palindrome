@@ -126,21 +126,6 @@
 								</a>
 							</div>
 						</div>
-
-						<div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-top: 10%;">
-							<div class="mdl-card__title">
-								<h2 class="mdl-card__title-text">Квитанції до оплати</h2>
-							</div>
-							<div class="mdl-card__supporting-text">
-								Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-								Mauris sagittis pellentesque lacus eleifend lacinia...
-							</div>
-							<div class="mdl-card__actions mdl-card--border">
-								<a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-									Переглянути всі
-								</a>
-							</div>
-						</div>
 					</div>
 					<div class="mdl-cell mdl-cell--1-col"></div>
 					<div class="mdl-cell mdl-cell--4-col">

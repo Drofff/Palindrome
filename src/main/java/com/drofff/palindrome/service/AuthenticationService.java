@@ -19,6 +19,12 @@ public interface AuthenticationService {
 
 	void recoverPasswordForUserWithToken(String userId, String token, String newPassword);
 
+	void changeUserPassword(String password, String newPassword);
+
+	void changeUserPasswordByMail(String newPassword);
+
+	void confirmUserPasswordChangeByToken(String token);
+
 	Page<User> getAllUsersAtPage(int page);
 
 	long countUsers();

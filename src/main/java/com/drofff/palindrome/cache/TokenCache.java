@@ -1,7 +1,8 @@
 package com.drofff.palindrome.cache;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import com.drofff.palindrome.document.User;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -10,7 +11,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 public class TokenCache {
 
 	private static final Cache<String, String> CACHE = Caffeine.newBuilder()
-			.expireAfterWrite(20, TimeUnit.MINUTES)
+			.expireAfterWrite(20, MINUTES)
 			.build();
 
 	private TokenCache() {}

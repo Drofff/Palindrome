@@ -22,6 +22,8 @@ public class EndpointConstants {
 
 	public static final String CREATE_POLICE_PROFILE_ENDPOINT = "/police/create";
 
+	public static final String CONFIRM_PASS_CHANGE_ENDPOINT = "/change-password/confirm";
+
 	private EndpointConstants() {}
 
 }
