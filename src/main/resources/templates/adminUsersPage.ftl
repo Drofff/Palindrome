@@ -138,7 +138,9 @@
 					<li class="mdl-list__item mdl-list__item--two-line">
 					    <span class="mdl-list__item-primary-content">
 					      <i class="material-icons mdl-list__item-avatar">person</i>
-					      <span <#if user.isDriver()>onclick="window.location.href='/admin/users/driver/${user.id}?type=USER_ID'"</#if> style="cursor: pointer">${user.username}</span>
+					      <span <#if user.isDriver()>onclick="window.location.href='/admin/users/driver/${user.id}?type=USER_ID'"</#if>
+							      <#if user.isPolice()>onclick="window.location.href='/admin/users/police/${user.id}'"</#if>
+							    style="cursor: pointer">${user.username}</span>
 						    <#if !user.enabled>
 							    <span class="mdl-list__item-sub-title">Не активований</span>
 						    <#else>

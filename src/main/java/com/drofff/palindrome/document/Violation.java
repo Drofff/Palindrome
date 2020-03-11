@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.repository.CarRepository;
 import com.drofff.palindrome.repository.ViolationTypeRepository;
 
 @Document
@@ -22,6 +23,9 @@ public class Violation {
 	private String violationTypeId;
 
 	private boolean paid;
+
+	@FromRepository(CarRepository.class)
+	private String carId;
 
 	private String violatorId;
 
@@ -65,6 +69,14 @@ public class Violation {
 
 	public void setPaid(boolean paid) {
 		this.paid = paid;
+	}
+
+	public String getCarId() {
+		return carId;
+	}
+
+	public void setCarId(String carId) {
+		this.carId = carId;
 	}
 
 	public String getViolatorId() {

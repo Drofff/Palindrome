@@ -61,7 +61,24 @@
 				</div>
 			</dialog>
 
-			<div style="margin-top: 5%; margin-left: 5%; margin-right: 5%;">
+			<div style="margin-top: 2%; margin-left: 5%; margin-right: 5%;">
+
+				<form action="/violation" method="get" id="filter-form" style="margin-bottom: 3%;">
+					<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+						<select class="mdl-textfield__input" id="carId" name="carId">
+							<option value="">Всі автомобілі</option>
+                            <#list cars as car>
+								<option value="${car.id}" <#if car_id?? && car.id == car_id>selected</#if> >${car.brand.name} ${car.model} (${car.number})</option>
+                            </#list>
+						</select>
+					</div>
+				</form>
+
+
+                <#if !violations?? || violations?size == 0>
+					<h4 style="margin-top: 2%; margin-left: 20%;">Записи відсутні</h4>
+                </#if>
+
 				<#list violations as violation>
 					<div class="demo-card-event mdl-card mdl-shadow--2dp" style="<#if violation.paid>background: green;</#if>">
 						<div class="mdl-card__title mdl-card--expand" style="background: rgb(255,255,255); margin-top: 1%; margin-left: 1%; margin-right: 1%; cursor: pointer"
@@ -104,6 +121,11 @@
         <#if error_message?? || message??>
         dialog.showModal();
         </#if>
+
+	    $("#carId").change(function() {
+	        $("#filter-form").submit();
+	    });
+
     });
 
 	function next_page() {

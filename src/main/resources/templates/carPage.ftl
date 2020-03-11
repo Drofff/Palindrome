@@ -97,10 +97,12 @@
 					</table>
 				</div>
 				<div class="mdl-cell mdl-cell--4-col">
-					<p>Правопорушень: (КІЛЬКІСТЬ)</p>
-					<p>Останнє: (ДАТА)</p>
-					<p>Оплачено: (КІЛЬКІСТЬ)</p>
-					<p>Очікує опалати: (КІЛЬКІСТЬ)</p>
+					<p>Правопорушень: ${violations_count} <#if violations_count gt 0><a href="/violation?carId=${car.id}" style="margin-left: 5%;">Переглянути</a></#if></p>
+					<#if latest_violation_datetime??>
+						<p>Останнє: <#if latest_violation_datetime.hour lt 10>0${latest_violation_datetime.hour}<#else>${latest_violation_datetime.hour}</#if>:<#if latest_violation_datetime.minute lt 10>0${latest_violation_datetime.minute}<#else>${latest_violation_datetime.minute}</#if> ${latest_violation_datetime.dayOfMonth}/${latest_violation_datetime.month.ordinal() + 1}/${latest_violation_datetime.year?c}</p>
+					</#if>
+					<p>Оплачено: ${payed_violations_count}</p>
+					<p>Очікує опалати: ${not_payed_violations_count}</p>
 					<p>
 						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/car/update/${car.id}">
 							Редагувати

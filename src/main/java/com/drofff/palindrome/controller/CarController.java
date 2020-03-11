@@ -12,7 +12,11 @@ import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.putCollectionPageIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
+import static com.drofff.palindrome.utils.ViolationUtils.countPaidViolations;
+import static com.drofff.palindrome.utils.ViolationUtils.countUnpaidViolations;
+import static com.drofff.palindrome.utils.ViolationUtils.getLatestViolationDateTimeIfPresent;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.Violation;
 import com.drofff.palindrome.dto.CarDto;
 import com.drofff.palindrome.dto.CarFatDto;
 import com.drofff.palindrome.dto.OwnedCarsCarDto;
@@ -41,6 +46,7 @@ import com.drofff.palindrome.service.DriverService;
 import com.drofff.palindrome.service.EngineTypeService;
 import com.drofff.palindrome.service.LicenceCategoryService;
 import com.drofff.palindrome.service.MappingsResolver;
+import com.drofff.palindrome.service.ViolationService;
 import com.drofff.palindrome.type.CollectionPage;
 
 @Controller
@@ -61,6 +67,7 @@ public class CarController {
 	private final LicenceCategoryService licenceCategoryService;
 	private final EngineTypeService engineTypeService;
 	private final DriverService driverService;
+	private final ViolationService violationService;
 	private final CarDtoMapper carDtoMapper;
 	private final OwnedCarsCarDtoMapper ownedCarsCarDtoMapper;
 	private final CarFatDtoMapper carFatDtoMapper;
@@ -70,14 +77,16 @@ public class CarController {
 	public CarController(CarService carService, BrandService brandService,
 	                     BodyTypeService bodyTypeService, LicenceCategoryService licenceCategoryService,
 	                     EngineTypeService engineTypeService, DriverService driverService,
-	                     CarDtoMapper carDtoMapper, OwnedCarsCarDtoMapper ownedCarsCarDtoMapper,
-	                     CarFatDtoMapper carFatDtoMapper, MappingsResolver mappingsResolver) {
+	                     ViolationService violationService, CarDtoMapper carDtoMapper,
+	                     OwnedCarsCarDtoMapper ownedCarsCarDtoMapper, CarFatDtoMapper carFatDtoMapper,
+	                     MappingsResolver mappingsResolver) {
 		this.carService = carService;
 		this.brandService = brandService;
 		this.bodyTypeService = bodyTypeService;
 		this.licenceCategoryService = licenceCategoryService;
 		this.engineTypeService = engineTypeService;
 		this.driverService = driverService;
+		this.violationService = violationService;
 		this.carDtoMapper = carDtoMapper;
 		this.ownedCarsCarDtoMapper = ownedCarsCarDtoMapper;
 		this.carFatDtoMapper = carFatDtoMapper;
@@ -111,12 +120,23 @@ public class CarController {
 		Car car = carService.getOwnedCarById(id);
 		model.addAttribute(CAR_PARAM, toCarFatDto(car));
 		model.addAttribute(MESSAGE_PARAM, message);
+		putCarViolationStatsIntoModel(car, model);
 		return "carPage";
 	}
 
 	private CarFatDto toCarFatDto(Car car) {
 		CarFatDto carFatDto = carFatDtoMapper.toDto(car);
 		return mappingsResolver.resolveMappings(car, carFatDto);
+	}
+
+	private void putCarViolationStatsIntoModel(Car car, Model model) {
+		List<Violation> violations = violationService.getCarViolations(car);
+		model.addAttribute("violations_count", violations.size());
+		LocalDateTime latestViolationDateTime = getLatestViolationDateTimeIfPresent(violations)
+				.orElse(null);
+		model.addAttribute("latest_violation_datetime", latestViolationDateTime);
+		model.addAttribute("payed_violations_count", countPaidViolations(violations));
+		model.addAttribute("not_payed_violations_count", countUnpaidViolations(violations));
 	}
 
 	@GetMapping("/create")

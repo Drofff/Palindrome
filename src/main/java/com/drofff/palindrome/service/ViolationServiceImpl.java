@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.document.Violation;
@@ -28,6 +29,12 @@ public class ViolationServiceImpl implements ViolationService {
 	}
 
 	@Override
+	public List<Violation> getCarViolations(Car car) {
+		validateCar(car);
+		return violationRepository.findByCarId(car.getId());
+	}
+
+	@Override
 	public List<Violation> getDriverViolations(Driver driver) {
 		validateDriver(driver);
 		return violationRepository.findByViolatorId(driver.getUserId());
@@ -39,9 +46,21 @@ public class ViolationServiceImpl implements ViolationService {
 		return violationRepository.findByViolatorId(driver.getUserId(), pageable);
 	}
 
+	@Override
+	public Page<Violation> getPageOfDriverViolationsWithCar(Driver driver, Car car, Pageable pageable) {
+		validateDriver(driver);
+		validateCar(car);
+		return violationRepository.findByViolatorIdAndCarId(driver.getUserId(), car.getId(), pageable);
+	}
+
 	private void validateDriver(Driver driver) {
 		validateNotNull(driver, "Driver should be provided");
 		validateNotNull(driver.getId(), "Driver should obtain id");
+	}
+
+	private void validateCar(Car car) {
+		validateNotNull(car, "Car is required");
+		validateNotNull(car.getId(), "Car should obtain an id");
 	}
 
 	@Override

@@ -78,8 +78,10 @@
 							</div>
 							<div class="mdl-card__supporting-text">
 								<a href="/admin/users/driver/${request.targetValue.id}" target="_blank">Переглянути водія</a>
-                                <#if request.comment??>
+                                <#if request.comment?? && request.comment?has_content>
 									<p>Коментар: ${request.comment}</p>
+                                <#else>
+	                                <p>Коментар відсутній</p>
                                 </#if>
 								<p>Отримано: <#if request.dateTime.hour lt 10>0${request.dateTime.hour}<#else>${request.dateTime.hour}</#if>:<#if request.dateTime.minute lt 10>0${request.dateTime.minute}<#else>${request.dateTime.minute}</#if>, ${request.dateTime.dayOfMonth} of ${request.dateTime.month.name()?capitalize} ${request.dateTime.year?c}</p>
 							</div>
@@ -95,8 +97,10 @@
 							</div>
 							<div class="mdl-card__supporting-text">
 								<a href="/admin/cars/${request.targetValue.id}" target="_blank">Переглянути автомобіль</a>
-                                <#if request.comment??>
+                                <#if request.comment?? && request.comment?has_content>
 									<p>Коментар: ${request.comment}</p>
+                                <#else>
+	                                <p>Коментар відсутній</p>
                                 </#if>
 								<p>Отримано: <#if request.dateTime.hour lt 10>0${request.dateTime.hour}<#else>${request.dateTime.hour}</#if>:<#if request.dateTime.minute lt 10>0${request.dateTime.minute}<#else>${request.dateTime.minute}</#if>, ${request.dateTime.dayOfMonth} of ${request.dateTime.month.name()?capitalize} ${request.dateTime.year?c}</p>
 							</div>

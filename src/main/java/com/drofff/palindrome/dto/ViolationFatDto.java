@@ -2,6 +2,7 @@ package com.drofff.palindrome.dto;
 
 import java.time.LocalDateTime;
 
+import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.ViolationType;
 
@@ -16,6 +17,8 @@ public class ViolationFatDto {
 	private ViolationType violationType;
 
 	private boolean paid;
+
+	private Car car;
 
 	private Police officer;
 
@@ -57,6 +60,14 @@ public class ViolationFatDto {
 
 	public void setPaid(boolean paid) {
 		this.paid = paid;
+	}
+
+	public Car getCar() {
+		return car;
+	}
+
+	public void setCar(Car car) {
+		this.car = car;
 	}
 
 	public Police getOfficer() {

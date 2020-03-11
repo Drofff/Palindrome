@@ -106,7 +106,7 @@
 
 				</div>
 				<div class="mdl-cell mdl-cell--4-col" style="margin-left: 10%;">
-					<div>
+					<div onclick="window.location.href='/admin/users/police/${police.userId}'" style="cursor: pointer">
 						<img src="data:img/png;base64, ${photo}" style="border-radius: 50%; margin-right: 3%;" width="40px" height="40px" alt=" ">
                         ${police.firstName} ${police.lastName}
 					</div>

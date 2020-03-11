@@ -6,6 +6,7 @@ import static com.drofff.palindrome.constants.ParameterConstants.EMAIL_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.FILER_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.POLICE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
 import static com.drofff.palindrome.enums.DriverIdType.DRIVER_ID;
@@ -34,18 +35,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.BlockUserDto;
 import com.drofff.palindrome.dto.CreateUserDto;
+import com.drofff.palindrome.dto.PoliceFatDto;
 import com.drofff.palindrome.dto.UsersUserDto;
 import com.drofff.palindrome.enums.DriverIdType;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.filter.UserFilter;
 import com.drofff.palindrome.mapper.CreateUserDtoMapper;
+import com.drofff.palindrome.mapper.PoliceFatDtoMapper;
 import com.drofff.palindrome.mapper.UsersUserDtoMapper;
 import com.drofff.palindrome.service.AuthenticationService;
 import com.drofff.palindrome.service.DriverService;
+import com.drofff.palindrome.service.MappingsResolver;
 import com.drofff.palindrome.service.PhotoService;
+import com.drofff.palindrome.service.PoliceService;
 import com.drofff.palindrome.service.UserBlockService;
 
 @Controller
@@ -56,6 +62,7 @@ public class AdminUserController {
 	private static final String CREATE_USER_VIEW = "createUserPage";
 
 	private static final String ROLES_PARAM = "roles";
+	private static final String BLOCKED_PARAM = "blocked";
 
 	private static final DriverIdType DEFAULT_DRIVER_PAGE_ID_TYPE = DRIVER_ID;
 
@@ -63,19 +70,26 @@ public class AdminUserController {
 	private final UserBlockService userBlockService;
 	private final DriverService driverService;
 	private final PhotoService photoService;
+	private final PoliceService policeService;
 	private final UsersUserDtoMapper usersUserDtoMapper;
 	private final CreateUserDtoMapper createUserDtoMapper;
+	private final PoliceFatDtoMapper policeFatDtoMapper;
+	private final MappingsResolver mappingsResolver;
 
 	@Autowired
 	public AdminUserController(AuthenticationService authenticationService, UserBlockService userBlockService,
-	                           DriverService driverService, PhotoService photoService, UsersUserDtoMapper usersUserDtoMapper,
-	                           CreateUserDtoMapper createUserDtoMapper) {
+	                           DriverService driverService, PhotoService photoService, PoliceService policeService,
+	                           UsersUserDtoMapper usersUserDtoMapper, CreateUserDtoMapper createUserDtoMapper,
+	                           PoliceFatDtoMapper policeFatDtoMapper, MappingsResolver mappingsResolver) {
 		this.authenticationService = authenticationService;
 		this.userBlockService = userBlockService;
 		this.driverService = driverService;
 		this.photoService = photoService;
+		this.policeService = policeService;
 		this.usersUserDtoMapper = usersUserDtoMapper;
 		this.createUserDtoMapper = createUserDtoMapper;
+		this.policeFatDtoMapper = policeFatDtoMapper;
+		this.mappingsResolver = mappingsResolver;
 	}
 
 	@GetMapping
@@ -108,7 +122,7 @@ public class AdminUserController {
 		model.addAttribute(USER_ID_PARAM, user.getId());
 		String encodedPhoto = photoService.loadEncodedPhotoByUri(driver.getPhotoUri());
 		model.addAttribute(PHOTO_PARAM, encodedPhoto);
-		model.addAttribute("blocked", userBlockService.isUserBlocked(user));
+		model.addAttribute(BLOCKED_PARAM, userBlockService.isUserBlocked(user));
 		return "viewDriverProfilePage";
 	}
 
@@ -117,6 +131,23 @@ public class AdminUserController {
 				.orElse(DEFAULT_DRIVER_PAGE_ID_TYPE)
 				.getFindDriverFunctionFromService(driverService)
 				.apply(id);
+	}
+
+	@GetMapping("/police/{id}")
+	public String viewPoliceProfile(@PathVariable String id, Model model) {
+		Police police = policeService.getPoliceByUserId(id);
+		model.addAttribute(POLICE_PARAM, toPoliceFatDto(police));
+		String encodedPhoto = photoService.loadEncodedPhotoByUri(police.getPhotoUri());
+		model.addAttribute(PHOTO_PARAM, encodedPhoto);
+		User user = authenticationService.getUserById(id);
+		boolean blocked = userBlockService.isUserBlocked(user);
+		model.addAttribute(BLOCKED_PARAM, blocked);
+		return "viewPoliceProfilePage";
+	}
+
+	private PoliceFatDto toPoliceFatDto(Police police) {
+		PoliceFatDto policeFatDto = policeFatDtoMapper.toDto(police);
+		return mappingsResolver.resolveMappings(police, policeFatDto);
 	}
 
 	@GetMapping("/create")

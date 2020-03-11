@@ -1,38 +1,24 @@
-package com.drofff.palindrome.document;
+package com.drofff.palindrome.dto;
 
-import javax.validation.constraints.NotNull;
+import com.drofff.palindrome.document.Department;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+public class PoliceFatDto {
 
-import com.drofff.palindrome.annotation.FromRepository;
-import com.drofff.palindrome.repository.DepartmentRepository;
-
-@Document
-public class Police {
-
-	@Id
 	private String id;
 
-	@NotNull(message = "First name is required")
 	private String firstName;
 
-	@NotNull(message = "Last name is required")
 	private String lastName;
 
 	private String middleName;
 
-	@NotNull(message = "Position should be provided")
 	private String position;
 
-	@NotNull(message = "Token number is required")
 	private String tokenNumber;
 
 	private String photoUri;
 
-	@NotNull(message = "Select department")
-	@FromRepository(DepartmentRepository.class)
-	private String departmentId;
+	private Department department;
 
 	private String userId;
 
@@ -92,12 +78,12 @@ public class Police {
 		this.photoUri = photoUri;
 	}
 
-	public String getDepartmentId() {
-		return departmentId;
+	public Department getDepartment() {
+		return department;
 	}
 
-	public void setDepartmentId(String departmentId) {
-		this.departmentId = departmentId;
+	public void setDepartment(Department department) {
+		this.department = department;
 	}
 
 	public String getUserId() {
