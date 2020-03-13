@@ -14,6 +14,7 @@ import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.putUserBlockIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectTo;
+import static com.drofff.palindrome.utils.ViolationUtils.violationsByDateTimeComparator;
 
 import java.util.List;
 import java.util.Optional;
@@ -113,6 +114,7 @@ public class BaseController {
 
 	private List<Violation> getDriverViolations(Driver driver) {
 		return violationService.getDriverViolations(driver).stream()
+				.sorted(violationsByDateTimeComparator())
 				.limit(VIOLATIONS_AT_HOME_PAGE_MAX_SIZE)
 				.collect(Collectors.toList());
 	}

@@ -18,12 +18,12 @@ public interface ViolationService {
 
 	Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable);
 
-	Page<Violation> getPageOfDriverViolationsWithCar(Driver driver, Car car, Pageable pageable);
-
 	Violation getViolationOfUserById(User user, String id);
 
 	Violation getViolationById(String id);
 
 	void markAsPaid(Violation violation);
+
+	void addViolation(Violation violation);
 
 }

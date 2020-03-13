@@ -32,7 +32,6 @@ public class StripePaymentService implements PaymentService {
 
 	@Override
 	public PaymentHistory executePayment(Payment payment) {
-		validateNotNull(payment, "Missing payment data");
 		validate(payment);
 		ChargeCreateParams chargeCreateParams = chargeParamsFromPayment(payment);
 		Charge charge = createChargeWithParams(chargeCreateParams);

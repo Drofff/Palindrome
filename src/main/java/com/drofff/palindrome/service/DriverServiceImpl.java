@@ -2,10 +2,10 @@ package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -73,21 +73,11 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	@Override
 	public void updateDriverProfile(Driver driver) {
 		validate(driver);
-		validateHasId(driver);
+		validateEntityHasId(driver);
 		User currentUser = getCurrentUser();
 		Driver originalDriver = getDriverByUserId(currentUser.getId());
 		mergeDriverMappings(originalDriver, driver);
 		driverRepository.save(driver);
-	}
-
-	private void validateHasId(Driver driver) {
-		if(hasNoId(driver)) {
-			throw new ValidationException("Id is required to update driver profile");
-		}
-	}
-
-	private boolean hasNoId(Driver driver) {
-		return Objects.isNull(driver.getId());
 	}
 
 	private void mergeDriverMappings(Driver from, Driver to) {
@@ -150,8 +140,18 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	}
 
 	@Override
+	public boolean isOwnerOfCarWithId(Driver driver, String id) {
+		Driver carOwner = getOwnerOfCarWithId(id);
+		return driver.equals(carOwner);
+	}
+
+	@Override
 	public Driver getOwnerOfCar(Car car) {
-		return driverRepository.findByCarId(car.getId())
+		return getOwnerOfCarWithId(car.getId());
+	}
+
+	private Driver getOwnerOfCarWithId(String id) {
+		return driverRepository.findByCarId(id)
 				.orElseThrow(() -> new ValidationException("Can not find an owner of the car"));
 	}
 

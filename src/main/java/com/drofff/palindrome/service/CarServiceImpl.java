@@ -1,11 +1,12 @@
 package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.StringUtils.isBlank;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,20 +84,10 @@ public class CarServiceImpl implements CarService, EntityManager {
 	@Override
 	public void updateCar(Car car) {
 		validate(car);
-		validateHasId(car);
+		validateEntityHasId(car);
 		validateCarProperties(car);
 		validatePermissionsToUpdateCar(car);
 		carRepository.save(car);
-	}
-
-	private void validateHasId(Car car) {
-		if(hasNoId(car)) {
-			throw new ValidationException("Id is required to update car");
-		}
-	}
-
-	private boolean hasNoId(Car car) {
-		return Objects.isNull(car.getId());
 	}
 
 	private void validateCarProperties(Car car) {
@@ -194,6 +185,24 @@ public class CarServiceImpl implements CarService, EntityManager {
 
 	private boolean isCarClass(Class<?> clazz) {
 		return Car.class.isAssignableFrom(clazz);
+	}
+
+	@Override
+	public Car getCarByNumber(String number) {
+		validateCarNumber(number);
+		return carRepository.findByNumber(number)
+				.orElseThrow(() -> new ValidationException("Car with such number doesn't exist"));
+	}
+
+	private void validateCarNumber(String number) {
+		validateNotNull(number, "Car number is required");
+		validateCarNumberIsNotBlank(number);
+	}
+
+	private void validateCarNumberIsNotBlank(String number) {
+		if(isBlank(number)) {
+			throw new ValidationException("Car number should not be blank");
+		}
 	}
 
 }

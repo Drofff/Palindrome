@@ -24,6 +24,8 @@ public class EndpointConstants {
 
 	public static final String CONFIRM_PASS_CHANGE_ENDPOINT = "/change-password/confirm";
 
+	public static final String VIOLATION_ENDPOINT_PREFIX = "/violation/";
+
 	private EndpointConstants() {}
 
 }

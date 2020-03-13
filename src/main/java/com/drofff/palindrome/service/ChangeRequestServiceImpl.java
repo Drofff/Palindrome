@@ -9,9 +9,9 @@ import static com.drofff.palindrome.utils.MailUtils.getChangeRequestRefusedMail;
 import static com.drofff.palindrome.utils.ReflectionUtils.classByName;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
+import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +52,8 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	@Override
 	public void requestDriverInfoChangeWithComment(Driver driver, String comment) {
 		validateCurrentUserHasRole(POLICE);
-		validateHasId(driver);
 		validate(driver);
+		validateEntityHasId(driver);
 		ChangeRequest changeRequest = changeRequestForDriverWithComment(driver, comment);
 		changeRequestRepository.save(changeRequest);
 	}
@@ -68,24 +68,10 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	@Override
 	public void requestCarInfoChangeWithComment(Car car, String comment) {
 		validateCurrentUserHasRole(POLICE);
-		validateHasId(car);
 		validate(car);
+		validateEntityHasId(car);
 		ChangeRequest changeRequest = changeRequestForCarWithComment(car, comment);
 		changeRequestRepository.save(changeRequest);
-	}
-
-	private void validateHasId(Entity entity) {
-		if(hasNoId(entity)) {
-			throw new ValidationException("Entity should be provided with id");
-		}
-	}
-
-	private boolean hasNoId(Entity entity) {
-		return !hasId(entity);
-	}
-
-	private boolean hasId(Entity entity) {
-		return Objects.nonNull(entity.getId());
 	}
 
 	private ChangeRequest changeRequestForCarWithComment(Car car, String comment) {

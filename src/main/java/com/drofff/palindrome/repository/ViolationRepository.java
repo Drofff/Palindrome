@@ -18,6 +18,4 @@ public interface ViolationRepository extends MongoRepository<Violation, String> 
 
 	List<Violation> findByCarId(String id);
 
-	Page<Violation> findByViolatorIdAndCarId(String violatorId, String carId, Pageable pageable);
-
 }

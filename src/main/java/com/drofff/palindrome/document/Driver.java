@@ -110,4 +110,18 @@ public class Driver implements Entity {
 		this.userId = userId;
 	}
 
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Driver) {
+			Driver driver = (Driver) obj;
+			return id.equals(driver.id);
+		}
+		return super.equals(obj);
+	}
+
 }

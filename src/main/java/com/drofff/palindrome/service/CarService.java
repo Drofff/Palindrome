@@ -23,4 +23,6 @@ public interface CarService {
 
 	Page<Car> getAllCarsAtPage(int page);
 
+	Car getCarByNumber(String number);
+
 }

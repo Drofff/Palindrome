@@ -8,6 +8,8 @@ import static com.drofff.palindrome.utils.TicketUtils.getChargeIdTitle;
 import static com.drofff.palindrome.utils.TicketUtils.getPayerTitle;
 import static com.drofff.palindrome.utils.TicketUtils.getSumTitle;
 import static com.drofff.palindrome.utils.TicketUtils.getViolationIdTitle;
+import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 import static com.itextpdf.kernel.font.PdfFontFactory.createFont;
 import static com.itextpdf.kernel.geom.PageSize.A4;
 import static com.itextpdf.layout.property.HorizontalAlignment.CENTER;
@@ -224,7 +226,13 @@ public class PdfTicketService implements TicketService {
 
 	@Override
 	public TicketFile getPayedViolationTicket(Violation violation) {
-		Ticket ticket = ticketRepository.findByViolationId(violation.getId())
+		validateNotNull(violation);
+		validateEntityHasId(violation);
+		return getTicketFileByViolationId(violation.getId());
+	}
+
+	private TicketFile getTicketFileByViolationId(String id) {
+		Ticket ticket = ticketRepository.findByViolationId(id)
 				.orElseThrow(() -> new ValidationException("Ticket for the violation is not present"));
 		String filename = ticket.getPath();
 		byte[] ticketContent = getFromPermanentStorage(filename);

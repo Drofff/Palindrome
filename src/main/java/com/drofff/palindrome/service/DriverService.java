@@ -26,6 +26,8 @@ public interface DriverService {
 
 	void deleteFromDriverOwnedCars(Car car, Driver driver);
 
+	boolean isOwnerOfCarWithId(Driver driver, String carId);
+
 	Driver getOwnerOfCar(Car car);
 
 	List<Driver> getAllDrivers();

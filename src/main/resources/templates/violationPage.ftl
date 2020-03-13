@@ -45,7 +45,13 @@
                <p>Порушення: ${violation.violationType.name}</p>
 			   <p>Статус: <#if violation.paid><b style="color: green;">Оплачено</b><#else><b style="color: red;">Очікує оплати</b></#if></p>
 			   <p>Місце фіксування: ${violation.location}</p>
-				<p>Транспортний засіб: <a href="/car/${violation.car.id}">${violation.car.number}</a></p>
+				<p>Транспортний засіб:
+					<#if is_car_owned?? && is_car_owned>
+						<a href="/car/${violation.car.id}">${violation.car.number}</a>
+					<#else>
+                        ${violation.car.number}
+					</#if>
+				</p>
 				<p>Дата: <#if violation.dateTime.hour lt 10>0${violation.dateTime.hour}<#else>${violation.dateTime.hour}</#if>:<#if violation.dateTime.minute lt 10>0${violation.dateTime.minute}<#else>${violation.dateTime.minute}</#if> ${violation.dateTime.dayOfMonth}/${violation.dateTime.month.ordinal() + 1}/${violation.dateTime.year?c}</p>
 				<p>Розмір штрафу: ${violation.violationType.fee.amount / 100} ${violation.violationType.fee.currency}</p>
 				<p>Зафіксував: <font style="cursor: pointer" onclick="window.location.href='/police/${violation.officer.id}'">${violation.officer.position} ${violation.officer.lastName} ${violation.officer.firstName}</font></p>

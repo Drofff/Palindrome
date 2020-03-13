@@ -1,70 +1,81 @@
 package com.drofff.palindrome.service;
 
+import static com.drofff.palindrome.constants.EndpointConstants.VIOLATION_ENDPOINT_PREFIX;
+import static com.drofff.palindrome.enums.Role.POLICE;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
+import static com.drofff.palindrome.utils.MailUtils.getViolationAddedMail;
+import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
+import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.document.Violation;
+import com.drofff.palindrome.document.ViolationType;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ViolationRepository;
+import com.drofff.palindrome.type.Mail;
 
 @Service
 public class ViolationServiceImpl implements ViolationService {
 
 	private final ViolationRepository violationRepository;
+	private final PoliceService policeService;
+	private final ViolationTypeService violationTypeService;
+	private final AuthenticationService authenticationService;
+	private final MailService mailService;
+
+	@Value("${application.url}")
+	private String applicationUrl;
 
 	@Autowired
-	public ViolationServiceImpl(ViolationRepository violationRepository) {
+	public ViolationServiceImpl(ViolationRepository violationRepository, PoliceService policeService,
+	                            ViolationTypeService violationTypeService, AuthenticationService authenticationService,
+	                            MailService mailService) {
 		this.violationRepository = violationRepository;
+		this.policeService = policeService;
+		this.violationTypeService = violationTypeService;
+		this.authenticationService = authenticationService;
+		this.mailService = mailService;
 	}
 
 	@Override
 	public List<Violation> getCarViolations(Car car) {
-		validateCar(car);
+		validateNotNull(car);
+		validateEntityHasId(car);
 		return violationRepository.findByCarId(car.getId());
 	}
 
 	@Override
 	public List<Violation> getDriverViolations(Driver driver) {
-		validateDriver(driver);
+		validateNotNull(driver);
+		validateEntityHasId(driver);
 		return violationRepository.findByViolatorId(driver.getUserId());
 	}
 
 	@Override
 	public Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable) {
-		validateDriver(driver);
+		validateNotNull(driver);
+		validateEntityHasId(driver);
 		return violationRepository.findByViolatorId(driver.getUserId(), pageable);
 	}
 
 	@Override
-	public Page<Violation> getPageOfDriverViolationsWithCar(Driver driver, Car car, Pageable pageable) {
-		validateDriver(driver);
-		validateCar(car);
-		return violationRepository.findByViolatorIdAndCarId(driver.getUserId(), car.getId(), pageable);
-	}
-
-	private void validateDriver(Driver driver) {
-		validateNotNull(driver, "Driver should be provided");
-		validateNotNull(driver.getId(), "Driver should obtain id");
-	}
-
-	private void validateCar(Car car) {
-		validateNotNull(car, "Car is required");
-		validateNotNull(car.getId(), "Car should obtain an id");
-	}
-
-	@Override
 	public Violation getViolationOfUserById(User user, String id) {
+		validateNotNull(id, "Violation id is required");
 		Violation violation = getViolationById(id);
 		validateUserIsViolatorOf(user, violation);
 		return violation;
@@ -77,25 +88,12 @@ public class ViolationServiceImpl implements ViolationService {
 
 	@Override
 	public void markAsPaid(Violation violation) {
-		validateHasId(violation);
+		validateNotNull(violation);
+		validateEntityHasId(violation);
 		User currentUser = getCurrentUser();
 		validateUserIsViolatorOf(currentUser, violation);
 		violation.setPaid(true);
 		violationRepository.save(violation);
-	}
-
-	private void validateHasId(Violation violation) {
-		if(hasNoId(violation)) {
-			throw new ValidationException("Violation should obtain id");
-		}
-	}
-
-	private boolean hasNoId(Violation violation) {
-		return !hasId(violation);
-	}
-
-	private boolean hasId(Violation violation) {
-		return Objects.nonNull(violation.getId());
 	}
 
 	private void validateUserIsViolatorOf(User user, Violation violation) {
@@ -110,6 +108,65 @@ public class ViolationServiceImpl implements ViolationService {
 
 	private boolean isViolatorOf(User user, Violation violation) {
 		return violation.getViolatorId().equals(user.getId());
+	}
+
+	@Override
+	public void addViolation(Violation violation) {
+		validateCurrentUserHasRole(POLICE);
+		validate(violation);
+		validateViolationTypeId(violation.getViolationTypeId());
+		initViolationValues(violation);
+		violationRepository.save(violation);
+		notifyViolationAdded(violation);
+	}
+
+	private void initViolationValues(Violation violation) {
+		Police police = getCurrentPolice();
+		violation.setOfficerId(police.getId());
+		violation.setDateTime(LocalDateTime.now());
+		initViolationPaidStatus(violation);
+	}
+
+	private void initViolationPaidStatus(Violation violation) {
+		boolean isPaid = hasNoFee(violation);
+		violation.setPaid(isPaid);
+	}
+
+	private boolean hasNoFee(Violation violation) {
+		return !hasFee(violation);
+	}
+
+	private boolean hasFee(Violation violation) {
+		ViolationType violationType = violationTypeService.getViolationTypeById(violation.getViolationTypeId());
+		return violationType.getFee().getAmount() > 0;
+	}
+
+	private Police getCurrentPolice() {
+		User currentUser = getCurrentUser();
+		return policeService.getPoliceByUserId(currentUser.getId());
+	}
+
+	private void validateViolationTypeId(String id) {
+		validateNotNull(id, "Violation type is required");
+		if(notExistsViolationTypeWithId(id)) {
+			throw new ValidationException("Invalid violation type id");
+		}
+	}
+
+	private boolean notExistsViolationTypeWithId(String id) {
+		return !violationTypeService.existsViolationTypeWithId(id);
+	}
+
+	private void notifyViolationAdded(Violation violation) {
+		User violator = authenticationService.getUserById(violation.getViolatorId());
+		String linkToViolation = generateLinkToViolationWithId(violation.getId());
+		Mail notificationMail = getViolationAddedMail(linkToViolation);
+		mailService.sendMailTo(notificationMail, violator.getUsername());
+	}
+
+	private String generateLinkToViolationWithId(String id) {
+		String violationUri = VIOLATION_ENDPOINT_PREFIX + id;
+		return concatPathSegments(applicationUrl, violationUri);
 	}
 
 }
