@@ -6,7 +6,7 @@ public interface AuthorizationService {
 
     String generateAuthorizationTokenForUser(User user);
 
-    User getUserByAuthorizationToken(String token);
+    String getUserIdByAuthorizationToken(String token);
 
     void removeAllExpiredAuthorizationTokens();
 

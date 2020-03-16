@@ -19,13 +19,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private static final Duration TOKEN_TIME_TO_LIVE = Duration.of(2, ChronoUnit.DAYS);
 
     private final AuthorizationTokenRepository authorizationTokenRepository;
-    private final AuthenticationService authenticationService;
 
     @Autowired
-    public AuthorizationServiceImpl(AuthorizationTokenRepository authorizationTokenRepository,
-                                    AuthenticationService authenticationService) {
+    public AuthorizationServiceImpl(AuthorizationTokenRepository authorizationTokenRepository) {
         this.authorizationTokenRepository = authorizationTokenRepository;
-        this.authenticationService = authenticationService;
     }
 
     @Override
@@ -46,10 +43,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     @Override
-    public User getUserByAuthorizationToken(String token) {
+    public String getUserIdByAuthorizationToken(String token) {
         AuthorizationToken authorizationToken = loadAuthorizationToken(token);
         validateAuthorizationTokenDueDate(authorizationToken);
-        return authenticationService.getUserById(authorizationToken.getUserId());
+        return authorizationToken.getUserId();
     }
 
     private AuthorizationToken loadAuthorizationToken(String token) {

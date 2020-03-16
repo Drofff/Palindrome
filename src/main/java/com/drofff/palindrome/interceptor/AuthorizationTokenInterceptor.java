@@ -2,6 +2,7 @@ package com.drofff.palindrome.interceptor;
 
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.service.AuthenticationService;
 import com.drofff.palindrome.service.AuthorizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -17,17 +18,21 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
     private static final String AUTHORIZATION_TOKEN_HEADER = "Authorization";
 
     private final AuthorizationService authorizationService;
+    private final AuthenticationService authenticationService;
 
     @Autowired
-    public AuthorizationTokenInterceptor(AuthorizationService authorizationService) {
+    public AuthorizationTokenInterceptor(AuthorizationService authorizationService,
+                                         AuthenticationService authenticationService) {
         this.authorizationService = authorizationService;
+        this.authenticationService = authenticationService;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         try {
             String token = getAuthorizationTokenFromHeader(request);
-            User user = authorizationService.getUserByAuthorizationToken(token);
+            String userId = authorizationService.getUserIdByAuthorizationToken(token);
+            User user = authenticationService.getUserById(userId);
             authenticateUser(user);
             return true;
         } catch (ValidationException e) {

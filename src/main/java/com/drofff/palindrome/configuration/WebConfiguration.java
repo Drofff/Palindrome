@@ -4,10 +4,7 @@ import com.drofff.palindrome.interceptor.AuthorizationTokenInterceptor;
 import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
 import com.drofff.palindrome.interceptor.DriverInterceptor;
 import com.drofff.palindrome.interceptor.PoliceInterceptor;
-import com.drofff.palindrome.service.AuthorizationService;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.PoliceService;
-import com.drofff.palindrome.service.UserBlockService;
+import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -35,12 +32,15 @@ public class WebConfiguration implements WebMvcConfigurer {
 	@Autowired
 	private AuthorizationService authorizationService;
 
+	@Autowired
+	private AuthenticationService authenticationService;
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new DriverInterceptor(driverService));
 		registry.addInterceptor(new BlockedUserInterceptor(userBlockService));
 		registry.addInterceptor(new PoliceInterceptor(policeService));
-		registry.addInterceptor(new AuthorizationTokenInterceptor(authorizationService))
+		registry.addInterceptor(new AuthorizationTokenInterceptor(authorizationService, authenticationService))
 				.addPathPatterns(VIOLATION_API_BASE_ENDPOINT + "**", "/api/police-info");
 	}
 
