@@ -1,11 +1,10 @@
 package com.drofff.palindrome.service;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.enums.Role;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 public interface AuthenticationService {
 
@@ -34,5 +33,7 @@ public interface AuthenticationService {
 	User getUserById(String id);
 
 	void createUser(User user);
+
+	User authenticateUser(String username, String password);
 
 }

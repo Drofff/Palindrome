@@ -1,21 +1,26 @@
 package com.drofff.palindrome.configuration;
 
+import com.drofff.palindrome.interceptor.AuthorizationTokenInterceptor;
+import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
+import com.drofff.palindrome.interceptor.DriverInterceptor;
+import com.drofff.palindrome.interceptor.PoliceInterceptor;
+import com.drofff.palindrome.service.AuthorizationService;
+import com.drofff.palindrome.service.DriverService;
+import com.drofff.palindrome.service.PoliceService;
+import com.drofff.palindrome.service.UserBlockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
-import com.drofff.palindrome.interceptor.DriverInterceptor;
-import com.drofff.palindrome.interceptor.PoliceInterceptor;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.PoliceService;
-import com.drofff.palindrome.service.UserBlockService;
+import static com.drofff.palindrome.constants.EndpointConstants.VIOLATION_API_BASE_ENDPOINT;
 
 @Configuration
 @EnableWebMvc
+@EnableScheduling
 public class WebConfiguration implements WebMvcConfigurer {
 
 	@Autowired
@@ -27,11 +32,16 @@ public class WebConfiguration implements WebMvcConfigurer {
 	@Autowired
 	private PoliceService policeService;
 
+	@Autowired
+	private AuthorizationService authorizationService;
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(new DriverInterceptor(driverService));
 		registry.addInterceptor(new BlockedUserInterceptor(userBlockService));
 		registry.addInterceptor(new PoliceInterceptor(policeService));
+		registry.addInterceptor(new AuthorizationTokenInterceptor(authorizationService))
+				.addPathPatterns(VIOLATION_API_BASE_ENDPOINT + "**", "/api/police-info");
 	}
 
 	@Override
