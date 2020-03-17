@@ -10,4 +10,6 @@ public interface DepartmentService {
 
 	boolean existsDepartmentWithId(String id);
 
+	Department getDepartmentById(String id);
+
 }

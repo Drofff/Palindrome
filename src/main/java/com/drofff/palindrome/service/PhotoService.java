@@ -10,4 +10,6 @@ public interface PhotoService {
 
 	String loadEncodedPhotoByUri(String photoUri);
 
+	byte[] loadPhotoByUri(String photoUri);
+
 }

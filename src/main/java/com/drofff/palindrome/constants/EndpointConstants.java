@@ -28,6 +28,8 @@ public class EndpointConstants {
 
 	public static final String VIOLATION_API_BASE_ENDPOINT = "/api/violation";
 
+	public static final String API_ENDPOINTS_PATTERN = "/api/**";
+
 	private EndpointConstants() {}
 
 }

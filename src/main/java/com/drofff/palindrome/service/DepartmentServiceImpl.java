@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.drofff.palindrome.document.Department;
+import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.DepartmentRepository;
 
 @Service
@@ -26,6 +27,12 @@ public class DepartmentServiceImpl implements DepartmentService {
 	@Override
 	public boolean existsDepartmentWithId(String id) {
 		return departmentRepository.findById(id).isPresent();
+	}
+
+	@Override
+	public Department getDepartmentById(String id) {
+		return departmentRepository.findById(id)
+				.orElseThrow(() -> new ValidationException("Department with such id doesn't exist"));
 	}
 
 }

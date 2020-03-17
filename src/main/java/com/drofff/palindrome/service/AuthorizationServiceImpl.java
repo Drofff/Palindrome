@@ -1,17 +1,17 @@
 package com.drofff.palindrome.service;
 
-import com.drofff.palindrome.document.AuthorizationToken;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.repository.AuthorizationTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.drofff.palindrome.document.AuthorizationToken;
+import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.repository.AuthorizationTokenRepository;
 
 @Service
 public class AuthorizationServiceImpl implements AuthorizationService {
@@ -27,15 +27,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Override
     public String generateAuthorizationTokenForUser(User user) {
-        String token = generateToken();
         LocalDateTime tokenDueDateTime = generateNextTokenDueDateTime();
-        AuthorizationToken authorizationToken = new AuthorizationToken(token, user.getId(), tokenDueDateTime);
+        AuthorizationToken authorizationToken = new AuthorizationToken.Builder()
+		        .forUser(user)
+		        .dueDateTime(tokenDueDateTime)
+		        .build();
         authorizationTokenRepository.save(authorizationToken);
-        return token;
-    }
-
-    private String generateToken() {
-        return UUID.randomUUID().toString();
+        return authorizationToken.getToken();
     }
 
     private LocalDateTime generateNextTokenDueDateTime() {

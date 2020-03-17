@@ -1,39 +1,30 @@
 package com.drofff.palindrome.document;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
 
 @Document
 public class AuthorizationToken {
 
     @Id
-    private String id;
+    private String userId;
 
     private String token;
 
     private LocalDateTime dueDateTime;
 
-    private String userId;
+	public String getUserId() {
+		return userId;
+	}
 
-    public AuthorizationToken() {}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
-    public AuthorizationToken(String token, String userId, LocalDateTime dueDateTime) {
-        this.token = token;
-        this.userId = userId;
-        this.dueDateTime = dueDateTime;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getToken() {
+	public String getToken() {
         return token;
     }
 
@@ -49,12 +40,25 @@ public class AuthorizationToken {
         this.dueDateTime = dueDateTime;
     }
 
-    public String getUserId() {
-        return userId;
-    }
+    public static class Builder {
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    	private AuthorizationToken authorizationToken = new AuthorizationToken();
+
+    	public Builder forUser(User user) {
+    		authorizationToken.userId = user.getId();
+    		return this;
+	    }
+
+	    public Builder dueDateTime(LocalDateTime dateTime) {
+    		authorizationToken.dueDateTime = dateTime;
+    		return this;
+	    }
+
+	    public AuthorizationToken build() {
+    		authorizationToken.token = UUID.randomUUID().toString();
+    		return authorizationToken;
+	    }
+
     }
 
 }

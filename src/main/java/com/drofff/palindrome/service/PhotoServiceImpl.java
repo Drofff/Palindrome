@@ -65,9 +65,14 @@ public class PhotoServiceImpl implements PhotoService {
 
 	@Override
 	public String loadEncodedPhotoByUri(String photoUri) {
-		validateNotNull(photoUri, "Photo uri is required");
-		byte[] fileByUri = fileService.getFileByName(photoUri);
+		byte[] fileByUri = loadPhotoByUri(photoUri);
 		return BASE_64_ENCODER.encodeToString(fileByUri);
+	}
+
+	@Override
+	public byte[] loadPhotoByUri(String photoUri) {
+		validateNotNull(photoUri, "Photo uri is required");
+		return fileService.getFileByName(photoUri);
 	}
 
 }

@@ -1,11 +1,12 @@
 package com.drofff.palindrome.utils;
 
-import com.drofff.palindrome.document.User;
+import java.util.Optional;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Optional;
+import com.drofff.palindrome.document.User;
 
 public class AuthenticationUtils {
 
@@ -32,10 +33,9 @@ public class AuthenticationUtils {
 		return securityContext.getAuthentication();
 	}
 
-	public static void authenticateUser(User user) {
+	public static void setCurrentUser(User user) {
 		SecurityContext securityContext = SecurityContextHolder.getContext();
-		Authentication authentication = (Authentication) user;
-		securityContext.setAuthentication(authentication);
+		securityContext.setAuthentication(user.toUsernamePasswordAuthenticationToken());
 	}
 
 }

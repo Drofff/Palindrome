@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -121,6 +122,10 @@ public class User implements UserDetails {
 
 	public boolean isPolice() {
 		return role == Role.POLICE;
+	}
+
+	public UsernamePasswordAuthenticationToken toUsernamePasswordAuthenticationToken() {
+		return new UsernamePasswordAuthenticationToken(this, password);
 	}
 
 }

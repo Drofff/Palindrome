@@ -1,5 +1,37 @@
 package com.drofff.palindrome.service;
 
+import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.CONFIRM_PASS_CHANGE_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
+import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
+import static com.drofff.palindrome.enums.Role.ADMIN;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
+import static com.drofff.palindrome.utils.MailUtils.getActivationMail;
+import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
+import static com.drofff.palindrome.utils.MailUtils.getPasswordChangeConfirmationMail;
+import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMail;
+import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
+import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.drofff.palindrome.cache.PasswordCache;
 import com.drofff.palindrome.cache.TokenCache;
 import com.drofff.palindrome.document.User;
@@ -8,30 +40,6 @@ import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.UserRepository;
 import com.drofff.palindrome.type.Mail;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.util.Pair;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-
-import static com.drofff.palindrome.constants.EndpointConstants.*;
-import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
-import static com.drofff.palindrome.enums.Role.ADMIN;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
-import static com.drofff.palindrome.utils.MailUtils.*;
-import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
-import static com.drofff.palindrome.utils.ValidationUtils.*;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -41,18 +49,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final MailService mailService;
-	private final AuthenticationManager authenticationManager;
 
 	@Value("${application.url}")
 	private String applicationUrl;
 
 	@Autowired
 	public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-									 MailService mailService, AuthenticationManager authenticationManager) {
+									 MailService mailService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.mailService = mailService;
-		this.authenticationManager = authenticationManager;
 	}
 
 	@Override
@@ -112,12 +118,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		TokenCache.saveTokenForUser(token, user);
 		String recoveryLink = generateRecoveryLinkForUser(token, user);
 		sendRecoveryLinkToUserByMail(recoveryLink, user);
-	}
-
-	private User getUserByUsername(String username) {
-		validateNotNull(username, "Username should be provided");
-		return userRepository.findByUsername(username)
-				.orElseThrow(() -> new PalindromeException("User with such username doesn't exist"));
 	}
 
 	private String generateRecoveryLinkForUser(String token, User user) {
@@ -192,15 +192,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if(hasNotPassword(user, password)) {
 			throw new ValidationException("Invalid password");
 		}
-	}
-
-	private boolean hasNotPassword(User user, String password) {
-		return !hasPassword(user, password);
-	}
-
-	private boolean hasPassword(User user, String password) {
-		String originalPassword = user.getPassword();
-		return passwordEncoder.matches(password, originalPassword);
 	}
 
 	@Override
@@ -333,17 +324,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	private boolean areInvalidCredentials(String username, String password) {
-		return !areValidCredentials(username, password);
+		User user = getUserByUsername(username);
+		return hasNotPassword(user, password);
 	}
 
-	private boolean areValidCredentials(String username, String password) {
-		try {
-			UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-			Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
-			return authentication.isAuthenticated();
-		} catch (AuthenticationException e) {
-			return false;
-		}
+	private User getUserByUsername(String username) {
+		validateNotNull(username, "Username should be provided");
+		return userRepository.findByUsername(username)
+				.orElseThrow(() -> new ValidationException("User with such username doesn't exist"));
+	}
+
+	private boolean hasNotPassword(User user, String password) {
+		return !hasPassword(user, password);
+	}
+
+	private boolean hasPassword(User user, String password) {
+		String originalPassword = user.getPassword();
+		return passwordEncoder.matches(password, originalPassword);
 	}
 
 }
