@@ -7,10 +7,9 @@ import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.CAR_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.DRIVER_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.FILER_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.utils.FilterUtils.filter;
+import static com.drofff.palindrome.constants.ParameterConstants.PATTERN_PARAM;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
 import static com.drofff.palindrome.utils.ModelUtils.putPageIntoModel;
@@ -35,7 +34,8 @@ import com.drofff.palindrome.dto.CarDto;
 import com.drofff.palindrome.dto.CarsCarFatDto;
 import com.drofff.palindrome.dto.CarsDriverDto;
 import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.filter.CarFilter;
+import com.drofff.palindrome.grep.Filter;
+import com.drofff.palindrome.grep.pattern.CarPattern;
 import com.drofff.palindrome.mapper.CarDtoMapper;
 import com.drofff.palindrome.mapper.CarsCarFatDtoMapper;
 import com.drofff.palindrome.mapper.CarsDriverDtoMapper;
@@ -92,11 +92,11 @@ public class AdminCarController {
 	@GetMapping
 	public String getCarsPage(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) Integer page,
 	                          @RequestParam(required = false, name = MESSAGE_PARAM) String message,
-	                          CarFilter filter, Model model) {
+	                          CarPattern carPattern, Model model) {
 		Page<Car> allCarsPage = carService.getAllCarsAtPage(page);
 		List<CarsCarFatDto> carsCarFatDtos = applyToEachListElement(this::toCarsCarFatDto, allCarsPage.getContent());
-		model.addAttribute(CARS_PARAM, filter(carsCarFatDtos, filter));
-		model.addAttribute(FILER_PARAM, filter);
+		model.addAttribute(CARS_PARAM, Filter.grepByPattern(carsCarFatDtos, carPattern));
+		model.addAttribute(PATTERN_PARAM, carPattern);
 		model.addAttribute(MESSAGE_PARAM, message);
 		putPageIntoModel(allCarsPage, model);
 		putCarFiltersIntoModel(model);

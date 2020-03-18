@@ -1,10 +1,10 @@
-package com.drofff.palindrome.filter;
+package com.drofff.palindrome.grep.pattern;
 
-import com.drofff.palindrome.annotation.Filter;
+import com.drofff.palindrome.annotation.Pattern;
 import com.drofff.palindrome.document.Violation;
 
-@Filter(forClass = Violation.class)
-public class ViolationFilter {
+@Pattern(forClass = Violation.class)
+public class ViolationPattern {
 
 	private String carId;
 

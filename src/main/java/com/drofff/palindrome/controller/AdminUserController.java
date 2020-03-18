@@ -3,14 +3,13 @@ package com.drofff.palindrome.controller;
 import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
 import static com.drofff.palindrome.constants.ParameterConstants.DRIVER_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.EMAIL_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.FILER_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.PATTERN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.POLICE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
 import static com.drofff.palindrome.enums.DriverIdType.DRIVER_ID;
-import static com.drofff.palindrome.utils.FilterUtils.filter;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
 import static com.drofff.palindrome.utils.ModelUtils.putPageIntoModel;
@@ -43,7 +42,8 @@ import com.drofff.palindrome.dto.PoliceFatDto;
 import com.drofff.palindrome.dto.UsersUserDto;
 import com.drofff.palindrome.enums.DriverIdType;
 import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.filter.UserFilter;
+import com.drofff.palindrome.grep.Filter;
+import com.drofff.palindrome.grep.pattern.UserPattern;
 import com.drofff.palindrome.mapper.CreateUserDtoMapper;
 import com.drofff.palindrome.mapper.PoliceFatDtoMapper;
 import com.drofff.palindrome.mapper.UsersUserDtoMapper;
@@ -95,12 +95,12 @@ public class AdminUserController {
 	@GetMapping
 	public String getUsersPage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                           @RequestParam(required = false, defaultValue = DEFAULT_PAGE) Integer page,
-	                           UserFilter filter, Model model) {
+	                           UserPattern userPattern, Model model) {
 		Page<User> allUsers = authenticationService.getAllUsersAtPage(page);
 		List<UsersUserDto> usersUserDtos = applyToEachListElement(this::toUsersUserDto, allUsers.getContent());
-		model.addAttribute("users", filter(usersUserDtos, filter));
+		model.addAttribute("users", Filter.grepByPattern(usersUserDtos, userPattern));
 		model.addAttribute(ROLES_PARAM, authenticationService.getAllRoles());
-		model.addAttribute(FILER_PARAM, filter);
+		model.addAttribute(PATTERN_PARAM, userPattern);
 		model.addAttribute(MESSAGE_PARAM, message);
 		putPageIntoModel(allUsers, model);
 		return "adminUsersPage";

@@ -2,11 +2,10 @@ package com.drofff.palindrome.controller;
 
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.FILER_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.PATTERN_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.VIOLATIONS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.VIOLATION_PARAM;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.FilterUtils.filter;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.putPageIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
@@ -38,7 +37,8 @@ import com.drofff.palindrome.dto.ViolationDto;
 import com.drofff.palindrome.dto.ViolationFatDto;
 import com.drofff.palindrome.dto.ViolationsViolationDto;
 import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.filter.ViolationFilter;
+import com.drofff.palindrome.grep.Filter;
+import com.drofff.palindrome.grep.pattern.ViolationPattern;
 import com.drofff.palindrome.mapper.CarFatDtoMapper;
 import com.drofff.palindrome.mapper.ViolationDtoMapper;
 import com.drofff.palindrome.mapper.ViolationFatDtoMapper;
@@ -89,14 +89,14 @@ public class ViolationController {
 
 	@GetMapping
 	@PreAuthorize("hasAuthority('DRIVER')")
-	public String getMyViolationsPage(ViolationFilter violationFilter, Pageable pageRequest, Model model) {
+	public String getMyViolationsPage(ViolationPattern violationPattern, Pageable pageRequest, Model model) {
 		Driver driver = driverService.getCurrentDriver();
 		Page<Violation> violationsPage = violationService.getPageOfDriverViolations(driver, pageRequest);
-		List<Violation> violations = filter(violationsPage.getContent(), violationFilter);
+		List<Violation> violations = Filter.grepByPattern(violationsPage.getContent(), violationPattern);
 		putViolationsIntoModel(violations, model);
 		putPageIntoModel(violationsPage, model);
 		putCarsOfDriverIntoModel(driver, model);
-		model.addAttribute(FILER_PARAM, violationFilter);
+		model.addAttribute(PATTERN_PARAM, violationPattern);
 		return "myViolationsPage";
 	}
 

@@ -1,13 +1,14 @@
-package com.drofff.palindrome.filter;
+package com.drofff.palindrome.grep.pattern;
 
-import com.drofff.palindrome.annotation.Filter;
+import com.drofff.palindrome.annotation.Pattern;
 import com.drofff.palindrome.annotation.Strategy;
 import com.drofff.palindrome.annotation.TargetField;
 import com.drofff.palindrome.dto.UsersUserDto;
 import com.drofff.palindrome.enums.Role;
+import com.drofff.palindrome.grep.strategy.StartsWithComparisonStrategy;
 
-@Filter(forClass = UsersUserDto.class)
-public class UserFilter {
+@Pattern(forClass = UsersUserDto.class)
+public class UserPattern {
 
 	@Strategy(StartsWithComparisonStrategy.class)
 	private String username;

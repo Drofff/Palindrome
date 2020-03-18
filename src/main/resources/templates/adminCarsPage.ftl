@@ -53,22 +53,22 @@
 					<form action="/admin/cars" method="get" id="search">
 						<h4>Фільтри</h4>
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-							<input class="mdl-textfield__input" type="text" <#if filter?? && filter.number??>value="${filter.number}" </#if> name="number" id="number">
+							<input class="mdl-textfield__input" type="text" <#if pattern?? && pattern.number??>value="${pattern.number}" </#if> name="number" id="number">
 							<label class="mdl-textfield__label" for="number">Номер</label>
 						</div>
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-							<input class="mdl-textfield__input" type="text" <#if filter?? && filter.bodyNumber??>value="${filter.bodyNumber}" </#if> name="bodyNumber" id="bodyNumber">
+							<input class="mdl-textfield__input" type="text" <#if pattern?? && pattern.bodyNumber??>value="${pattern.bodyNumber}" </#if> name="bodyNumber" id="bodyNumber">
 							<label class="mdl-textfield__label" for="bodyNumber">VIN код</label>
 						</div>
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-							<input class="mdl-textfield__input" type="text" <#if filter?? && filter.model??>value="${filter.model}" </#if> name="model" id="model">
+							<input class="mdl-textfield__input" type="text" <#if pattern?? && pattern.model??>value="${pattern.model}" </#if> name="model" id="model">
 							<label class="mdl-textfield__label" for="model">Модель</label>
 						</div>
 						<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 							<select class="mdl-textfield__input" id="brandId" name="brandId">
 								<option value=""></option>
                                 <#list brands as brand>
-									<option value="${brand.id}" <#if filter?? && filter.brandId?? && filter.brandId == brand.id>selected</#if> >${brand.name}</option>
+									<option value="${brand.id}" <#if pattern?? && pattern.brandId?? && pattern.brandId == brand.id>selected</#if> >${brand.name}</option>
                                 </#list>
 							</select>
 							<label class="mdl-textfield__label" for="brandId">Марка</label>
@@ -77,7 +77,7 @@
 							<select class="mdl-textfield__input" id="bodyTypeId" name="bodyTypeId">
 								<option value=""></option>
                                 <#list body_types as body_type>
-									<option value="${body_type.id}" <#if filter?? && filter.bodyTypeId?? && filter.bodyTypeId == body_type.id>selected</#if> >${body_type.name}</option>
+									<option value="${body_type.id}" <#if pattern?? && pattern.bodyTypeId?? && pattern.bodyTypeId == body_type.id>selected</#if> >${body_type.name}</option>
                                 </#list>
 							</select>
 							<label class="mdl-textfield__label" for="bodyTypeId">Тип кузова</label>
@@ -86,7 +86,7 @@
 							<select class="mdl-textfield__input" id="licenceCategoryId" name="licenceCategoryId">
 								<option value=""></option>
                                 <#list licence_categories as licence_category>
-									<option value="${licence_category.id}" <#if filter?? && filter.licenceCategoryId?? && filter.licenceCategoryId == licence_category.id>selected</#if> >${licence_category.name}</option>
+									<option value="${licence_category.id}" <#if pattern?? && pattern.licenceCategoryId?? && pattern.licenceCategoryId == licence_category.id>selected</#if> >${licence_category.name}</option>
                                 </#list>
 							</select>
 							<label class="mdl-textfield__label" for="licenceCategoryId">Категорія</label>
@@ -95,7 +95,7 @@
 							<select class="mdl-textfield__input" id="engineTypeId" name="engineTypeId">
 								<option value=""></option>
                                 <#list engine_types as engine_type>
-									<option value="${engine_type.id}" <#if filter?? && filter.engineTypeId?? && filter.engineTypeId == engine_type.id>selected</#if> >${engine_type.name}</option>
+									<option value="${engine_type.id}" <#if pattern?? && pattern.engineTypeId?? && pattern.engineTypeId == engine_type.id>selected</#if> >${engine_type.name}</option>
                                 </#list>
 							</select>
 							<label class="mdl-textfield__label" for="engineTypeId">Тип двигуна</label>
@@ -104,7 +104,7 @@
 							<select class="mdl-textfield__input" id="ownerId" name="ownerId">
 								<option value=""></option>
                                 <#list drivers as driver>
-									<option value="${driver.id}" <#if filter?? && filter.ownerId?? && filter.ownerId == driver.id>selected</#if> >${driver.firstName} ${driver.lastName} (${driver.user.username})</option>
+									<option value="${driver.id}" <#if pattern?? && pattern.ownerId?? && pattern.ownerId == driver.id>selected</#if> >${driver.firstName} ${driver.lastName} (${driver.user.username})</option>
                                 </#list>
 							</select>
 							<label class="mdl-textfield__label" for="ownerId">Власник</label>

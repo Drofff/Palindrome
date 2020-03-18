@@ -1,4 +1,4 @@
-package com.drofff.palindrome.filter;
+package com.drofff.palindrome.grep.strategy;
 
 public class EqualsComparisonStrategy implements ComparisonStrategy {
 

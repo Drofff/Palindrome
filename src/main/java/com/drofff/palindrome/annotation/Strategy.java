@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.drofff.palindrome.filter.ComparisonStrategy;
+import com.drofff.palindrome.grep.strategy.ComparisonStrategy;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

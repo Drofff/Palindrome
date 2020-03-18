@@ -68,7 +68,7 @@
 						<select class="mdl-textfield__input" id="carId" name="carId">
 							<option value="">Всі автомобілі</option>
                             <#list cars as car>
-								<option value="${car.id}" <#if filter?? && filter.carId?? && car.id == filter.carId>selected</#if> >${car.brand.name} ${car.model} (${car.number})</option>
+								<option value="${car.id}" <#if pattern?? && pattern.carId?? && car.id == pattern.carId>selected</#if> >${car.brand.name} ${car.model} (${car.number})</option>
                             </#list>
 						</select>
 					</div>

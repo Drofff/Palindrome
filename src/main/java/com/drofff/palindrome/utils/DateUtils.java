@@ -1,9 +1,12 @@
 package com.drofff.palindrome.utils;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class DateUtils {
 
@@ -23,6 +26,12 @@ public class DateUtils {
 
 	public static int dateTimeToEpochSeconds(LocalDateTime dateTime) {
 		return (int) dateTime.toEpochSecond(ZoneOffset.UTC);
+	}
+
+	public static Date localDateTimeToDate(LocalDateTime dateTime) {
+		ZoneOffset offset = ZonedDateTime.now().getOffset();
+		Instant instant = dateTime.toInstant(offset);
+		return Date.from(instant);
 	}
 
 }

@@ -28,7 +28,7 @@ public class ParameterConstants {
 
 	public static final String CARS_PARAM = "cars";
 
-	public static final String FILER_PARAM = "filter";
+	public static final String PATTERN_PARAM = "pattern";
 
 	public static final String BRANDS_PARAM = "brands";
 

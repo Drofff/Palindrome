@@ -3,7 +3,7 @@ package com.drofff.palindrome.service;
 import static com.drofff.palindrome.utils.ReflectionUtils.getFieldFromClassByName;
 import static com.drofff.palindrome.utils.ReflectionUtils.getFieldValueFromObject;
 import static com.drofff.palindrome.utils.ReflectionUtils.setFieldValueIntoObject;
-import static com.drofff.palindrome.utils.StringUtils.removeStrPart;
+import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.lang.annotation.Annotation;
@@ -65,7 +65,7 @@ public class MappingsResolverImpl implements MappingsResolver {
 	}
 
 	private String removeMappingSuffix(String name) {
-		return removeStrPart(name, MAPPING_SUFFIX);
+		return removePartFromStr(MAPPING_SUFFIX, name);
 	}
 
 	private <F> Optional<?> getMappedValueIfPresent(Field mappingIdField, F source) {

@@ -4,10 +4,8 @@ import com.drofff.palindrome.document.User;
 
 public interface AuthorizationService {
 
-    String generateAuthorizationTokenForUser(User user);
+    String generateTokenForUser(User user);
 
-    String getUserIdByAuthorizationToken(String token);
-
-    void removeAllExpiredAuthorizationTokens();
+    User getUserByToken(String token);
 
 }

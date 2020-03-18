@@ -1,11 +1,12 @@
-package com.drofff.palindrome.filter;
+package com.drofff.palindrome.grep.pattern;
 
-import com.drofff.palindrome.annotation.Filter;
+import com.drofff.palindrome.annotation.Pattern;
 import com.drofff.palindrome.annotation.Strategy;
 import com.drofff.palindrome.dto.CarsCarFatDto;
+import com.drofff.palindrome.grep.strategy.StartsWithComparisonStrategy;
 
-@Filter(forClass = CarsCarFatDto.class)
-public class CarFilter {
+@Pattern(forClass = CarsCarFatDto.class)
+public class CarPattern {
 
 	@Strategy(StartsWithComparisonStrategy.class)
 	private String number;

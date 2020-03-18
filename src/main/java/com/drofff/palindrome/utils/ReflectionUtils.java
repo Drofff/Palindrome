@@ -1,5 +1,9 @@
 package com.drofff.palindrome.utils;
 
+import static com.drofff.palindrome.utils.StringUtils.isNotBlank;
+import static com.drofff.palindrome.utils.StringUtils.isNotString;
+import static java.util.Objects.nonNull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -25,15 +29,6 @@ public class ReflectionUtils {
 		}
 	}
 
-	public static Object getFieldValueFromObject(Field field, Object object) {
-		try {
-			field.setAccessible(true);
-			return field.get(object);
-		} catch(IllegalAccessException e) {
-			throw new PalindromeException("Error while getting value of field " + field.getName());
-		}
-	}
-
 	public static void setFieldValueIntoObject(Field field, Object value, Object object) {
 		try {
 			field.setAccessible(true);
@@ -49,6 +44,24 @@ public class ReflectionUtils {
 		} catch(ClassNotFoundException e) {
 			throw new PalindromeException("Can not find a class with name " + name);
 		}
+	}
+
+	public static <T> boolean hasNonNullFieldValue(T object, Field field) {
+		Object fieldValue = getFieldValueFromObject(field, object);
+		return nonNull(fieldValue) && isNotBlankIfStr(fieldValue);
+	}
+
+	public static Object getFieldValueFromObject(Field field, Object object) {
+		try {
+			field.setAccessible(true);
+			return field.get(object);
+		} catch(IllegalAccessException e) {
+			throw new PalindromeException("Error while getting value of field " + field.getName());
+		}
+	}
+
+	private static boolean isNotBlankIfStr(Object object) {
+		return isNotString(object) || isNotBlank((String) object);
 	}
 
 }

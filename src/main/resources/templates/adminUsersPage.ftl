@@ -84,7 +84,7 @@
 					<form action="/admin/users" method="get" id="search">
 						<div>
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-								<input class="mdl-textfield__input" <#if filter?? && filter.username??>value="${filter.username}"</#if> type="text" id="email" name="username">
+								<input class="mdl-textfield__input" <#if pattern?? && pattern.username??>value="${pattern.username}"</#if> type="text" id="email" name="username">
 								<label class="mdl-textfield__label" for="email">Пошта</label>
 							</div>
 
@@ -92,7 +92,7 @@
 								<select class="mdl-textfield__input" id="role" name="role">
 									<option value=""></option>
                                     <#list roles as role>
-										<option <#if filter?? && filter.role?? && filter.role.name() == role.name()>selected</#if> value="${role.name()}">${role.name()?capitalize}</option>
+										<option <#if pattern?? && pattern.role?? && pattern.role.name() == role.name()>selected</#if> value="${role.name()}">${role.name()?capitalize}</option>
                                     </#list>
 								</select>
 								<label class="mdl-textfield__label" for="role">Роль</label>
@@ -101,8 +101,8 @@
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<select class="mdl-textfield__input" id="active" name="active">
 									<option value=""></option>
-									<option <#if filter?? && filter.active?? && filter.active>selected</#if> value="true">Так</option>
-									<option <#if filter?? && filter.active?? && !filter.active>selected</#if> value="false">Ні</option>
+									<option <#if pattern?? && pattern.active?? && pattern.active>selected</#if> value="true">Так</option>
+									<option <#if pattern?? && pattern.active?? && !pattern.active>selected</#if> value="false">Ні</option>
 								</select>
 								<label class="mdl-textfield__label" for="active">Активований</label>
 							</div>
@@ -110,8 +110,8 @@
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<select class="mdl-textfield__input" id="blocked" name="blocked">
 									<option value=""></option>
-									<option <#if filter?? && filter.blocked?? && filter.blocked>selected</#if> value="true">Так</option>
-									<option <#if filter?? && filter.blocked?? && !filter.blocked>selected</#if> value="false">Ні</option>
+									<option <#if pattern?? && pattern.blocked?? && pattern.blocked>selected</#if> value="true">Так</option>
+									<option <#if pattern?? && pattern.blocked?? && !pattern.blocked>selected</#if> value="false">Ні</option>
 								</select>
 								<label class="mdl-textfield__label" for="active">Заблокований</label>
 							</div>

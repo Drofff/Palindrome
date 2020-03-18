@@ -10,7 +10,7 @@ public class StringUtils {
 		return !str0.equals(str1);
 	}
 
-	public static String removeStrPart(String str, String part) {
+	public static String removePartFromStr(String part, String str) {
 		return str.replace(part, "");
 	}
 

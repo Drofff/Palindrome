@@ -4,7 +4,6 @@ import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,7 +53,7 @@ public class AuthenticationApiController {
     public ResponseEntity<RestResponseDto> authenticate(@RequestBody UserDto userDto) {
         try {
             User user = authenticationService.authenticateUser(userDto.getUsername(), userDto.getPassword());
-            String token = authorizationService.generateAuthorizationTokenForUser(user);
+            String token = authorizationService.generateTokenForUser(user);
             RestAuthorizationTokenDto restAuthorizationTokenDto = new RestAuthorizationTokenDto(token);
             return ResponseEntity.ok(restAuthorizationTokenDto);
         } catch (ValidationException e) {
@@ -65,7 +64,6 @@ public class AuthenticationApiController {
     }
 
     @GetMapping("/police-info")
-    @PreAuthorize("hasAuthority('POLICE')")
     public ResponseEntity<RestResponseDto> getCurrentPolice() {
         try {
             User user = getCurrentUser();

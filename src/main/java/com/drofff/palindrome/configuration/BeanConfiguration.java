@@ -1,7 +1,13 @@
 package com.drofff.palindrome.configuration;
 
+import static com.drofff.palindrome.constants.EndpointConstants.VIOLATION_API_BASE_ENDPOINT;
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,7 +20,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.drofff.palindrome.configuration.properties.MailProperties;
+import com.drofff.palindrome.filter.AuthorizationFilter;
 import com.drofff.palindrome.repository.UserRepository;
+import com.drofff.palindrome.service.AuthorizationService;
 
 @Configuration
 public class BeanConfiguration {
@@ -54,6 +62,17 @@ public class BeanConfiguration {
 		javaMailSender.setUsername(mailProperties.getUsername());
 		javaMailSender.setPassword(mailProperties.getPassword());
 		return javaMailSender;
+	}
+
+	@Bean
+	@Autowired
+	public FilterRegistrationBean<AuthorizationFilter> authorizationFilter(AuthorizationService authorizationService) {
+		AuthorizationFilter filter = new AuthorizationFilter(authorizationService);
+		FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(filter);
+		List<String> urlPatterns = Arrays.asList("/api/police-info", VIOLATION_API_BASE_ENDPOINT + "**");
+		registrationBean.setUrlPatterns(urlPatterns);
+		return registrationBean;
 	}
 
 }

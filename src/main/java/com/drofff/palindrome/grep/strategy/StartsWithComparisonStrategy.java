@@ -1,4 +1,4 @@
-package com.drofff.palindrome.filter;
+package com.drofff.palindrome.grep.strategy;
 
 import static com.drofff.palindrome.utils.StringUtils.isNotString;
 
