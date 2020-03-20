@@ -1,19 +1,5 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.Entity;
@@ -21,9 +7,18 @@ import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.DriverRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 
 @Service
-@Qualifier("driver")
 public class DriverServiceImpl implements DriverService, EntityManager {
 
 	private final DriverRepository driverRepository;
@@ -38,6 +33,7 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	@Override
 	public void createDriverProfileWithPhoto(Driver driver, MultipartFile photo) {
 		validate(driver);
+		validateLicenceNumberIsUnique(driver.getLicenceNumber());
 		validatePhoto(photo);
 		User currentUser = getCurrentUser();
 		validateHasNoDriverProfile(currentUser);
@@ -45,6 +41,16 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 		driver.setPhotoUri(photoUri);
 		driver.setUserId(currentUser.getId());
 		driverRepository.save(driver);
+	}
+
+	private void validateLicenceNumberIsUnique(String licenceNumber) {
+		if(existsDriverWithLicenceNumber(licenceNumber)) {
+			throw new ValidationException("Driver account with such a licence number already exists");
+		}
+	}
+
+	private boolean existsDriverWithLicenceNumber(String licenceNumber) {
+		return driverRepository.findByLicenceNumber(licenceNumber).isPresent();
 	}
 
 	private void validateHasNoDriverProfile(User user) {

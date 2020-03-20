@@ -81,7 +81,7 @@ public class Filter {
 		Object fieldValue = getTargetFieldValue(field, target);
 		Object patternFieldValue = getFieldValueFromObject(field, pattern);
 		ComparisonStrategy strategy = getComparisonStrategyForField(field);
-		return strategy.compare(fieldValue, patternFieldValue);
+		return strategy.compareSourceWithFilter(fieldValue, patternFieldValue);
 	}
 
 	private static <T> Object getTargetFieldValue(Field field, T target) {

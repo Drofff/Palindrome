@@ -16,4 +16,6 @@ public interface DriverRepository extends MongoRepository<Driver, String> {
 	@Query("{ ownedCarIds : ?0 }")
 	Optional<Driver> findByCarId(String carId);
 
+	Optional<Driver> findByLicenceNumber(String licenceNumber);
+
 }

@@ -1,53 +1,29 @@
 package com.drofff.palindrome.controller;
 
-import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
-import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.BRANDS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.CAR_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.DRIVER_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PATTERN_PARAM;
-import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
-import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
-import static com.drofff.palindrome.utils.ModelUtils.putPageIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.dto.CarDto;
 import com.drofff.palindrome.dto.CarsCarFatDto;
 import com.drofff.palindrome.dto.CarsDriverDto;
 import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.grep.Filter;
 import com.drofff.palindrome.grep.pattern.CarPattern;
 import com.drofff.palindrome.mapper.CarDtoMapper;
 import com.drofff.palindrome.mapper.CarsCarFatDtoMapper;
 import com.drofff.palindrome.mapper.CarsDriverDtoMapper;
-import com.drofff.palindrome.service.AdminService;
-import com.drofff.palindrome.service.BodyTypeService;
-import com.drofff.palindrome.service.BrandService;
-import com.drofff.palindrome.service.CarService;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.EngineTypeService;
-import com.drofff.palindrome.service.LicenceCategoryService;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.PhotoService;
+import com.drofff.palindrome.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.grep.Filter.grepByPattern;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
+import static com.drofff.palindrome.utils.ModelUtils.*;
 
 @Controller
 @RequestMapping("/admin/cars")
@@ -95,7 +71,7 @@ public class AdminCarController {
 	                          CarPattern carPattern, Model model) {
 		Page<Car> allCarsPage = carService.getAllCarsAtPage(page);
 		List<CarsCarFatDto> carsCarFatDtos = applyToEachListElement(this::toCarsCarFatDto, allCarsPage.getContent());
-		model.addAttribute(CARS_PARAM, Filter.grepByPattern(carsCarFatDtos, carPattern));
+		model.addAttribute(CARS_PARAM, grepByPattern(carsCarFatDtos, carPattern));
 		model.addAttribute(PATTERN_PARAM, carPattern);
 		model.addAttribute(MESSAGE_PARAM, message);
 		putPageIntoModel(allCarsPage, model);

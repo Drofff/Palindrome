@@ -1,20 +1,17 @@
 package com.drofff.palindrome.controller;
 
-import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PATTERN_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.VIOLATIONS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.VIOLATION_PARAM;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
-import static com.drofff.palindrome.utils.ModelUtils.putPageIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-import static com.drofff.palindrome.utils.ViolationUtils.violationsByDateTimeComparator;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.drofff.palindrome.document.*;
+import com.drofff.palindrome.dto.CarFatDto;
+import com.drofff.palindrome.dto.ViolationDto;
+import com.drofff.palindrome.dto.ViolationFatDto;
+import com.drofff.palindrome.dto.ViolationsViolationDto;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.grep.pattern.ViolationPattern;
+import com.drofff.palindrome.mapper.CarFatDtoMapper;
+import com.drofff.palindrome.mapper.ViolationDtoMapper;
+import com.drofff.palindrome.mapper.ViolationFatDtoMapper;
+import com.drofff.palindrome.mapper.ViolationsViolationDtoMapper;
+import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,29 +23,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.Police;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.document.Violation;
-import com.drofff.palindrome.document.ViolationType;
-import com.drofff.palindrome.dto.CarFatDto;
-import com.drofff.palindrome.dto.ViolationDto;
-import com.drofff.palindrome.dto.ViolationFatDto;
-import com.drofff.palindrome.dto.ViolationsViolationDto;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.grep.Filter;
-import com.drofff.palindrome.grep.pattern.ViolationPattern;
-import com.drofff.palindrome.mapper.CarFatDtoMapper;
-import com.drofff.palindrome.mapper.ViolationDtoMapper;
-import com.drofff.palindrome.mapper.ViolationFatDtoMapper;
-import com.drofff.palindrome.mapper.ViolationsViolationDtoMapper;
-import com.drofff.palindrome.service.CarService;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.PoliceService;
-import com.drofff.palindrome.service.ViolationService;
-import com.drofff.palindrome.service.ViolationTypeService;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.grep.Filter.grepByPattern;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
+import static com.drofff.palindrome.utils.ModelUtils.*;
+import static com.drofff.palindrome.utils.ViolationUtils.violationsByDateTimeComparator;
 
 @Controller
 @RequestMapping("/violation")
@@ -92,7 +76,7 @@ public class ViolationController {
 	public String getMyViolationsPage(ViolationPattern violationPattern, Pageable pageRequest, Model model) {
 		Driver driver = driverService.getCurrentDriver();
 		Page<Violation> violationsPage = violationService.getPageOfDriverViolations(driver, pageRequest);
-		List<Violation> violations = Filter.grepByPattern(violationsPage.getContent(), violationPattern);
+		List<Violation> violations = grepByPattern(violationsPage.getContent(), violationPattern);
 		putViolationsIntoModel(violations, model);
 		putPageIntoModel(violationsPage, model);
 		putCarsOfDriverIntoModel(driver, model);

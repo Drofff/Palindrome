@@ -1,33 +1,22 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.constants.EndpointConstants.VIOLATION_ENDPOINT_PREFIX;
-import static com.drofff.palindrome.enums.Role.POLICE;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
-import static com.drofff.palindrome.utils.MailUtils.getViolationAddedMail;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
-import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.drofff.palindrome.document.*;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.repository.ViolationRepository;
+import com.drofff.palindrome.type.Mail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.Police;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.document.Violation;
-import com.drofff.palindrome.document.ViolationType;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.repository.ViolationRepository;
-import com.drofff.palindrome.type.Mail;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.drofff.palindrome.enums.Role.POLICE;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.MailUtils.getViolationAddedMail;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 
 @Service
 public class ViolationServiceImpl implements ViolationService {
@@ -165,8 +154,7 @@ public class ViolationServiceImpl implements ViolationService {
 	}
 
 	private String generateLinkToViolationWithId(String id) {
-		String violationUri = VIOLATION_ENDPOINT_PREFIX + id;
-		return concatPathSegments(applicationUrl, violationUri);
+		return applicationUrl + "/violation/" + id;
 	}
 
 }

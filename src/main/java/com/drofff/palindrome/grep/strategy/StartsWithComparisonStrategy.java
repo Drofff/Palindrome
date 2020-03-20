@@ -7,7 +7,7 @@ import com.drofff.palindrome.exception.PalindromeException;
 public class StartsWithComparisonStrategy implements ComparisonStrategy {
 
 	@Override
-	public <T> boolean compare(T sourceValue, T filterValue) {
+	public boolean compareSourceWithFilter(Object sourceValue, Object filterValue) {
 		validateIsString(sourceValue);
 		validateIsString(filterValue);
 		String sourceStr = (String) sourceValue;

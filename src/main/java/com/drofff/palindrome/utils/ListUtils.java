@@ -14,4 +14,8 @@ public class ListUtils {
 				.collect(Collectors.toList());
 	}
 
+	public static boolean isNotSingletonList(List<?> list) {
+		return list.size() > 1;
+	}
+
 }

@@ -1,10 +1,9 @@
 package com.drofff.palindrome.configuration;
 
-import static com.drofff.palindrome.constants.EndpointConstants.VIOLATION_API_BASE_ENDPOINT;
-
-import java.util.Arrays;
-import java.util.List;
-
+import com.drofff.palindrome.configuration.properties.MailProperties;
+import com.drofff.palindrome.filter.AuthorizationFilter;
+import com.drofff.palindrome.repository.UserRepository;
+import com.drofff.palindrome.service.AuthorizationService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -19,10 +18,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.drofff.palindrome.configuration.properties.MailProperties;
-import com.drofff.palindrome.filter.AuthorizationFilter;
-import com.drofff.palindrome.repository.UserRepository;
-import com.drofff.palindrome.service.AuthorizationService;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.drofff.palindrome.constants.EndpointConstants.*;
 
 @Configuration
 public class BeanConfiguration {
@@ -70,7 +69,8 @@ public class BeanConfiguration {
 		AuthorizationFilter filter = new AuthorizationFilter(authorizationService);
 		FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(filter);
-		List<String> urlPatterns = Arrays.asList("/api/police-info", VIOLATION_API_BASE_ENDPOINT + "**");
+		List<String> urlPatterns = Arrays.asList("/api/police-info", VIOLATION_API_BASE_ENDPOINT + SERVLET_PATH_WILDCARD,
+				DRIVER_API_BASE_ENDPOINT + SERVLET_PATH_WILDCARD);
 		registrationBean.setUrlPatterns(urlPatterns);
 		return registrationBean;
 	}
