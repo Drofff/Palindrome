@@ -17,10 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.drofff.palindrome.constants.EndpointConstants.VIOLATION_API_BASE_ENDPOINT;
-
 @RestController
-@RequestMapping(VIOLATION_API_BASE_ENDPOINT)
+@RequestMapping("/api/violations")
 public class ViolationApiController {
 
     private final ViolationService violationService;

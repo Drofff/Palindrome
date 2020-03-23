@@ -1,14 +1,5 @@
 package com.drofff.palindrome.configuration;
 
-import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_PATTERN;
-import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.FORGOT_PASS_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.LOGIN_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.REGISTRATION_ENDPOINT;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -19,9 +10,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import static com.drofff.palindrome.constants.EndpointConstants.*;
+
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	private static final String PATH_ANY_SEGMENTS = "/**";
 
 	@Autowired
 	private AuthenticationProvider authenticationProvider;
@@ -34,9 +29,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		String apiEndpointsPattern = API_ENDPOINTS_BASE + PATH_ANY_SEGMENTS;
 		http.authorizeRequests()
 				.antMatchers(HOME_ENDPOINT, REGISTRATION_ENDPOINT, ACTIVATE_ACCOUNT_ENDPOINT,
-						FORGOT_PASS_ENDPOINT, PASS_RECOVERY_ENDPOINT, ERROR_ENDPOINT, API_ENDPOINTS_PATTERN)
+						FORGOT_PASS_ENDPOINT, PASS_RECOVERY_ENDPOINT, ERROR_ENDPOINT, apiEndpointsPattern)
 				.permitAll()
 				.anyRequest()
 				.authenticated()
@@ -54,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.userDetailsService(userDetailsService)
 				.and()
 				.csrf()
-				.ignoringAntMatchers(API_ENDPOINTS_PATTERN);
+				.ignoringAntMatchers(apiEndpointsPattern);
 	}
 
 	@Override

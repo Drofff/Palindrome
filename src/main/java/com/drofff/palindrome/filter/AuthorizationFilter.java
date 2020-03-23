@@ -7,6 +7,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_BASE;
+import static com.drofff.palindrome.constants.EndpointConstants.AUTHENTICATE_API_ENDPOINT;
 import static com.drofff.palindrome.utils.AuthenticationUtils.setCurrentUser;
 import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
@@ -26,8 +28,24 @@ public class AuthorizationFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        authorizeUserByToken(httpServletRequest);
+        String requestedUri = httpServletRequest.getRequestURI();
+        if(isNotAuthenticationEndpoint(requestedUri)) {
+            authorizeUserByToken(httpServletRequest);
+        }
         chain.doFilter(request, response);
+    }
+
+    private boolean isNotAuthenticationEndpoint(String uri) {
+        return !isAuthenticationEndpoint(uri);
+    }
+
+    private boolean isAuthenticationEndpoint(String uri) {
+        String authenticationEndpoint = getAuthenticationEndpointUri();
+        return authenticationEndpoint.equals(uri);
+    }
+
+    private String getAuthenticationEndpointUri() {
+        return API_ENDPOINTS_BASE + AUTHENTICATE_API_ENDPOINT;
     }
 
     private void authorizeUserByToken(HttpServletRequest httpServletRequest) {

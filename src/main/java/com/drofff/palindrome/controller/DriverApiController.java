@@ -22,14 +22,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.drofff.palindrome.constants.EndpointConstants.DRIVER_API_BASE_ENDPOINT;
 import static com.drofff.palindrome.grep.Filter.grepByPattern;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ListUtils.isNotSingletonList;
 import static com.drofff.palindrome.utils.ViolationUtils.getLatestViolationDateTimeIfPresent;
 
 @RestController
-@RequestMapping(DRIVER_API_BASE_ENDPOINT)
+@RequestMapping("/api/drivers")
 public class DriverApiController {
 
     private final DriverService driverService;

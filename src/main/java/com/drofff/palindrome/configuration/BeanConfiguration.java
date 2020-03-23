@@ -18,13 +18,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static com.drofff.palindrome.constants.EndpointConstants.*;
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_BASE;
 
 @Configuration
 public class BeanConfiguration {
+
+	private static final String SERVLET_PATH_WILDCARD = "/*";
 
 	@Bean
 	@Autowired
@@ -69,8 +71,8 @@ public class BeanConfiguration {
 		AuthorizationFilter filter = new AuthorizationFilter(authorizationService);
 		FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(filter);
-		List<String> urlPatterns = Arrays.asList("/api/police-info", VIOLATION_API_BASE_ENDPOINT + SERVLET_PATH_WILDCARD,
-				DRIVER_API_BASE_ENDPOINT + SERVLET_PATH_WILDCARD);
+		String apiEndpointsPattern = API_ENDPOINTS_BASE + SERVLET_PATH_WILDCARD;
+		List<String> urlPatterns = Collections.singletonList(apiEndpointsPattern);
 		registrationBean.setUrlPatterns(urlPatterns);
 		return registrationBean;
 	}

@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_BASE;
+import static com.drofff.palindrome.constants.EndpointConstants.AUTHENTICATE_API_ENDPOINT;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping(API_ENDPOINTS_BASE)
 public class AuthenticationApiController {
 
     private final AuthenticationService authenticationService;
@@ -36,7 +38,7 @@ public class AuthenticationApiController {
 	    this.restPoliceDtoMapper = restPoliceDtoMapper;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping(AUTHENTICATE_API_ENDPOINT)
     public ResponseEntity<RestResponseDto> authenticate(@RequestBody UserDto userDto) {
         try {
             User user = authenticationService.authenticateUser(userDto.getUsername(), userDto.getPassword());

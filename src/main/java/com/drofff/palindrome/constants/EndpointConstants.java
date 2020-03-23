@@ -24,13 +24,9 @@ public class EndpointConstants {
 
 	public static final String CONFIRM_PASS_CHANGE_ENDPOINT = "/change-password/confirm";
 
-	public static final String DRIVER_API_BASE_ENDPOINT = "/api/drivers";
+	public static final String API_ENDPOINTS_BASE = "/api";
 
-	public static final String VIOLATION_API_BASE_ENDPOINT = "/api/violations";
-
-	public static final String API_ENDPOINTS_PATTERN = "/api/**";
-
-	public static final String SERVLET_PATH_WILDCARD = "/*";
+	public static final String AUTHENTICATE_API_ENDPOINT = "/authenticate";
 
 	private EndpointConstants() {}
 
