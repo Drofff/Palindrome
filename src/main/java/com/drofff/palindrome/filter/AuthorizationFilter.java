@@ -6,6 +6,8 @@ import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -20,8 +22,10 @@ import com.drofff.palindrome.service.AuthorizationService;
 public class AuthorizationFilter implements Filter {
 
     private static final String AUTHORIZATION_TOKEN_HEADER = "Authorization";
-
     private static final String AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
+
+    private static final List<String> OPEN_ENDPOINTS_PATTERNS = Arrays.asList(AUTHENTICATE_API_ENDPOINT,
+		    "/api/drivers/.*/photo", "/api/polices/.*/photo");
 
     private final AuthorizationService authorizationService;
 
@@ -33,18 +37,19 @@ public class AuthorizationFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String requestedUri = httpServletRequest.getRequestURI();
-        if(isNotAuthenticationEndpoint(requestedUri)) {
+        if(requiresAuthorization(requestedUri)) {
             authorizeUserByToken(httpServletRequest);
         }
         chain.doFilter(request, response);
     }
 
-    private boolean isNotAuthenticationEndpoint(String uri) {
-        return !isAuthenticationEndpoint(uri);
+    private boolean requiresAuthorization(String uri) {
+    	return !isOpenEndpoint(uri);
     }
 
-    private boolean isAuthenticationEndpoint(String uri) {
-        return AUTHENTICATE_API_ENDPOINT.equals(uri);
+    private boolean isOpenEndpoint(String uri) {
+    	return OPEN_ENDPOINTS_PATTERNS.stream()
+			    .anyMatch(uri::matches);
     }
 
     private void authorizeUserByToken(HttpServletRequest httpServletRequest) {
