@@ -1,17 +1,21 @@
 package com.drofff.palindrome.filter;
 
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.service.AuthorizationService;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-
-import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_BASE;
 import static com.drofff.palindrome.constants.EndpointConstants.AUTHENTICATE_API_ENDPOINT;
 import static com.drofff.palindrome.utils.AuthenticationUtils.setCurrentUser;
 import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+
+import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.service.AuthorizationService;
 
 public class AuthorizationFilter implements Filter {
 
@@ -40,12 +44,7 @@ public class AuthorizationFilter implements Filter {
     }
 
     private boolean isAuthenticationEndpoint(String uri) {
-        String authenticationEndpoint = getAuthenticationEndpointUri();
-        return authenticationEndpoint.equals(uri);
-    }
-
-    private String getAuthenticationEndpointUri() {
-        return API_ENDPOINTS_BASE + AUTHENTICATE_API_ENDPOINT;
+        return AUTHENTICATE_API_ENDPOINT.equals(uri);
     }
 
     private void authorizeUserByToken(HttpServletRequest httpServletRequest) {

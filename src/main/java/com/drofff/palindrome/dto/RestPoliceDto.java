@@ -14,7 +14,7 @@ public class RestPoliceDto implements RestResponseDto {
 
     private String tokenNumber;
 
-    private byte[] photo;
+    private String photoUrl;
 
     private String department;
 
@@ -66,12 +66,12 @@ public class RestPoliceDto implements RestResponseDto {
 		this.tokenNumber = tokenNumber;
 	}
 
-	public byte[] getPhoto() {
-		return photo;
+	public String getPhotoUrl() {
+		return photoUrl;
 	}
 
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
+	public void setPhotoUrl(String photoUrl) {
+		this.photoUrl = photoUrl;
 	}
 
 	public String getDepartment() {

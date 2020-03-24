@@ -1,14 +1,14 @@
 package com.drofff.palindrome.grep.pattern;
 
+import static java.util.Objects.isNull;
+
 import com.drofff.palindrome.annotation.Pattern;
 import com.drofff.palindrome.annotation.Strategy;
 import com.drofff.palindrome.annotation.TargetField;
-import com.drofff.palindrome.dto.RestFindDriverDto;
+import com.drofff.palindrome.dto.RestDriverDto;
 import com.drofff.palindrome.grep.strategy.ContainsComparisonStrategy;
 
-import static java.util.Objects.isNull;
-
-@Pattern(forClass = RestFindDriverDto.class)
+@Pattern(forClass = RestDriverDto.class)
 public class DriverPattern {
 
     private String licenceNumber;

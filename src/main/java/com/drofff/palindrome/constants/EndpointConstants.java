@@ -26,7 +26,7 @@ public class EndpointConstants {
 
 	public static final String API_ENDPOINTS_BASE = "/api";
 
-	public static final String AUTHENTICATE_API_ENDPOINT = "/authenticate";
+	public static final String AUTHENTICATE_API_ENDPOINT = "/api/authenticate";
 
 	private EndpointConstants() {}
 

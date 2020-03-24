@@ -1,6 +1,8 @@
 package com.drofff.palindrome.dto;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 public class RestDriverDto implements RestResponseDto {
 
@@ -14,13 +16,15 @@ public class RestDriverDto implements RestResponseDto {
 
     private String address;
 
-    private byte[] photo;
+    private String photoUrl;
 
     private String licenceNumber;
 
     private int violationsCount;
 
     private LocalDateTime lastViolationDateTime;
+
+	private Set<String> ownedCarNumbers = new HashSet<>();
 
     public String getId() {
         return id;
@@ -62,15 +66,15 @@ public class RestDriverDto implements RestResponseDto {
         this.address = address;
     }
 
-    public byte[] getPhoto() {
-        return photo;
-    }
+	public String getPhotoUrl() {
+		return photoUrl;
+	}
 
-    public void setPhoto(byte[] photo) {
-        this.photo = photo;
-    }
+	public void setPhotoUrl(String photoUrl) {
+		this.photoUrl = photoUrl;
+	}
 
-    public String getLicenceNumber() {
+	public String getLicenceNumber() {
         return licenceNumber;
     }
 
@@ -93,5 +97,13 @@ public class RestDriverDto implements RestResponseDto {
     public void setLastViolationDateTime(LocalDateTime lastViolationDateTime) {
         this.lastViolationDateTime = lastViolationDateTime;
     }
+
+	public Set<String> getOwnedCarNumbers() {
+		return ownedCarNumbers;
+	}
+
+	public void setOwnedCarNumbers(Set<String> ownedCarNumbers) {
+		this.ownedCarNumbers = ownedCarNumbers;
+	}
 
 }
