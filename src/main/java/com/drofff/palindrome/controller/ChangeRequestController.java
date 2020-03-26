@@ -1,55 +1,30 @@
 package com.drofff.palindrome.controller;
 
-import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.BRANDS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.CAR_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.DRIVER_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.POLICE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.REQUESTS_PARAM;
-import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
-import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
-import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-import static java.util.Comparator.comparingInt;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.ChangeRequest;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.dto.CarDto;
 import com.drofff.palindrome.dto.CarFatDto;
-import com.drofff.palindrome.dto.UpdateDriverDto;
+import com.drofff.palindrome.dto.DriverDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.CarDtoMapper;
 import com.drofff.palindrome.mapper.CarFatDtoMapper;
-import com.drofff.palindrome.mapper.UpdateDriverDtoMapper;
-import com.drofff.palindrome.service.BodyTypeService;
-import com.drofff.palindrome.service.BrandService;
-import com.drofff.palindrome.service.CarService;
-import com.drofff.palindrome.service.ChangeRequestService;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.EngineTypeService;
-import com.drofff.palindrome.service.LicenceCategoryService;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.PhotoService;
-import com.drofff.palindrome.service.PoliceService;
+import com.drofff.palindrome.mapper.DriverDtoMapper;
+import com.drofff.palindrome.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
+import static com.drofff.palindrome.utils.ModelUtils.*;
+import static java.util.Comparator.comparingInt;
 
 @Controller
 @RequestMapping("/change-request")
@@ -72,19 +47,19 @@ public class ChangeRequestController {
 	private final EngineTypeService engineTypeService;
 	private final LicenceCategoryService licenceCategoryService;
 	private final PoliceService policeService;
-	private final UpdateDriverDtoMapper updateDriverDtoMapper;
 	private final CarDtoMapper carDtoMapper;
 	private final CarFatDtoMapper carFatDtoMapper;
+	private final DriverDtoMapper driverDtoMapper;
 	private final MappingsResolver mappingsResolver;
 
 	@Autowired
 	public ChangeRequestController(ChangeRequestService changeRequestService, DriverService driverService,
-	                               CarService carService, PhotoService photoService,
-	                               BrandService brandService, BodyTypeService bodyTypeService,
-	                               EngineTypeService engineTypeService, LicenceCategoryService licenceCategoryService,
-	                               PoliceService policeService, UpdateDriverDtoMapper updateDriverDtoMapper,
-	                               CarDtoMapper carDtoMapper, CarFatDtoMapper carFatDtoMapper,
-	                               MappingsResolver mappingsResolver) {
+								   CarService carService, PhotoService photoService,
+								   BrandService brandService, BodyTypeService bodyTypeService,
+								   EngineTypeService engineTypeService, LicenceCategoryService licenceCategoryService,
+								   PoliceService policeService, CarDtoMapper carDtoMapper,
+								   CarFatDtoMapper carFatDtoMapper, DriverDtoMapper driverDtoMapper,
+								   MappingsResolver mappingsResolver) {
 		this.changeRequestService = changeRequestService;
 		this.driverService = driverService;
 		this.carService = carService;
@@ -94,9 +69,9 @@ public class ChangeRequestController {
 		this.engineTypeService = engineTypeService;
 		this.licenceCategoryService = licenceCategoryService;
 		this.policeService = policeService;
-		this.updateDriverDtoMapper = updateDriverDtoMapper;
 		this.carDtoMapper = carDtoMapper;
 		this.carFatDtoMapper = carFatDtoMapper;
+		this.driverDtoMapper = driverDtoMapper;
 		this.mappingsResolver = mappingsResolver;
 	}
 
@@ -186,11 +161,12 @@ public class ChangeRequestController {
 		return DRIVER_CHANGE_REQUEST_VIEW;
 	}
 
-	@PostMapping("/send/driver")
+	@PostMapping("/send/driver/{id}")
 	@PreAuthorize("hasAuthority('POLICE')")
-	public String sendDriverChangeRequest(UpdateDriverDto updateDriverDto, @RequestParam(required = false) String comment,
-	                                      Model model) {
-		Driver driver = updateDriverDtoMapper.toEntity(updateDriverDto);
+	public String sendDriverChangeRequest(@PathVariable String id, DriverDto driverDto,
+										  @RequestParam(required = false) String comment, Model model) {
+		Driver driver = driverDtoMapper.toEntity(driverDto);
+		driver.setId(id);
 		try {
 			changeRequestService.requestDriverInfoChangeWithComment(driver, comment);
 			model.addAttribute(MESSAGE_PARAM, "Change request has been sent successfully");

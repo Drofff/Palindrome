@@ -1,19 +1,16 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.enums.Role.POLICE;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.PoliceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import static com.drofff.palindrome.enums.Role.POLICE;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 
 @Service
 public class PoliceServiceImpl implements PoliceService {
@@ -62,6 +59,33 @@ public class PoliceServiceImpl implements PoliceService {
 
 	private boolean notExistsDepartmentWithId(String id) {
 		return !departmentService.existsDepartmentWithId(id);
+	}
+
+	@Override
+	public void updatePoliceProfile(Police police) {
+		validateCurrentUserHasRole(POLICE);
+		validate(police);
+		validateDepartmentId(police.getDepartmentId());
+		User currentUser = getCurrentUser();
+		validateHasPoliceProfile(currentUser);
+		Police originalPolice = getPoliceByUserId(currentUser.getId());
+		mergePoliceMappings(originalPolice, police);
+		policeRepository.save(police);
+	}
+
+	private void validateHasPoliceProfile(User user) {
+		if(hasNoPoliceProfile(user)) {
+			throw new ValidationException("No profile to update");
+		}
+	}
+
+	private void mergePoliceMappings(Police from, Police to) {
+		String id = from.getId();
+		to.setId(id);
+		String photoUri = from.getPhotoUri();
+		to.setPhotoUri(photoUri);
+		String userId = from.getUserId();
+		to.setUserId(userId);
 	}
 
 	@Override

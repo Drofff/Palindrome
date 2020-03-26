@@ -16,7 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.ValidationUtils.*;
+import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
 public class DriverServiceImpl implements DriverService, EntityManager {
@@ -79,7 +80,6 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	@Override
 	public void updateDriverProfile(Driver driver) {
 		validate(driver);
-		validateEntityHasId(driver);
 		User currentUser = getCurrentUser();
 		Driver originalDriver = getDriverByUserId(currentUser.getId());
 		mergeDriverMappings(originalDriver, driver);
@@ -87,6 +87,8 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	}
 
 	private void mergeDriverMappings(Driver from, Driver to) {
+		String id = from.getId();
+		to.setId(id);
 		String userId = from.getUserId();
 		to.setUserId(userId);
 		Set<String> ownedCars = from.getOwnedCarIds();

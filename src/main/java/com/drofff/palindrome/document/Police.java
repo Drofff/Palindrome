@@ -1,12 +1,11 @@
 package com.drofff.palindrome.document;
 
-import javax.validation.constraints.NotNull;
-
+import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.repository.DepartmentRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.drofff.palindrome.annotation.FromRepository;
-import com.drofff.palindrome.repository.DepartmentRepository;
+import javax.validation.constraints.NotBlank;
 
 @Document
 public class Police {
@@ -14,23 +13,23 @@ public class Police {
 	@Id
 	private String id;
 
-	@NotNull(message = "First name is required")
+	@NotBlank(message = "First name is required")
 	private String firstName;
 
-	@NotNull(message = "Last name is required")
+	@NotBlank(message = "Last name is required")
 	private String lastName;
 
 	private String middleName;
 
-	@NotNull(message = "Position should be provided")
+	@NotBlank(message = "Position should be provided")
 	private String position;
 
-	@NotNull(message = "Token number is required")
+	@NotBlank(message = "Token number is required")
 	private String tokenNumber;
 
 	private String photoUri;
 
-	@NotNull(message = "Select department")
+	@NotBlank(message = "Select department")
 	@FromRepository(DepartmentRepository.class)
 	private String departmentId;
 

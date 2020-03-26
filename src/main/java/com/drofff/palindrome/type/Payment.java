@@ -1,10 +1,11 @@
 package com.drofff.palindrome.type;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 import com.drofff.palindrome.document.ViolationType;
 import com.drofff.palindrome.enums.Currency;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class Payment {
 
@@ -15,10 +16,10 @@ public class Payment {
 	@NotNull(message = "Currency is required")
 	private Currency currency;
 
-	@NotNull(message = "Payment description is missing")
+	@NotBlank(message = "Payment description is missing")
 	private String description;
 
-	@NotNull(message = "Payment token is required")
+	@NotBlank(message = "Payment token is required")
 	private String paymentToken;
 
 	public Long getAmount() {

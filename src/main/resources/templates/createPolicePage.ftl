@@ -56,46 +56,39 @@
 						<div>
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<input class="mdl-textfield__input" <#if police?? && police.firstName??>value="${police.firstName}"</#if> autocomplete="off" name="firstName" type="text">
-								<label class="mdl-textfield__label" for="password">Ім'я</label>
+								<label class="mdl-textfield__label" <#if firstNameError??>style="color: red;"</#if> for="password">
+									<#if firstNameError??>${firstNameError}<#else>Ім'я</#if>
+								</label>
 							</div>
-                            <#if firstNameError??>
-								<p style="color: red">${firstNameError}</p>
-                            </#if>
 
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<input class="mdl-textfield__input" <#if police?? && police.middleName??>value="${police.middleName}"</#if> autocomplete="off" name="middleName" type="text">
 								<label class="mdl-textfield__label" for="password">По батькові</label>
 							</div>
-                            <#if middleNameError??>
-								<p style="color: red">${middleNameError}</p>
-                            </#if>
 
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<input class="mdl-textfield__input" <#if police?? && police.lastName??>value="${police.lastName}"</#if> autocomplete="off" name="lastName" type="text">
-								<label class="mdl-textfield__label" for="password">Прізвище</label>
+								<label class="mdl-textfield__label" <#if lastNameError??>style="color: red;"</#if> for="password">
+									<#if lastNameError??>${lastNameError}<#else>Прізвище</#if>
+								</label>
 							</div>
-                            <#if lastNameError??>
-								<p style="color: red">${lastNameError}</p>
-                            </#if>
 						</div>
 
 						<div>
 
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<input class="mdl-textfield__input" <#if police?? && police.position??>value="${police.position}"</#if> autocomplete="off" name="position" type="text">
-								<label class="mdl-textfield__label" for="password">Посада</label>
+								<label class="mdl-textfield__label" <#if positionError??>style="color: red;" </#if> for="password">
+									<#if positionError??>${positionError}<#else>Посада</#if>
+								</label>
 							</div>
-                            <#if positionError??>
-								<p style="color: red">${positionError}</p>
-                            </#if>
 
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<input class="mdl-textfield__input" <#if police?? && police.tokenNumber??>value="${police.tokenNumber}"</#if> autocomplete="off" name="tokenNumber" type="text">
-								<label class="mdl-textfield__label" for="password">Номер жетона</label>
+								<label <#if tokenNumberError??>style="color: red;" </#if> class="mdl-textfield__label" for="password">
+									<#if tokenNumberError??>${tokenNumberError}<#else>Номер жетона</#if>
+								</label>
 							</div>
-                            <#if tokenNumberError??>
-								<p style="color: red">${tokenNumberError}</p>
-                            </#if>
 
 							<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 								<select class="mdl-textfield__input" id="departmentId" name="departmentId">
@@ -104,7 +97,9 @@
 										<option <#if police?? && police.departmentId?? && police.departmentId == department.id>selected</#if> value="${department.id}">${department.name}</option>
                                     </#list>
 								</select>
-								<label class="mdl-textfield__label" for="licenceCategoryId">Відділення</label>
+								<label class="mdl-textfield__label" <#if departmentIdError??>style="color: red;"</#if> for="licenceCategoryId">
+									<#if departmentIdError??>${departmentIdError}<#else>Відділення</#if>
+								</label>
 							</div>
                             <#if departmentIdError??>
 								<p style="color: red">${departmentIdError}</p>

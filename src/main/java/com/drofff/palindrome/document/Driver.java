@@ -1,15 +1,13 @@
 package com.drofff.palindrome.document;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
+import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.repository.UserRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.drofff.palindrome.annotation.FromRepository;
-import com.drofff.palindrome.repository.UserRepository;
+import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
 
 @Document
 public class Driver implements Entity {
@@ -17,18 +15,18 @@ public class Driver implements Entity {
 	@Id
 	private String id;
 
-	@NotNull(message = "First name is required")
+	@NotBlank(message = "First name is required")
 	private String firstName;
 
-	@NotNull(message = "Last name is required")
+	@NotBlank(message = "Last name is required")
 	private String lastName;
 
 	private String middleName;
 
-	@NotNull(message = "Address is required")
+	@NotBlank(message = "Address is required")
 	private String address;
 
-	@NotNull(message = "Licence number should be provided")
+	@NotBlank(message = "Licence number should be provided")
 	private String licenceNumber;
 
 	private String photoUri;

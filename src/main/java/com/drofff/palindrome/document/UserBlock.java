@@ -1,11 +1,11 @@
 package com.drofff.palindrome.document;
 
-import java.time.LocalDateTime;
-
-import javax.validation.constraints.NotNull;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Document
 public class UserBlock {
@@ -13,13 +13,13 @@ public class UserBlock {
 	@Id
 	private String id;
 
-	@NotNull(message = "Reason should be specified")
+	@NotBlank(message = "Reason should be specified")
 	private String reason;
 
 	@NotNull(message = "Date and time is required")
 	private LocalDateTime dateTime;
 
-	@NotNull(message = "User is required")
+	@NotBlank(message = "User is required")
 	private String userId;
 
 	public String getId() {

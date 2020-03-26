@@ -1,20 +1,15 @@
 package com.drofff.palindrome.document;
 
-import java.time.LocalDate;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
-import javax.validation.constraints.Pattern;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.drofff.palindrome.annotation.FromRepository;
 import com.drofff.palindrome.repository.BodyTypeRepository;
 import com.drofff.palindrome.repository.BrandRepository;
 import com.drofff.palindrome.repository.EngineTypeRepository;
 import com.drofff.palindrome.repository.LicenceCategoryRepository;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.*;
+import java.time.LocalDate;
 
 @Document
 public class Car implements Entity {
@@ -22,32 +17,32 @@ public class Car implements Entity {
 	@Id
 	private String id;
 
-	@NotNull(message = "Car number is required")
+	@NotBlank(message = "Car number is required")
 	@Pattern(regexp = "([a-zA-Z]{2})(\\d{4})([a-zA-Z]{2})", message = "Car number is of a wrong format")
 	private String number;
 
-	@NotNull(message = "Body number is required")
+	@NotBlank(message = "Body number is required")
 	private String bodyNumber;
 
-	@NotNull(message = "Brand should be provided")
+	@NotBlank(message = "Brand should be provided")
 	@FromRepository(BrandRepository.class)
 	private String brandId;
 
-	@NotNull(message = "Model should be provided")
+	@NotBlank(message = "Model should be provided")
 	private String model;
 
-	@NotNull(message = "Body type should be specified")
+	@NotBlank(message = "Body type should be specified")
 	@FromRepository(BodyTypeRepository.class)
 	private String bodyTypeId;
 
-	@NotNull(message = "Color is required")
+	@NotBlank(message = "Color is required")
 	private String color;
 
 	@NotNull(message = "Weight is required")
 	@Min(value = 0, message = "0 is a minimal possible weight")
 	private Float weight;
 
-	@NotNull(message = "Select licence category of your car")
+	@NotBlank(message = "Select licence category of your car")
 	@FromRepository(LicenceCategoryRepository.class)
 	private String licenceCategoryId;
 
@@ -55,7 +50,7 @@ public class Car implements Entity {
 	@Min(value = 0, message = "Minimal engine volume is 0")
 	private Float engineVolume;
 
-	@NotNull(message = "Engine type is required")
+	@NotBlank(message = "Engine type is required")
 	@FromRepository(EngineTypeRepository.class)
 	private String engineTypeId;
 

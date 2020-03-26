@@ -1,15 +1,11 @@
 package com.drofff.palindrome.controller;
 
-import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.DRIVER_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.EMAIL_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.SUCCESS_PARAM;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-
+import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.dto.DriverDto;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.mapper.DriverDtoMapper;
+import com.drofff.palindrome.service.DriverService;
+import com.drofff.palindrome.service.PhotoService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,14 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.dto.DriverDto;
-import com.drofff.palindrome.dto.UpdateDriverDto;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.mapper.DriverDtoMapper;
-import com.drofff.palindrome.mapper.UpdateDriverDtoMapper;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.PhotoService;
+import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
+import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
 @Controller
 @RequestMapping("/driver")
@@ -42,14 +35,12 @@ public class DriverController {
 	private final DriverService driverService;
 	private final PhotoService photoService;
 	private final DriverDtoMapper driverDtoMapper;
-	private final UpdateDriverDtoMapper updateDriverDtoMapper;
 
 	public DriverController(DriverService driverService, PhotoService photoService,
-	                        DriverDtoMapper driverDtoMapper, UpdateDriverDtoMapper updateDriverDtoMapper) {
+	                        DriverDtoMapper driverDtoMapper) {
 		this.driverService = driverService;
 		this.photoService = photoService;
 		this.driverDtoMapper = driverDtoMapper;
-		this.updateDriverDtoMapper = updateDriverDtoMapper;
 	}
 
 	@GetMapping
@@ -92,8 +83,8 @@ public class DriverController {
 	}
 
 	@PostMapping("/update")
-	public String updateDriver(UpdateDriverDto updateDriverDto, Model model) {
-		Driver driver = updateDriverDtoMapper.toEntity(updateDriverDto);
+	public String updateDriver(DriverDto driverDto, Model model) {
+		Driver driver = driverDtoMapper.toEntity(driverDto);
 		try {
 			driverService.updateDriverProfile(driver);
 			return redirectToWithMessage("/driver", "Profile data has been successfully updated");

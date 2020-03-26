@@ -1,12 +1,6 @@
 package com.drofff.palindrome.document;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-
+import com.drofff.palindrome.enums.Role;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,7 +8,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.drofff.palindrome.enums.Role;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.util.Collection;
+import java.util.Collections;
 
 @Document
 public class User implements UserDetails {
@@ -22,12 +19,11 @@ public class User implements UserDetails {
 	@Id
 	private String id;
 
-	@NotNull(message = "Email is required")
-	@NotBlank(message = "Email should not be blank")
+	@NotBlank(message = "Email is required")
 	@Email(message = "Invalid email format")
 	private String username;
 
-	@NotNull(message = "Password is required")
+	@NotBlank(message = "Password is required")
 	@Length(min = 8, message = "Password should be at least 8 characters long")
 	private String password;
 
