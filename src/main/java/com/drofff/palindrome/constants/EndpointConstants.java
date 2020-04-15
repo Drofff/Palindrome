@@ -28,6 +28,8 @@ public class EndpointConstants {
 
 	public static final String AUTHENTICATE_API_ENDPOINT = "/api/authenticate";
 
+	public static final String REFRESH_TOKEN_API_ENDPOINT = "/api/tokens/refresh";
+
 	private EndpointConstants() {}
 
 }

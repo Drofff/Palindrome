@@ -181,17 +181,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public void changeUserPassword(String password, String newPassword) {
 		User currentUser = getCurrentUser();
-		validateUserHasPassword(currentUser, password);
+		validateUserPassword(currentUser, password);
 		currentUser.setPassword(newPassword);
 		validate(currentUser);
 		encodeUserPassword(currentUser);
 		userRepository.save(currentUser);
-	}
-
-	private void validateUserHasPassword(User user, String password) {
-		if(hasNotPassword(user, password)) {
-			throw new ValidationException("Invalid password");
-		}
 	}
 
 	@Override
@@ -205,10 +199,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		TokenCache.saveTokenForUser(confirmationToken, currentUser);
 		String confirmationLink = generatePasswordChangeConfirmationLinkWithToken(confirmationToken);
 		sendPasswordChangeConfirmationLinkByMail(confirmationLink, currentUser.getUsername());
-	}
-
-	private String generateToken() {
-		return UUID.randomUUID().toString();
 	}
 
 	private String generatePasswordChangeConfirmationLinkWithToken(String confirmationToken) {
@@ -311,21 +301,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public User authenticateUser(String username, String password) {
-		validateUserCredentials(username, password);
-		return userRepository.findByUsername(username)
-				.orElseThrow(() -> new PalindromeException("Inconsistent user info"));
-	}
-
-	private void validateUserCredentials(String username, String password) {
-		if(areInvalidCredentials(username, password)) {
-			throw new ValidationException("Invalid credentials");
-		}
-	}
-
-	private boolean areInvalidCredentials(String username, String password) {
+	public User authenticateUserByCredentials(String username, String password) {
 		User user = getUserByUsername(username);
-		return hasNotPassword(user, password);
+		validateUserPassword(user, password);
+		updateUserRefreshToken(user);
+		return user;
 	}
 
 	private User getUserByUsername(String username) {
@@ -334,13 +314,36 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 				.orElseThrow(() -> new ValidationException("User with such username doesn't exist"));
 	}
 
-	private boolean hasNotPassword(User user, String password) {
-		return !hasPassword(user, password);
+	private void validateUserPassword(User user, String password) {
+		if(isIncorrectUserPassword(user, password)) {
+			throw new ValidationException("Invalid credentials");
+		}
 	}
 
-	private boolean hasPassword(User user, String password) {
+	private boolean isIncorrectUserPassword(User user, String password) {
+		return !isCorrectUserPassword(user, password);
+	}
+
+	private boolean isCorrectUserPassword(User user, String password) {
 		String originalPassword = user.getPassword();
 		return passwordEncoder.matches(password, originalPassword);
+	}
+
+	private void updateUserRefreshToken(User user) {
+		String refreshToken = generateToken();
+		user.setRefreshToken(refreshToken);
+		userRepository.save(user);
+	}
+
+	private String generateToken() {
+		return UUID.randomUUID().toString();
+	}
+
+	@Override
+	public User authenticateUserByRefreshToken(String refreshToken) {
+		validateNotNull(refreshToken, "Refresh token should not be null");
+		return userRepository.findByRefreshToken(refreshToken)
+				.orElseThrow(() -> new ValidationException("Invalid refresh token"));
 	}
 
 }

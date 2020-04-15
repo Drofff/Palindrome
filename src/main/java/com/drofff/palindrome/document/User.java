@@ -33,6 +33,8 @@ public class User implements UserDetails {
 
 	private String activationToken;
 
+	private String refreshToken;
+
 	public String getId() {
 		return id;
 	}
@@ -67,6 +69,14 @@ public class User implements UserDetails {
 
 	public void setActivationToken(String activationToken) {
 		this.activationToken = activationToken;
+	}
+
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 
 	@Override

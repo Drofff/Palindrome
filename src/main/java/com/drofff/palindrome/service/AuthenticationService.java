@@ -34,6 +34,8 @@ public interface AuthenticationService {
 
 	void createUser(User user);
 
-	User authenticateUser(String username, String password);
+	User authenticateUserByCredentials(String username, String password);
+
+	User authenticateUserByRefreshToken(String refreshToken);
 
 }
