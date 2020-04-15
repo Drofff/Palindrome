@@ -10,6 +10,7 @@
 			crossorigin="anonymous"></script>
 	<link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200&display=swap" rel="stylesheet">
 	<style>
 		.demo-card-wide.mdl-card {
 			width: 512px;
@@ -38,7 +39,11 @@
 </head>
 <body <#if user?? && user.isAdmin()>
     style="background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1') center / cover"
-</#if> >
+</#if>
+<#if !user??>
+    style="background: url('https://images.unsplash.com/photo-1526666361175-e3595627c376?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1049&q=80') center / cover"
+</#if>
+>
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 	<header class="mdl-layout__header">
 		<div class="mdl-layout__header-row">
@@ -82,6 +87,42 @@
 					<button type="button" class="mdl-button close">Закрити</button>
 				</div>
 			</dialog>
+
+			<#if !user??>
+			    <div style="background: #fff; margin-left: 20%; margin-right: 10%; margin-top: 200px; font-family: 'Manrope', sans-serif;
+					padding: 50px;">
+				    <p style="font-size: 15px;">Вітаємо в Palindrome! Ми - сервіс, що забезпечує вашу вза'ємодію з державою та органами правового порядку задля
+				    менеджменту вашої активності на дорозі. Приєднуйся, з нами простіше!</p>
+				    <a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" style="margin-top: 2%;" href="/registration">
+					    Приєднатися
+				    </a>
+			    </div>
+				<div class="mdl-grid" style="background: #fff; width: 100%; flex-grow: 1; min-height: 300px; margin-top: 70px;
+				 padding-top: 40px;">
+
+					<div class="mdl-cell mdl-cell--4-col" style="margin-left: 17%;">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__supporting-text" style="text-align: center">
+								Моніторте власні порушення
+								<img width="160px" style="margin-top: 28px;" height="160px" alt="" src="https://getdrawings.com/free-icon/monitor-icon-png-53.png">
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--4-col" style="margin-left: 5%; margin-right: 13%;">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp">
+							<div class="mdl-card__supporting-text" style="text-align: center">
+								Оплачуйте штрафи онлайн
+								<img width="180px" style="margin-top: 8px;" height="180px" alt="" src="https://www.selectivepay.com/wp-content/uploads/2019/09/icon-payment-gateway.png">
+							</div>
+						</div>
+					</div>
+
+					<div style="font-family: 'Josefin Sans', sans-serif; margin-left: -10px; font-size: 18px; text-align: center; margin-top: 5%; margin-bottom: 3%; width: 100%;">
+						<b>Palindrome</b>
+					</div>
+
+				</div>
+			</#if>
 
 			<#if user?? && user.isDriver()>
 				<div class="mdl-grid" style="margin-top: 3%;">

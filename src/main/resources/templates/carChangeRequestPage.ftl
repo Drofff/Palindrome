@@ -26,7 +26,23 @@
 	<main class="mdl-layout__content">
 		<div class="page-content">
 
-			<div class="mdl-grid" style="margin-left: 15%; margin-top: 5%;">
+			<div class="mdl-grid" style="margin-left: 5%; margin-top: 5%;">
+
+				<div class="mdl-cell mdl-cell--4-col">
+					<div onclick="window.location.href='/admin/users/police/${police.userId}'" style="cursor: pointer">
+						<img src="data:img/png;base64, ${photo}" style="border-radius: 50%; margin-right: 3%;" width="40px" height="40px" alt=" ">
+                        ${police.firstName} ${police.lastName}
+					</div>
+					<div style="margin-top: 3%;">
+                        <#if change_request.comment?? && change_request.comment?has_content>
+							<p>Коментар: ${change_request.comment}</p>
+                        </#if>
+						<p>
+							Отримано: <#if change_request.dateTime.hour lt 10>0${change_request.dateTime.hour}<#else>${change_request.dateTime.hour}</#if>:<#if change_request.dateTime.minute lt 10>0${change_request.dateTime.minute}<#else>${change_request.dateTime.minute}</#if>, ${change_request.dateTime.dayOfMonth} of ${change_request.dateTime.month.name()?capitalize} ${change_request.dateTime.year?c}
+						</p>
+					</div>
+				</div>
+
 				<div class="mdl-cell mdl-cell--4-col">
 					<table class="mdl-data-table mdl-js-data-table">
 						<thead>
@@ -104,20 +120,6 @@
 						</a>
 					</div>
 
-				</div>
-				<div class="mdl-cell mdl-cell--4-col" style="margin-left: 10%;">
-					<div onclick="window.location.href='/admin/users/police/${police.userId}'" style="cursor: pointer">
-						<img src="data:img/png;base64, ${photo}" style="border-radius: 50%; margin-right: 3%;" width="40px" height="40px" alt=" ">
-                        ${police.firstName} ${police.lastName}
-					</div>
-					<div style="margin-top: 3%;">
-                        <#if change_request.comment?? && change_request.comment?has_content>
-							<p>Коментар: ${change_request.comment}</p>
-                        </#if>
-						<p>
-							Отримано: <#if change_request.dateTime.hour lt 10>0${change_request.dateTime.hour}<#else>${change_request.dateTime.hour}</#if>:<#if change_request.dateTime.minute lt 10>0${change_request.dateTime.minute}<#else>${change_request.dateTime.minute}</#if>, ${change_request.dateTime.dayOfMonth} of ${change_request.dateTime.month.name()?capitalize} ${change_request.dateTime.year?c}
-						</p>
-					</div>
 				</div>
 			</div>
 

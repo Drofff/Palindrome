@@ -30,6 +30,10 @@ public class EndpointConstants {
 
 	public static final String REFRESH_TOKEN_API_ENDPOINT = "/api/tokens/refresh";
 
+	public static final String API_RESOURCE_ENDPOINTS_BASE = "/api/resources/img/";
+
+	public static final String PATH_ANY_SEGMENTS = "/**";
+
 	private EndpointConstants() {}
 
 }

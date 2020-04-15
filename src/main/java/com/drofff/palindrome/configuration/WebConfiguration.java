@@ -1,5 +1,8 @@
 package com.drofff.palindrome.configuration;
 
+import static com.drofff.palindrome.constants.EndpointConstants.API_RESOURCE_ENDPOINTS_BASE;
+import static com.drofff.palindrome.constants.EndpointConstants.PATH_ANY_SEGMENTS;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -36,7 +39,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/api/resources/img/**")
+		String apiResourcesPattern = API_RESOURCE_ENDPOINTS_BASE + PATH_ANY_SEGMENTS;
+		registry.addResourceHandler(apiResourcesPattern)
 				.addResourceLocations("classpath:/static/img/");
 	}
 

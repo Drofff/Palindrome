@@ -1,5 +1,15 @@
 package com.drofff.palindrome.configuration;
 
+import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_BASE;
+import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.FORGOT_PASS_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.LOGIN_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.PATH_ANY_SEGMENTS;
+import static com.drofff.palindrome.constants.EndpointConstants.REGISTRATION_ENDPOINT;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -10,13 +20,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-import static com.drofff.palindrome.constants.EndpointConstants.*;
-
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-	private static final String PATH_ANY_SEGMENTS = "/**";
 
 	@Autowired
 	private AuthenticationProvider authenticationProvider;

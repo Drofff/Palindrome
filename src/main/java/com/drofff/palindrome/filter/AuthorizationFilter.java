@@ -1,12 +1,14 @@
 package com.drofff.palindrome.filter;
 
+import static com.drofff.palindrome.constants.EndpointConstants.API_RESOURCE_ENDPOINTS_BASE;
 import static com.drofff.palindrome.constants.EndpointConstants.AUTHENTICATE_API_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.REFRESH_TOKEN_API_ENDPOINT;
 import static com.drofff.palindrome.utils.AuthenticationUtils.setCurrentUser;
 import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static java.util.Arrays.asList;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.Filter;
@@ -24,8 +26,9 @@ public class AuthorizationFilter implements Filter {
     private static final String AUTHORIZATION_TOKEN_HEADER = "Authorization";
     private static final String AUTHORIZATION_TOKEN_PREFIX = "Bearer ";
 
-    private static final List<String> OPEN_ENDPOINTS_PATTERNS = Arrays.asList(AUTHENTICATE_API_ENDPOINT,
-		    "/api/drivers/.*/photo", "/api/polices/.*/photo");
+    private static final List<String> OPEN_ENDPOINT_PATTERNS = asList(AUTHENTICATE_API_ENDPOINT,
+		    REFRESH_TOKEN_API_ENDPOINT, "/api/drivers/.*/photo", "/api/polices/.*/photo",
+		    API_RESOURCE_ENDPOINTS_BASE + ".*");
 
     private final AuthorizationService authorizationService;
 
@@ -48,7 +51,7 @@ public class AuthorizationFilter implements Filter {
     }
 
     private boolean isOpenEndpoint(String uri) {
-    	return OPEN_ENDPOINTS_PATTERNS.stream()
+    	return OPEN_ENDPOINT_PATTERNS.stream()
 			    .anyMatch(uri::matches);
     }
 
