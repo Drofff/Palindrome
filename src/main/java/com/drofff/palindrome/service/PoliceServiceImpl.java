@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.drofff.palindrome.enums.Role.POLICE;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.ValidationUtils.*;
+import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
+import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
 public class PoliceServiceImpl implements PoliceService {
@@ -29,11 +30,11 @@ public class PoliceServiceImpl implements PoliceService {
 
 	@Override
 	public void createPoliceProfileWithPhoto(Police police, MultipartFile photo) {
-		validateCurrentUserHasRole(POLICE);
 		validate(police);
 		validatePhoto(photo);
 		validateDepartmentId(police.getDepartmentId());
 		User currentUser = getCurrentUser();
+		validateIsPolice(currentUser);
 		validateHasNoPoliceProfile(currentUser);
 		String photoUri = photoService.savePhotoForUser(photo, currentUser);
 		police.setPhotoUri(photoUri);
@@ -41,51 +42,24 @@ public class PoliceServiceImpl implements PoliceService {
 		policeRepository.save(police);
 	}
 
-	private void validateHasNoPoliceProfile(User user) {
-		if(hasPoliceProfile(user)) {
-			throw new ValidationException("User already has police profile");
-		}
-	}
-
 	private void validatePhoto(MultipartFile photo) {
 		validateNotNull(photo, "Photo should be provided");
 	}
 
-	private void validateDepartmentId(String departmentId) {
-		if(notExistsDepartmentWithId(departmentId)) {
-			throw new ValidationException("Department with such id doesn't exist");
+	private void validateIsPolice(User user) {
+		if(isNotPolice(user)) {
+			throw new ValidationException("The user should obtain a role of a police officer");
 		}
 	}
 
-	private boolean notExistsDepartmentWithId(String id) {
-		return !departmentService.existsDepartmentWithId(id);
+	private boolean isNotPolice(User user) {
+		return !user.isPolice();
 	}
 
-	@Override
-	public void updatePoliceProfile(Police police) {
-		validateCurrentUserHasRole(POLICE);
-		validate(police);
-		validateDepartmentId(police.getDepartmentId());
-		User currentUser = getCurrentUser();
-		validateHasPoliceProfile(currentUser);
-		Police originalPolice = getPoliceByUserId(currentUser.getId());
-		mergePoliceMappings(originalPolice, police);
-		policeRepository.save(police);
-	}
-
-	private void validateHasPoliceProfile(User user) {
-		if(hasNoPoliceProfile(user)) {
-			throw new ValidationException("No profile to update");
+	private void validateHasNoPoliceProfile(User user) {
+		if(hasPoliceProfile(user)) {
+			throw new ValidationException("User already has police profile");
 		}
-	}
-
-	private void mergePoliceMappings(Police from, Police to) {
-		String id = from.getId();
-		to.setId(id);
-		String photoUri = from.getPhotoUri();
-		to.setPhotoUri(photoUri);
-		String userId = from.getUserId();
-		to.setUserId(userId);
 	}
 
 	@Override
@@ -98,17 +72,44 @@ public class PoliceServiceImpl implements PoliceService {
 	}
 
 	@Override
-	public Police getPoliceByUserId(String id) {
-		validateNotNull(id, "User id is required");
-		return policeRepository.findByUserId(id)
-				.orElseThrow(() -> new ValidationException("User with such id has no police profile"));
+	public void updatePoliceProfile(Police police) {
+		validate(police);
+		validateDepartmentId(police.getDepartmentId());
+		Police actualPolice = getActualPoliceProfile(police);
+		copyNonEditableFields(actualPolice, police);
+		policeRepository.save(police);
+	}
+
+	private void validateDepartmentId(String departmentId) {
+		if(notExistsDepartmentWithId(departmentId)) {
+			throw new ValidationException("Department with such id doesn't exist");
+		}
+	}
+
+	private boolean notExistsDepartmentWithId(String id) {
+		return !departmentService.existsDepartmentWithId(id);
+	}
+
+	private Police getActualPoliceProfile(Police police) {
+		User currentUser = getCurrentUser();
+		if(currentUser.isAdmin()) {
+			return getPoliceById(police.getId());
+		}
+		return getPoliceByUserId(currentUser.getId());
 	}
 
 	@Override
 	public Police getPoliceById(String id) {
-		validateNotNull(id, "Police id is required");
+		validateNotNull(id, "Missing police id");
 		return policeRepository.findById(id)
 				.orElseThrow(() -> new ValidationException("Police with such id doesn't exist"));
+	}
+
+	@Override
+	public Police getPoliceByUserId(String id) {
+		validateNotNull(id, "User id is required");
+		return policeRepository.findByUserId(id)
+				.orElseThrow(() -> new ValidationException("User with such id has no police profile"));
 	}
 
 }

@@ -21,7 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Collections;
 import java.util.List;
 
-import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS_BASE;
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
 
 @Configuration
 public class BeanConfiguration {
@@ -71,7 +71,7 @@ public class BeanConfiguration {
 		AuthorizationFilter filter = new AuthorizationFilter(authorizationService);
 		FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(filter);
-		String apiEndpointsPattern = API_ENDPOINTS_BASE + SERVLET_PATH_WILDCARD;
+		String apiEndpointsPattern = API_ENDPOINTS + SERVLET_PATH_WILDCARD;
 		List<String> urlPatterns = Collections.singletonList(apiEndpointsPattern);
 		registrationBean.setUrlPatterns(urlPatterns);
 		return registrationBean;

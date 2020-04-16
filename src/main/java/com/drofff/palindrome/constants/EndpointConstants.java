@@ -24,7 +24,9 @@ public class EndpointConstants {
 
 	public static final String CONFIRM_PASS_CHANGE_ENDPOINT = "/change-password/confirm";
 
-	public static final String API_ENDPOINTS_BASE = "/api";
+	public static final String ADMIN_USERS_ENDPOINT = "/admin/users";
+
+	public static final String API_ENDPOINTS = "/api";
 
 	public static final String AUTHENTICATE_API_ENDPOINT = "/api/authenticate";
 

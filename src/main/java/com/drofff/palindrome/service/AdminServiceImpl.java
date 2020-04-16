@@ -1,14 +1,13 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.utils.MailUtils.getCarUpdateMail;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.type.Mail;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import static com.drofff.palindrome.utils.MailUtils.getCarUpdateMail;
 
 @Service
 public class AdminServiceImpl implements AdminService {

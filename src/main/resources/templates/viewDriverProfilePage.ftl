@@ -92,8 +92,8 @@
 						<p><b>Номер посвідчення водія:</b> ${driver.licenceNumber}</p>
 					</div>
 					<div style="margin-top: 2%;">
-						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/admin/cars?ownerId=${driver.id}" style="margin-right: 3%;">
-							Показати автомобілі
+						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/admin/users/driver/${driver.userId}/update" style="margin-right: 3%;">
+							Редагувати
 						</a>
 						<#if blocked?? && blocked>
 							<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="unblock_user()" style="background-color: green">
@@ -104,6 +104,11 @@
 								Заблокувати
 							</a>
 						</#if>
+					</div>
+					<div style="margin-top: 2%;">
+						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/admin/cars?ownerId=${driver.id}" style="margin-right: 3%;">
+							Показати автомобілі
+						</a>
 					</div>
 				</div>
 			</div>

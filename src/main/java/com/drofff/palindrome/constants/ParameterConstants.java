@@ -48,6 +48,10 @@ public class ParameterConstants {
 
 	public static final String VIOLATION_PARAM = "violation";
 
+	public static final String BLOCKED_PARAM = "blocked";
+
+	public static final String DEPARTMENTS_PARAM = "departments";
+
 	private ParameterConstants() {}
 
 }

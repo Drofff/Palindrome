@@ -92,6 +92,9 @@
 						<p><b>Департамент:</b> ${police.department.name}</p>
 					</div>
 					<div style="margin-top: 2%;">
+						<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" href="/admin/users/police/${police.userId}/update" style="margin-right: 3%;">
+							Редагувати
+						</a>
                         <#if blocked?? && blocked>
 							<a class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="unblock_user()" style="background-color: green">
 								Розблокувати

@@ -1,6 +1,7 @@
 package com.drofff.palindrome.document;
 
 import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.annotation.NonEditable;
 import com.drofff.palindrome.repository.DepartmentRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -8,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotBlank;
 
 @Document
-public class Police {
+public class Police implements Entity {
 
 	@Id
 	private String id;
@@ -27,14 +28,17 @@ public class Police {
 	@NotBlank(message = "Token number is required")
 	private String tokenNumber;
 
+	@NonEditable
 	private String photoUri;
 
-	@NotBlank(message = "Select department")
+	@NotBlank(message = "Select a department")
 	@FromRepository(DepartmentRepository.class)
 	private String departmentId;
 
+	@NonEditable
 	private String userId;
 
+	@Override
 	public String getId() {
 		return id;
 	}

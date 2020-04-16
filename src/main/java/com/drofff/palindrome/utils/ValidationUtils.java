@@ -1,20 +1,20 @@
 package com.drofff.palindrome.utils;
 
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import com.drofff.palindrome.document.Entity;
+import com.drofff.palindrome.enums.Role;
+import com.drofff.palindrome.exception.ValidationException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
-import com.drofff.palindrome.document.Entity;
-import com.drofff.palindrome.enums.Role;
-import com.drofff.palindrome.exception.ValidationException;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static java.util.Arrays.stream;
 
 public class ValidationUtils {
 
@@ -54,6 +54,11 @@ public class ValidationUtils {
 	public static <T extends Entity> void validateEntityHasId(T entity) {
 		String entityName = getSimpleClassName(entity);
 		validateNotNull(entity.getId(), entityName + " should obtain an id");
+	}
+
+	public static void validateAllAreNotNull(String errorMessage, Object ... objects) {
+		stream(objects)
+				.forEach(object -> validateNotNull(object, errorMessage));
 	}
 
 	public static void validateNotNull(Object object) {

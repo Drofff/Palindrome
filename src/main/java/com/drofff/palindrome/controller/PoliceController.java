@@ -24,8 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.PHOTO_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.POLICE_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
@@ -36,8 +35,6 @@ public class PoliceController {
 
 	private static final String CREATE_POLICE_VIEW = "createPolicePage";
 	private static final String UPDATE_POLICE_VIEW = "updatePolicePage";
-
-	private static final String DEPARTMENTS_PARAM = "departments";
 
 	private final PoliceService policeService;
 	private final DepartmentService departmentService;

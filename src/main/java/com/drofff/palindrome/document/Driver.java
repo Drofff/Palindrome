@@ -1,6 +1,7 @@
 package com.drofff.palindrome.document;
 
 import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.annotation.NonEditable;
 import com.drofff.palindrome.repository.UserRepository;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,13 +30,17 @@ public class Driver implements Entity {
 	@NotBlank(message = "Licence number should be provided")
 	private String licenceNumber;
 
+	@NonEditable
 	private String photoUri;
 
+	@NonEditable
 	private Set<String> ownedCarIds = new HashSet<>();
 
+	@NonEditable
 	@FromRepository(UserRepository.class)
 	private String userId;
 
+	@Override
 	public String getId() {
 		return id;
 	}

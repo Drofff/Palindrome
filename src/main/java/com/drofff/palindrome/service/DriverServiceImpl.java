@@ -13,9 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
@@ -80,21 +80,17 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	@Override
 	public void updateDriverProfile(Driver driver) {
 		validate(driver);
-		User currentUser = getCurrentUser();
-		Driver originalDriver = getDriverByUserId(currentUser.getId());
-		mergeDriverMappings(originalDriver, driver);
+		Driver actualDriver = getActualDriverProfile(driver);
+		copyNonEditableFields(actualDriver, driver);
 		driverRepository.save(driver);
 	}
 
-	private void mergeDriverMappings(Driver from, Driver to) {
-		String id = from.getId();
-		to.setId(id);
-		String userId = from.getUserId();
-		to.setUserId(userId);
-		Set<String> ownedCars = from.getOwnedCarIds();
-		to.setOwnedCarIds(ownedCars);
-		String photoUri = from.getPhotoUri();
-		to.setPhotoUri(photoUri);
+	private Driver getActualDriverProfile(Driver driver) {
+		User currentUser = getCurrentUser();
+		if(currentUser.isAdmin()) {
+			return getDriverById(driver.getId());
+		}
+		return getDriverByUserId(currentUser.getId());
 	}
 
 	@Override
@@ -170,6 +166,7 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 
 	@Override
 	public Driver getDriverById(String id) {
+		validateNotNull(id, "Missing driver id");
 		return driverRepository.findById(id)
 				.orElseThrow(() -> new ValidationException("Driver with such id doesn't exist"));
 	}
