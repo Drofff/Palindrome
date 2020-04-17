@@ -100,7 +100,7 @@
 				<div class="mdl-grid" style="background: #fff; width: 100%; flex-grow: 1; min-height: 300px; margin-top: 70px;
 				 padding-top: 40px;">
 
-					<div class="mdl-cell mdl-cell--4-col" style="margin-left: 17%;">
+					<div class="mdl-cell mdl-cell--5-col" style="margin-left: 15%;">
 						<div class="demo-card-square mdl-card mdl-shadow--2dp">
 							<div class="mdl-card__supporting-text" style="text-align: center">
 								Моніторте власні порушення
@@ -108,7 +108,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="mdl-cell mdl-cell--4-col" style="margin-left: 5%; margin-right: 13%;">
+					<div class="mdl-cell mdl-cell--5-col">
 						<div class="demo-card-square mdl-card mdl-shadow--2dp">
 							<div class="mdl-card__supporting-text" style="text-align: center">
 								Оплачуйте штрафи онлайн
