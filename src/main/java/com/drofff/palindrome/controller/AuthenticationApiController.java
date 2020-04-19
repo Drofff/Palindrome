@@ -41,7 +41,7 @@ public class AuthenticationApiController {
             User user = authenticationService.authenticateUserByCredentials(userDto.getUsername(), userDto.getPassword());
             String authenticationToken = authenticationTokenService.generateAuthenticationTokenForUser(user);
             String authorizationToken = authorizationTokenService.generateAuthorizationTokenForUser(user);
-	        return new RestAuthorizationDto.Builder()
+	        return new RestAuthorizationDto.Builder().forUser(user)
 			        .withAuthorizationToken(authorizationToken)
 			        .withAuthenticationToken(authenticationToken)
 			        .asResponseEntityOk();
@@ -58,7 +58,7 @@ public class AuthenticationApiController {
     	    String authenticationToken = refreshTokenDto.getAuthenticationToken();
     		User user = authenticationTokenService.authenticateUserWithIdByToken(refreshTokenDto.getUserId(), authenticationToken);
     		String authorizationToken = authorizationTokenService.generateAuthorizationTokenForUser(user);
-    		return new RestAuthorizationDto.Builder()
+    		return new RestAuthorizationDto.Builder().forUser(user)
 				    .withAuthorizationToken(authorizationToken)
 				    .withAuthenticationToken(authenticationToken)
 				    .asResponseEntityOk();
