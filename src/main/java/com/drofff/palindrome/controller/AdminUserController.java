@@ -8,8 +8,8 @@ import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.grep.pattern.UserPattern;
 import com.drofff.palindrome.mapper.CreateUserDtoMapper;
 import com.drofff.palindrome.mapper.UsersUserDtoMapper;
-import com.drofff.palindrome.service.AuthenticationService;
 import com.drofff.palindrome.service.UserBlockService;
+import com.drofff.palindrome.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,15 +39,15 @@ public class AdminUserController {
 
 	private static final String ROLES_PARAM = "roles";
 
-	private final AuthenticationService authenticationService;
+	private final UserService userService;
 	private final UserBlockService userBlockService;
 	private final UsersUserDtoMapper usersUserDtoMapper;
 	private final CreateUserDtoMapper createUserDtoMapper;
 
 	@Autowired
-	public AdminUserController(AuthenticationService authenticationService, UserBlockService userBlockService,
+	public AdminUserController(UserService userService, UserBlockService userBlockService,
 							   UsersUserDtoMapper usersUserDtoMapper, CreateUserDtoMapper createUserDtoMapper) {
-		this.authenticationService = authenticationService;
+		this.userService = userService;
 		this.userBlockService = userBlockService;
 		this.usersUserDtoMapper = usersUserDtoMapper;
 		this.createUserDtoMapper = createUserDtoMapper;
@@ -57,10 +57,10 @@ public class AdminUserController {
 	public String getUsersPage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                           @RequestParam(required = false, defaultValue = DEFAULT_PAGE) Integer page,
 	                           UserPattern userPattern, Model model) {
-		Page<User> allUsers = authenticationService.getAllUsersAtPage(page);
+		Page<User> allUsers = userService.getAllUsersAtPage(page);
 		List<UsersUserDto> usersUserDtos = applyToEachListElement(this::toUsersUserDto, allUsers.getContent());
 		model.addAttribute("users", grepByPattern(usersUserDtos, userPattern));
-		model.addAttribute(ROLES_PARAM, authenticationService.getAllRoles());
+		model.addAttribute(ROLES_PARAM, userService.getAllRoles());
 		model.addAttribute(PATTERN_PARAM, userPattern);
 		model.addAttribute(MESSAGE_PARAM, message);
 		putPageIntoModel(allUsers, model);
@@ -76,7 +76,7 @@ public class AdminUserController {
 
 	@GetMapping("/create")
 	public String getCreateUserPage(Model model) {
-		model.addAttribute(ROLES_PARAM, authenticationService.getAllRoles());
+		model.addAttribute(ROLES_PARAM, userService.getAllRoles());
 		return CREATE_USER_VIEW;
 	}
 
@@ -84,11 +84,11 @@ public class AdminUserController {
 	public String createUser(CreateUserDto createUserDto, Model model) {
 		User user = createUserDtoMapper.toEntity(createUserDto);
 		try {
-			authenticationService.createUser(user);
+			userService.generateUserOfRole(user.getUsername(), user.getRole());
 			return redirectToWithMessage("/admin/users", "User account has been successfully created");
 		} catch(ValidationException e) {
 			model.addAttribute(USER_PARAM, user);
-			model.addAttribute(ROLES_PARAM, authenticationService.getAllRoles());
+			model.addAttribute(ROLES_PARAM, userService.getAllRoles());
 			putValidationExceptionIntoModel(e, model);
 			return CREATE_USER_VIEW;
 		}
@@ -97,7 +97,7 @@ public class AdminUserController {
 	@PostMapping("/block")
 	public String blockUserById(BlockUserDto blockUserDto, HttpServletRequest request) {
 		try {
-			User user = authenticationService.getUserById(blockUserDto.getUserId());
+			User user = userService.getUserById(blockUserDto.getUserId());
 			userBlockService.blockUserByReason(user, blockUserDto.getReason());
 			return redirectToReferrerOfRequestWithMessage(request, "Successfully blocked user");
 		} catch(ValidationException e) {
@@ -108,7 +108,7 @@ public class AdminUserController {
 	@PostMapping("/unblock")
 	public String unblockUserById(String id, HttpServletRequest request) {
 		try {
-			User user = authenticationService.getUserById(id);
+			User user = userService.getUserById(id);
 			userBlockService.unblockUser(user);
 			return redirectToReferrerOfRequestWithMessage(request, "Successfully unblocked user");
 		} catch(ValidationException e) {

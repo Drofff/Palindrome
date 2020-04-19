@@ -56,7 +56,7 @@ public class Payment {
 
 	public static class Builder {
 
-		private Payment payment = new Payment();
+		private final Payment payment = new Payment();
 
 		public Builder forViolationType(ViolationType violationType) {
 			payment.amount = violationType.getFee().getAmount();

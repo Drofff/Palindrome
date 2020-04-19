@@ -1,52 +1,41 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.CONFIRM_PASS_CHANGE_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
-import static com.drofff.palindrome.enums.Role.ADMIN;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
-import static com.drofff.palindrome.utils.MailUtils.getActivationMail;
-import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
-import static com.drofff.palindrome.utils.MailUtils.getPasswordChangeConfirmationMail;
-import static com.drofff.palindrome.utils.MailUtils.getRemindPasswordMail;
-import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-
+import com.drofff.palindrome.cache.PasswordCache;
+import com.drofff.palindrome.cache.TokenCache;
+import com.drofff.palindrome.document.ActivationToken;
+import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.exception.PalindromeException;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.repository.ActivationTokenRepository;
+import com.drofff.palindrome.type.Mail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.drofff.palindrome.cache.PasswordCache;
-import com.drofff.palindrome.cache.TokenCache;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.enums.Role;
-import com.drofff.palindrome.exception.PalindromeException;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.repository.UserRepository;
-import com.drofff.palindrome.type.Mail;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static com.drofff.palindrome.constants.EndpointConstants.*;
+import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
+import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
+import static com.drofff.palindrome.enums.Role.DRIVER;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
+import static com.drofff.palindrome.utils.MailUtils.*;
+import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
+import static com.drofff.palindrome.utils.StringUtils.randomString;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static java.lang.Boolean.FALSE;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-	private static final int ALL_USERS_PAGE_SIZE = 12;
-
-	private final UserRepository userRepository;
+	private final ActivationTokenRepository activationTokenRepository;
+	private final UserService userService;
 	private final PasswordEncoder passwordEncoder;
 	private final MailService mailService;
 
@@ -54,33 +43,36 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private String applicationUrl;
 
 	@Autowired
-	public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder,
-									 MailService mailService) {
-		this.userRepository = userRepository;
+	public AuthenticationServiceImpl(ActivationTokenRepository activationTokenRepository, UserService userService,
+									 PasswordEncoder passwordEncoder, MailService mailService) {
+		this.activationTokenRepository = activationTokenRepository;
+		this.userService = userService;
 		this.passwordEncoder = passwordEncoder;
 		this.mailService = mailService;
 	}
 
 	@Override
 	public void registerDriverAccount(User user) {
-		validate(user);
-		validateHasUniqueUsername(user);
 		initDefaultDriverParams(user);
-		encodeUserPassword(user);
-		user.setActivationToken(generateToken());
-		userRepository.save(user);
-		String activationLink = generateActivationLinkForUser(user);
+		userService.createUser(user);
+		ActivationToken activationToken = generateActivationTokenForUser(user);
+		String activationLink = activationLinkWithTokenForUser(activationToken, user);
 		sendActivationLinkToUserByMail(activationLink, user);
 	}
 
 	private void initDefaultDriverParams(User user) {
-		user.setActive(Boolean.FALSE);
-		user.setRole(Role.DRIVER);
+		user.setActive(FALSE);
+		user.setRole(DRIVER);
 	}
 
-	private String generateActivationLinkForUser(User user) {
-		String activationEndpointUri = applicationUrl + ACTIVATE_ACCOUNT_ENDPOINT;
-		return tokenAndUserIdToEndpoint(user.getActivationToken(), user.getId(), activationEndpointUri);
+	private ActivationToken generateActivationTokenForUser(User user) {
+		ActivationToken activationToken = ActivationToken.forUser(user);
+		return activationTokenRepository.save(activationToken);
+	}
+
+	private String activationLinkWithTokenForUser(ActivationToken activationToken, User user) {
+		String activationEndpointUrl = applicationUrl + ACTIVATE_ACCOUNT_ENDPOINT;
+		return tokenAndUserIdToEndpoint(activationToken.getValue(), user.getId(), activationEndpointUrl);
 	}
 
 	private void sendActivationLinkToUserByMail(String link, User user) {
@@ -90,12 +82,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public void activateUserAccountByToken(String userId, String token) {
-		validateToken(token);
-		User user = getUserById(userId);
+		validateNotNull(token, "Activation token should not be null");
+		User user = userService.getUserById(userId);
 		validateUserIsNotActive(user);
-		validateTokenForUser(token, user);
-		user.setActive(true);
-		userRepository.save(user);
+		validateActivationTokenBelongsToUserWithId(token, userId);
+		userService.markUserWithIdAsActive(userId);
+		disposeActivationToken(token);
 	}
 
 	private void validateUserIsNotActive(User user) {
@@ -104,17 +96,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 	}
 
-	private void validateTokenForUser(String token, User user) {
-		String originalToken = user.getActivationToken();
-		if(areNotEqual(token, originalToken)) {
-			throw new PalindromeException("Invalid activation token");
+	private void validateActivationTokenBelongsToUserWithId(String token, String userId) {
+		Optional<ActivationToken> activationTokenOptional = activationTokenRepository.findByValueAndUserId(token, userId);
+		if(!activationTokenOptional.isPresent()) {
+			throw new ValidationException("Invalid activation token");
 		}
+	}
+
+	private void disposeActivationToken(String token) {
+		activationTokenRepository.deleteByValue(token);
 	}
 
 	@Override
 	public void remindPasswordToUserWithEmail(String email) {
-		User user = getUserByUsername(email);
-		String token = generateToken();
+		User user = userService.getUserByUsername(email);
+		String token = randomString();
 		TokenCache.saveTokenForUser(token, user);
 		String recoveryLink = generateRecoveryLinkForUser(token, user);
 		sendRecoveryLinkToUserByMail(recoveryLink, user);
@@ -142,31 +138,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void verifyRecoveryAttemptForUserWithToken(String userId, String token) {
-		User user = getUserById(userId);
+	public void verifyRecoveryAttemptForUserByToken(String userId, String token) {
+		User user = userService.getUserById(userId);
 		validateRecoveryVerificationTokenForUser(token, user);
 	}
 
 	@Override
-	public void recoverPasswordForUserWithToken(String userId, String token, String newPassword) {
-		User user = getUserById(userId);
+	public void changeUserPasswordByToken(String userId, String token, String newPassword) {
+		User user = userService.getUserById(userId);
 		validateRecoveryVerificationTokenForUser(token, user);
-		user.setPassword(newPassword);
-		validate(user);
-		encodeUserPassword(user);
-		userRepository.save(user);
+		userService.updatePasswordForUserWithId(newPassword, userId);
 		TokenCache.removeTokenForUser(user);
 	}
 
-	@Override
-	public User getUserById(String id) {
-		validateNotNull(id, "User id should be provided");
-		return userRepository.findById(id)
-				.orElseThrow(() -> new PalindromeException("User with such id doesn't exist"));
-	}
-
 	private void validateRecoveryVerificationTokenForUser(String token, User user) {
-		validateToken(token);
+		validateNotNull(token, "Verification token should be provided");
 		String originalToken = getVerificationTokenForUser(user);
 		if(areNotEqual(originalToken, token)) {
 			throw new PalindromeException("Invalid verification token");
@@ -181,24 +167,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public void changeUserPassword(String password, String newPassword) {
 		User currentUser = getCurrentUser();
-		validateUserPassword(currentUser, password);
-		currentUser.setPassword(newPassword);
-		validate(currentUser);
-		encodeUserPassword(currentUser);
-		userRepository.save(currentUser);
+		validateUserObtainsPassword(currentUser, password);
+		userService.updatePasswordForUserWithId(newPassword, currentUser.getId());
 	}
 
 	@Override
 	public void changeUserPasswordByMail(String newPassword) {
+		String encodedPassword = encodePassword(newPassword);
 		User currentUser = getCurrentUser();
-		currentUser.setPassword(newPassword);
-		validate(currentUser);
-		encodeUserPassword(currentUser);
-		PasswordCache.savePasswordForUser(currentUser.getPassword(), currentUser);
-		String confirmationToken = generateToken();
+		PasswordCache.savePasswordForUser(encodedPassword, currentUser);
+		String confirmationToken = randomString();
 		TokenCache.saveTokenForUser(confirmationToken, currentUser);
 		String confirmationLink = generatePasswordChangeConfirmationLinkWithToken(confirmationToken);
 		sendPasswordChangeConfirmationLinkByMail(confirmationLink, currentUser.getUsername());
+	}
+
+	private String encodePassword(String password) {
+		return passwordEncoder.encode(password);
 	}
 
 	private String generatePasswordChangeConfirmationLinkWithToken(String confirmationToken) {
@@ -215,106 +200,33 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Override
 	public void confirmUserPasswordChangeByToken(String token) {
 		User currentUser = getCurrentUser();
-		String originalToken = TokenCache.getTokenForUser(currentUser)
-				.orElseThrow(() -> new ValidationException("No active change requests are present for user"));
+		String originalToken = getConfirmationTokenForUser(currentUser);
 		validatePasswordChangeConfirmationToken(originalToken, token);
 		TokenCache.removeTokenForUser(currentUser);
 		String newPassword = PasswordCache.popPasswordForUser(currentUser);
-		currentUser.setPassword(newPassword);
-		userRepository.save(currentUser);
+		userService.updatePasswordForUserWithId(newPassword, currentUser.getId());
+	}
+
+	private String getConfirmationTokenForUser(User user) {
+		return TokenCache.getTokenForUser(user)
+				.orElseThrow(() -> new ValidationException("No confirmation tokens has been assigned to user"));
 	}
 
 	private void validatePasswordChangeConfirmationToken(String originalToken, String token) {
-		validateToken(token);
+		validateNotNull(token, "Confirmation token should be provided");
 		if(areNotEqual(originalToken, token)) {
 			throw new ValidationException("Invalid confirmation token");
 		}
 	}
 
-	private void validateToken(String token) {
-		validateNotNull(token, "Token is required");
-	}
-
-	@Override
-	public Page<User> getAllUsersAtPage(int page) {
-		Pageable pageable = PageRequest.of(page, ALL_USERS_PAGE_SIZE);
-		return userRepository.findAll(pageable);
-	}
-
-	@Override
-	public long countUsers() {
-		return userRepository.count();
-	}
-
-	@Override
-	public List<Role> getAllRoles() {
-		Role[] roles = Role.values();
-		return Arrays.asList(roles);
-	}
-
-	@Override
-	public void createUser(User user) {
-		validateCurrentUserHasRole(ADMIN);
-		validateHasUniqueUsername(user);
-		validateHasRole(user);
-		user.setActive(Boolean.TRUE);
-		String generatedPassword = generatePassword();
-		user.setPassword(generatedPassword);
-		encodeUserPassword(user);
-		validate(user);
-		userRepository.save(user);
-		sendCredentialsByMail(user.getUsername(), generatedPassword);
-	}
-
-	private void validateHasUniqueUsername(User user) {
-		if(existsUserWithUsername(user.getUsername())) {
-			throw new ValidationException("User with such username already exists");
-		}
-	}
-
-	private boolean existsUserWithUsername(String username) {
-		return userRepository.findByUsername(username).isPresent();
-	}
-
-	private void validateHasRole(User user) {
-		if(hasNoRole(user)) {
-			throw new ValidationException("User role is required");
-		}
-	}
-
-	private boolean hasNoRole(User user) {
-		return Objects.isNull(user.getRole());
-	}
-
-	private String generatePassword() {
-		return UUID.randomUUID().toString();
-	}
-
-	private void encodeUserPassword(User user) {
-		String encodedPassword = passwordEncoder.encode(user.getPassword());
-		user.setPassword(encodedPassword);
-	}
-
-	private void sendCredentialsByMail(String username, String password) {
-		Mail credentialsMail = getCredentialsMail(username, password);
-		mailService.sendMailTo(credentialsMail, username);
-	}
-
 	@Override
 	public User authenticateUserByCredentials(String username, String password) {
-		User user = getUserByUsername(username);
-		validateUserPassword(user, password);
-		updateUserRefreshToken(user);
+		User user = userService.getUserByUsername(username);
+		validateUserObtainsPassword(user, password);
 		return user;
 	}
 
-	private User getUserByUsername(String username) {
-		validateNotNull(username, "Username should be provided");
-		return userRepository.findByUsername(username)
-				.orElseThrow(() -> new ValidationException("User with such username doesn't exist"));
-	}
-
-	private void validateUserPassword(User user, String password) {
+	private void validateUserObtainsPassword(User user, String password) {
 		if(isIncorrectUserPassword(user, password)) {
 			throw new ValidationException("Invalid credentials");
 		}
@@ -327,23 +239,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	private boolean isCorrectUserPassword(User user, String password) {
 		String originalPassword = user.getPassword();
 		return passwordEncoder.matches(password, originalPassword);
-	}
-
-	private void updateUserRefreshToken(User user) {
-		String refreshToken = generateToken();
-		user.setRefreshToken(refreshToken);
-		userRepository.save(user);
-	}
-
-	private String generateToken() {
-		return UUID.randomUUID().toString();
-	}
-
-	@Override
-	public User authenticateUserByRefreshToken(String refreshToken) {
-		validateNotNull(refreshToken, "Refresh token should not be null");
-		return userRepository.findByRefreshToken(refreshToken)
-				.orElseThrow(() -> new ValidationException("Invalid refresh token"));
 	}
 
 }

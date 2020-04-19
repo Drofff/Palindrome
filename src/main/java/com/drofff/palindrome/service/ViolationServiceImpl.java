@@ -24,7 +24,7 @@ public class ViolationServiceImpl implements ViolationService {
 	private final ViolationRepository violationRepository;
 	private final PoliceService policeService;
 	private final ViolationTypeService violationTypeService;
-	private final AuthenticationService authenticationService;
+	private final UserService userService;
 	private final MailService mailService;
 
 	@Value("${application.url}")
@@ -32,12 +32,12 @@ public class ViolationServiceImpl implements ViolationService {
 
 	@Autowired
 	public ViolationServiceImpl(ViolationRepository violationRepository, PoliceService policeService,
-	                            ViolationTypeService violationTypeService, AuthenticationService authenticationService,
+	                            ViolationTypeService violationTypeService, UserService userService,
 	                            MailService mailService) {
 		this.violationRepository = violationRepository;
 		this.policeService = policeService;
 		this.violationTypeService = violationTypeService;
-		this.authenticationService = authenticationService;
+		this.userService = userService;
 		this.mailService = mailService;
 	}
 
@@ -147,7 +147,7 @@ public class ViolationServiceImpl implements ViolationService {
 	}
 
 	private void notifyViolationAdded(Violation violation) {
-		User violator = authenticationService.getUserById(violation.getViolatorId());
+		User violator = userService.getUserById(violation.getViolatorId());
 		String linkToViolation = generateLinkToViolationWithId(violation.getId());
 		Mail notificationMail = getViolationAddedMail(linkToViolation);
 		mailService.sendMailTo(notificationMail, violator.getUsername());

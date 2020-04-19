@@ -36,7 +36,7 @@ public class CollectionPage<T> {
 
 	public static class Builder<E> {
 
-		private CollectionPage<E> collectionPage = new CollectionPage<>();
+		private final CollectionPage<E> collectionPage = new CollectionPage<>();
 
 		private Builder() {}
 

@@ -3,7 +3,7 @@ package com.drofff.palindrome.configuration;
 import com.drofff.palindrome.configuration.properties.MailProperties;
 import com.drofff.palindrome.filter.AuthorizationFilter;
 import com.drofff.palindrome.repository.UserRepository;
-import com.drofff.palindrome.service.AuthorizationService;
+import com.drofff.palindrome.service.AuthorizationTokenService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -67,7 +67,7 @@ public class BeanConfiguration {
 
 	@Bean
 	@Autowired
-	public FilterRegistrationBean<AuthorizationFilter> authorizationFilter(AuthorizationService authorizationService) {
+	public FilterRegistrationBean<AuthorizationFilter> authorizationFilter(AuthorizationTokenService authorizationService) {
 		AuthorizationFilter filter = new AuthorizationFilter(authorizationService);
 		FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(filter);

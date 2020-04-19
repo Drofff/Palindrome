@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -27,13 +28,10 @@ public class User implements UserDetails {
 	@Length(min = 8, message = "Password should be at least 8 characters long")
 	private String password;
 
+	@NotNull(message = "User role is required")
 	private Role role;
 
 	private boolean active;
-
-	private String activationToken;
-
-	private String refreshToken;
 
 	public String getId() {
 		return id;
@@ -61,22 +59,6 @@ public class User implements UserDetails {
 
 	public void setActive(boolean active) {
 		this.active = active;
-	}
-
-	public String getActivationToken() {
-		return activationToken;
-	}
-
-	public void setActivationToken(String activationToken) {
-		this.activationToken = activationToken;
-	}
-
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
 	}
 
 	@Override

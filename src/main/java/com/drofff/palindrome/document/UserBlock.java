@@ -56,7 +56,7 @@ public class UserBlock {
 
 	public static class Builder {
 
-		private UserBlock userBlock = new UserBlock();
+		private final UserBlock userBlock = new UserBlock();
 
 		public Builder now() {
 			userBlock.dateTime = LocalDateTime.now();

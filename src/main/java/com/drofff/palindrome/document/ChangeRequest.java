@@ -101,7 +101,7 @@ public class ChangeRequest {
 
 		private static final boolean DEFAULT_APPROVED = false;
 
-		private ChangeRequest changeRequest = new ChangeRequest();
+		private final ChangeRequest changeRequest = new ChangeRequest();
 
 		public Builder forDriver(Driver driver) {
 			changeRequest.targetClassName = Driver.class.getName();

@@ -46,7 +46,7 @@ public class PaymentHistory {
 
 	public static class Builder {
 
-		private PaymentHistory paymentHistory = new PaymentHistory();
+		private final PaymentHistory paymentHistory = new PaymentHistory();
 
 		public Builder amount(Long amount) {
 			paymentHistory.amount = amount;

@@ -4,8 +4,7 @@ import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.exception.ValidationException;
 import org.junit.Test;
 
-import java.util.UUID;
-
+import static com.drofff.palindrome.utils.StringUtils.randomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -39,10 +38,6 @@ public class EntityUtilsTest {
         String sourceFirstName = testDriverSource.getFirstName();
         String resultFirstName = copyResult.getFirstName();
         assertNotEquals(sourceFirstName, resultFirstName);
-    }
-
-    private String randomString() {
-        return UUID.randomUUID().toString();
     }
 
     @Test(expected = ValidationException.class)

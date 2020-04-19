@@ -34,7 +34,7 @@ public class TicketFile {
 
 	public static class Builder {
 
-		private TicketFile ticketFile = new TicketFile();
+		private final TicketFile ticketFile = new TicketFile();
 
 		public Builder name(String name) {
 			ticketFile.name = name;

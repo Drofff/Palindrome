@@ -6,10 +6,10 @@ import com.drofff.palindrome.dto.DriverDto;
 import com.drofff.palindrome.enums.DriverIdType;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.DriverDtoMapper;
-import com.drofff.palindrome.service.AuthenticationService;
 import com.drofff.palindrome.service.DriverService;
 import com.drofff.palindrome.service.PhotoService;
 import com.drofff.palindrome.service.UserBlockService;
+import com.drofff.palindrome.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -33,17 +33,17 @@ public class AdminDriverController {
 
     private static final DriverIdType DEFAULT_DRIVER_PAGE_ID_TYPE = DRIVER_ID;
 
-    private final AuthenticationService authenticationService;
+    private final UserService userService;
     private final PhotoService photoService;
     private final UserBlockService userBlockService;
     private final DriverService driverService;
     private final DriverDtoMapper driverDtoMapper;
 
     @Autowired
-    public AdminDriverController(AuthenticationService authenticationService, PhotoService photoService,
+    public AdminDriverController(UserService userService, PhotoService photoService,
                                  UserBlockService userBlockService, DriverService driverService,
                                  DriverDtoMapper driverDtoMapper) {
-        this.authenticationService = authenticationService;
+        this.userService = userService;
         this.photoService = photoService;
         this.userBlockService = userBlockService;
         this.driverService = driverService;
@@ -53,7 +53,7 @@ public class AdminDriverController {
     @GetMapping("/{id}")
     public String viewDriverProfile(@PathVariable String id, @RequestParam(required = false) DriverIdType type, Model model) {
         Driver driver = getDriverByIdOfType(id, type);
-        User user = authenticationService.getUserById(driver.getUserId());
+        User user = userService.getUserById(driver.getUserId());
         model.addAttribute(DRIVER_PARAM, driver);
         model.addAttribute(EMAIL_PARAM, user.getUsername());
         model.addAttribute(USER_ID_PARAM, user.getId());

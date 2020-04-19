@@ -6,27 +6,27 @@ public class RestAuthorizationDto implements RestResponseDto {
 
     private String authorizationToken;
 
-    private String refreshToken;
+    private String authenticationToken;
 
 	public String getAuthorizationToken() {
 		return authorizationToken;
 	}
 
-	public String getRefreshToken() {
-		return refreshToken;
+	public String getAuthenticationToken() {
+		return authenticationToken;
 	}
 
 	public static class Builder {
 
-		private RestAuthorizationDto restAuthorizationDto = new RestAuthorizationDto();
+		private final RestAuthorizationDto restAuthorizationDto = new RestAuthorizationDto();
 
 		public Builder withAuthorizationToken(String authorizationToken) {
 			restAuthorizationDto.authorizationToken = authorizationToken;
 			return this;
 		}
 
-		public Builder withRefreshToken(String refreshToken) {
-			restAuthorizationDto.refreshToken = refreshToken;
+		public Builder withAuthenticationToken(String authenticationToken) {
+			restAuthorizationDto.authenticationToken = authenticationToken;
 			return this;
 		}
 

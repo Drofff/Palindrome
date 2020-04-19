@@ -1,39 +1,38 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.utils.DateUtils.localDateTimeToDate;
-import static java.time.temporal.ChronoUnit.DAYS;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+import static com.drofff.palindrome.utils.DateUtils.localDateTimeToDate;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
-public class JwtAuthorizationService implements AuthorizationService {
+public class JwtTokenService implements AuthorizationTokenService {
 
 	private static final Duration JWT_TIME_TO_LIVE = Duration.of(2, DAYS);
 
-	private final AuthenticationService authenticationService;
+	private final UserService userService;
 
 	@Value("${spring.security.jwt.secret}")
 	private String jwtSecret;
 
 	@Autowired
-	public JwtAuthorizationService(AuthenticationService authenticationService) {
-		this.authenticationService = authenticationService;
+	public JwtTokenService(UserService userService) {
+		this.userService = userService;
 	}
 
 	@Override
-	public String generateTokenForUser(User user) {
+	public String generateAuthorizationTokenForUser(User user) {
 		Date expirationDate = getNextTokenExpirationDate();
 		Algorithm signatureAlgorithm = getSignatureAlgorithm();
 		return JWT.create()
@@ -53,9 +52,9 @@ public class JwtAuthorizationService implements AuthorizationService {
 	}
 
 	@Override
-	public User getUserByToken(String token) {
+	public User getUserByAuthorizationToken(String token) {
 		String userId = getUserIdFromJwtToken(token);
-		return authenticationService.getUserById(userId);
+		return userService.getUserById(userId);
 	}
 
 	private String getUserIdFromJwtToken(String token) {

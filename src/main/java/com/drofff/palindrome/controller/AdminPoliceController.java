@@ -31,7 +31,7 @@ public class AdminPoliceController {
 
     private final PoliceService policeService;
     private final PhotoService photoService;
-    private final AuthenticationService authenticationService;
+    private final UserService userService;
     private final UserBlockService userBlockService;
     private final DepartmentService departmentService;
     private final PoliceFatDtoMapper policeFatDtoMapper;
@@ -40,12 +40,12 @@ public class AdminPoliceController {
 
     @Autowired
     public AdminPoliceController(PoliceService policeService, PhotoService photoService,
-                                 AuthenticationService authenticationService, UserBlockService userBlockService,
+                                 UserService userService, UserBlockService userBlockService,
                                  DepartmentService departmentService, PoliceFatDtoMapper policeFatDtoMapper,
                                  UpdatePoliceDtoMapper updatePoliceDtoMapper, MappingsResolver mappingsResolver) {
         this.policeService = policeService;
         this.photoService = photoService;
-        this.authenticationService = authenticationService;
+        this.userService = userService;
         this.userBlockService = userBlockService;
         this.departmentService = departmentService;
         this.policeFatDtoMapper = policeFatDtoMapper;
@@ -59,7 +59,7 @@ public class AdminPoliceController {
         model.addAttribute(POLICE_PARAM, toPoliceFatDto(police));
         String encodedPhoto = photoService.loadEncodedPhotoByUri(police.getPhotoUri());
         model.addAttribute(PHOTO_PARAM, encodedPhoto);
-        User user = authenticationService.getUserById(id);
+        User user = userService.getUserById(id);
         boolean blocked = userBlockService.isUserBlocked(user);
         model.addAttribute(BLOCKED_PARAM, blocked);
         return "viewPoliceProfilePage";

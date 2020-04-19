@@ -117,7 +117,7 @@ public class AuthenticationController {
 	@GetMapping(PASS_RECOVERY_ENDPOINT)
 	public String verifyPasswordRecovery(String token, String userId, Model model) {
 		try {
-			authenticationService.verifyRecoveryAttemptForUserWithToken(userId, token);
+			authenticationService.verifyRecoveryAttemptForUserByToken(userId, token);
 			model.addAttribute(TOKEN_PARAM, token);
 			model.addAttribute(USER_ID_PARAM, userId);
 			return PASS_RECOVERY_VIEW;
@@ -129,7 +129,7 @@ public class AuthenticationController {
 	@PostMapping(PASS_RECOVERY_ENDPOINT)
 	public String recoverPassword(String userId, String token, String password, Model model) {
 		try {
-			authenticationService.recoverPasswordForUserWithToken(userId, token, password);
+			authenticationService.changeUserPasswordByToken(userId, token, password);
 			return redirectToWithMessage(HOME_ENDPOINT, "Successfully changed password");
 		} catch(ValidationException e) {
 			model.addAttribute(TOKEN_PARAM, token);

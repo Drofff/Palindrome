@@ -1,31 +1,21 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.enums.Role.ADMIN;
-import static com.drofff.palindrome.enums.Role.POLICE;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.MailUtils.getChangeRequestApprovedDriverMail;
-import static com.drofff.palindrome.utils.MailUtils.getChangeRequestApprovedSenderMail;
-import static com.drofff.palindrome.utils.MailUtils.getChangeRequestRefusedMail;
-import static com.drofff.palindrome.utils.ReflectionUtils.classByName;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateCurrentUserHasRole;
-import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
+import com.drofff.palindrome.document.*;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.repository.ChangeRequestRepository;
+import com.drofff.palindrome.type.Mail;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.ChangeRequest;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.Entity;
-import com.drofff.palindrome.document.Police;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.repository.ChangeRequestRepository;
-import com.drofff.palindrome.type.Mail;
+import static com.drofff.palindrome.enums.Role.ADMIN;
+import static com.drofff.palindrome.enums.Role.POLICE;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.MailUtils.*;
+import static com.drofff.palindrome.utils.ReflectionUtils.classByName;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 
 @Service
 public class ChangeRequestServiceImpl implements ChangeRequestService {
@@ -34,18 +24,18 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	private final MailService mailService;
 	private final PoliceService policeService;
 	private final DriverService driverService;
-	private final AuthenticationService authenticationService;
+	private final UserService userService;
 	private final List<EntityManager> entityManagers;
 
 	@Autowired
 	public ChangeRequestServiceImpl(ChangeRequestRepository changeRequestRepository, MailService mailService,
 	                                PoliceService policeService, DriverService driverService,
-	                                AuthenticationService authenticationService, List<EntityManager> entityManagers) {
+									UserService userService, List<EntityManager> entityManagers) {
 		this.changeRequestRepository = changeRequestRepository;
 		this.mailService = mailService;
 		this.policeService = policeService;
 		this.driverService = driverService;
-		this.authenticationService = authenticationService;
+		this.userService = userService;
 		this.entityManagers = entityManagers;
 	}
 
@@ -134,7 +124,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	}
 
 	private void sendMailToRequestTargetOwner(Mail mail, ChangeRequest changeRequest) {
-		User targetOwner = authenticationService.getUserById(changeRequest.getTargetOwnerId());
+		User targetOwner = userService.getUserById(changeRequest.getTargetOwnerId());
 		mailService.sendMailTo(mail, targetOwner.getUsername());
 	}
 
@@ -145,7 +135,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
 	private Mail getApprovedSenderMailForRequest(ChangeRequest changeRequest) {
 		Police police = policeService.getPoliceByUserId(changeRequest.getSenderId());
-		User targetOwner = authenticationService.getUserById(changeRequest.getSenderId());
+		User targetOwner = userService.getUserById(changeRequest.getSenderId());
 		return getChangeRequestApprovedSenderMail(police.getFirstName(), targetOwner.getUsername());
 	}
 
@@ -164,12 +154,12 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
 	private Mail getRefuseMailForRequest(ChangeRequest changeRequest) {
 		Police police = policeService.getPoliceByUserId(changeRequest.getSenderId());
-		User targetOwner = authenticationService.getUserById(changeRequest.getTargetOwnerId());
+		User targetOwner = userService.getUserById(changeRequest.getTargetOwnerId());
 		return getChangeRequestRefusedMail(police.getFirstName(), targetOwner.getUsername());
 	}
 
 	private void sendMailToRequestSender(Mail mail, ChangeRequest request) {
-		User sender = authenticationService.getUserById(request.getSenderId());
+		User sender = userService.getUserById(request.getSenderId());
 		mailService.sendMailTo(mail, sender.getUsername());
 	}
 

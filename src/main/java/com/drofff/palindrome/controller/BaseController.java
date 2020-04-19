@@ -1,45 +1,28 @@
 package com.drofff.palindrome.controller;
 
-import static com.drofff.palindrome.cache.OnlineCache.getOnlineCounterValue;
-import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.USER_IS_BLOCKED_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.CARS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.REQUESTS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.VIOLATIONS_PARAM;
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
-import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
-import static com.drofff.palindrome.utils.ModelUtils.putUserBlockIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectTo;
-import static com.drofff.palindrome.utils.ViolationUtils.violationsByDateTimeComparator;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.drofff.palindrome.document.*;
+import com.drofff.palindrome.dto.HomeViolationDto;
+import com.drofff.palindrome.mapper.HomeViolationDtoMapper;
+import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.document.UserBlock;
-import com.drofff.palindrome.document.Violation;
-import com.drofff.palindrome.dto.HomeViolationDto;
-import com.drofff.palindrome.mapper.HomeViolationDtoMapper;
-import com.drofff.palindrome.service.AuthenticationService;
-import com.drofff.palindrome.service.CarService;
-import com.drofff.palindrome.service.ChangeRequestService;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.UserBlockService;
-import com.drofff.palindrome.service.ViolationService;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.drofff.palindrome.cache.OnlineCache.getOnlineCounterValue;
+import static com.drofff.palindrome.constants.EndpointConstants.*;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
+import static com.drofff.palindrome.utils.ModelUtils.putUserBlockIntoModel;
+import static com.drofff.palindrome.utils.ModelUtils.redirectTo;
+import static com.drofff.palindrome.utils.ViolationUtils.violationsByDateTimeComparator;
 
 @Controller
 public class BaseController {
@@ -52,21 +35,21 @@ public class BaseController {
 	private final ViolationService violationService;
 	private final MappingsResolver mappingsResolver;
 	private final UserBlockService userBlockService;
-	private final AuthenticationService authenticationService;
+	private final UserService userService;
 	private final ChangeRequestService changeRequestService;
 	private final HomeViolationDtoMapper homeViolationDtoMapper;
 
 	@Autowired
 	public BaseController(DriverService driverService, CarService carService,
 	                      ViolationService violationService, MappingsResolver mappingsResolver,
-	                      UserBlockService userBlockService, AuthenticationService authenticationService,
+	                      UserBlockService userBlockService, UserService userService,
 	                      ChangeRequestService changeRequestService, HomeViolationDtoMapper homeViolationDtoMapper) {
 		this.driverService = driverService;
 		this.carService = carService;
 		this.violationService = violationService;
 		this.mappingsResolver = mappingsResolver;
 		this.userBlockService = userBlockService;
-		this.authenticationService = authenticationService;
+		this.userService = userService;
 		this.changeRequestService = changeRequestService;
 		this.homeViolationDtoMapper = homeViolationDtoMapper;
 	}
@@ -127,7 +110,7 @@ public class BaseController {
 	private void putAdminParamsIntoModelIfNeeded(Model model) {
 		if(isAuthenticatedAdmin()) {
 			model.addAttribute("online_counter", getOnlineCounterValue());
-			model.addAttribute("users_count", authenticationService.countUsers());
+			model.addAttribute("users_count", userService.countUsers());
 			model.addAttribute("blocked_users_count", userBlockService.countBlockedUsers());
 			model.addAttribute(REQUESTS_PARAM, changeRequestService.countChangeRequests());
 		}

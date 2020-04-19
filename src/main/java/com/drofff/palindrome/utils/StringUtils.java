@@ -1,6 +1,7 @@
 package com.drofff.palindrome.utils;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class StringUtils {
 
@@ -40,6 +41,10 @@ public class StringUtils {
 
 	public static String joinWithSpace(Object o0, Object o1) {
 		return o0 + " " + o1;
+	}
+
+	public static String randomString() {
+		return UUID.randomUUID().toString();
 	}
 
 }

@@ -13,14 +13,14 @@ import static com.drofff.palindrome.utils.MailUtils.getCarUpdateMail;
 public class AdminServiceImpl implements AdminService {
 
 	private final DriverService driverService;
-	private final AuthenticationService authenticationService;
+	private final UserService userService;
 	private final MailService mailService;
 
 	@Autowired
-	public AdminServiceImpl(DriverService driverService, AuthenticationService authenticationService,
+	public AdminServiceImpl(DriverService driverService, UserService userService,
 	                        MailService mailService) {
 		this.driverService = driverService;
-		this.authenticationService = authenticationService;
+		this.userService = userService;
 		this.mailService = mailService;
 	}
 
@@ -28,7 +28,7 @@ public class AdminServiceImpl implements AdminService {
 	public void notifyCarUpdate(Car car) {
 		Mail notificationMail = getCarUpdateMail(car.getNumber());
 		Driver driverOwner = driverService.getOwnerOfCar(car);
-		User userOwner = authenticationService.getUserById(driverOwner.getUserId());
+		User userOwner = userService.getUserById(driverOwner.getUserId());
 		mailService.sendMailTo(notificationMail, userOwner.getUsername());
 	}
 

@@ -19,7 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.service.AuthorizationService;
+import com.drofff.palindrome.service.AuthorizationTokenService;
 
 public class AuthorizationFilter implements Filter {
 
@@ -30,10 +30,10 @@ public class AuthorizationFilter implements Filter {
 		    REFRESH_TOKEN_API_ENDPOINT, "/api/drivers/.*/photo", "/api/polices/.*/photo",
 		    API_RESOURCE_ENDPOINTS_BASE + ".*");
 
-    private final AuthorizationService authorizationService;
+    private final AuthorizationTokenService authorizationTokenService;
 
-    public AuthorizationFilter(AuthorizationService authorizationService) {
-        this.authorizationService = authorizationService;
+    public AuthorizationFilter(AuthorizationTokenService authorizationTokenService) {
+        this.authorizationTokenService = authorizationTokenService;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class AuthorizationFilter implements Filter {
 
     private void authorizeUserByToken(HttpServletRequest httpServletRequest) {
         String token = getAuthorizationTokenFromHeader(httpServletRequest);
-        User user = authorizationService.getUserByToken(token);
+        User user = authorizationTokenService.getUserByAuthorizationToken(token);
         setCurrentUser(user);
     }
 
