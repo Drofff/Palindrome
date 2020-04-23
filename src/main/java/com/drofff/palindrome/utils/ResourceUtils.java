@@ -1,12 +1,10 @@
 package com.drofff.palindrome.utils;
 
+import static com.drofff.palindrome.utils.FileUtils.readFile;
 import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +16,14 @@ public class ResourceUtils {
 	private static final Pattern FILE_SCHEME_PATTERN = Pattern.compile("^(file:[/\\\\])");
 
 	private ResourceUtils() {}
+
+	public static String getClasspathResourcesRootUrl() {
+		ClassLoader classLoader = ReflectionUtils.class.getClassLoader();
+		URL rootPath = classLoader.getResource("");
+		return Optional.ofNullable(rootPath)
+				.map(URL::toString)
+				.orElseThrow(() -> new PalindromeException("Can not reach classpath resources root url"));
+	}
 
 	public static byte[] loadClasspathResource(String resourceUri) {
 		String resourceUrl = getUrlOfClasspathResource(resourceUri);
@@ -52,15 +58,6 @@ public class ResourceUtils {
 			return removePartFromStr(fileScheme, url);
 		}
 		throw new PalindromeException("URL has no file scheme");
-	}
-
-	private static byte[] readFile(File file) {
-		try {
-			Path pathToFile = file.toPath();
-			return Files.readAllBytes(pathToFile);
-		} catch(IOException e) {
-			throw new PalindromeException(e.getMessage());
-		}
 	}
 
 }

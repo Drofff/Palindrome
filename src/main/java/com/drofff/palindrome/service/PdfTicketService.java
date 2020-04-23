@@ -1,8 +1,11 @@
 package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.FileUtils.createDirectoryAtPath;
+import static com.drofff.palindrome.utils.FileUtils.readAndDeleteFileAtPath;
 import static com.drofff.palindrome.utils.FormattingUtils.appendUrlPathSegment;
 import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
+import static com.drofff.palindrome.utils.ResourceUtils.getClasspathResourcesRootUrl;
 import static com.drofff.palindrome.utils.ResourceUtils.getUrlOfClasspathResource;
 import static com.drofff.palindrome.utils.ResourceUtils.loadClasspathResource;
 import static com.drofff.palindrome.utils.StringUtils.joinWithSpace;
@@ -19,7 +22,6 @@ import static org.springframework.http.MediaType.APPLICATION_PDF;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -102,6 +104,7 @@ public class PdfTicketService implements TicketService {
 	}
 
 	private String generatePdfTicket(PaymentHistory paymentHistory, Driver payer) {
+		createTmpStorageDirIfNotExists();
 		String filename = generateTicketFilename(paymentHistory);
 		String tmpFilePath = toTmpFilePath(filename);
 		Document document = createPdfDocumentWithName(tmpFilePath);
@@ -110,6 +113,21 @@ public class PdfTicketService implements TicketService {
 		document.close();
 		moveFileFromTmpStorage(filename);
 		return filename;
+	}
+
+	private void createTmpStorageDirIfNotExists() {
+		try {
+			getUrlOfClasspathResource(tmpStorageDir);
+		} catch(PalindromeException e) {
+			createTmpStorageDir();
+		}
+	}
+
+	private void createTmpStorageDir() {
+		String resourcesRootUrl = getClasspathResourcesRootUrl();
+		String tmpStorageUrl = appendUrlPathSegment(resourcesRootUrl, tmpStorageDir);
+		Path tmpStoragePath = Paths.get(tmpStorageUrl);
+		createDirectoryAtPath(tmpStoragePath);
 	}
 
 	private String generateTicketFilename(PaymentHistory paymentHistory) {
@@ -199,18 +217,8 @@ public class PdfTicketService implements TicketService {
 	private void moveFileFromTmpStorage(String filename) {
 		String tmpFilePathStr = toTmpFilePath(filename);
 		Path tmpFilePath = Paths.get(tmpFilePathStr);
-		byte[] content = readAndDeleteFileByPath(tmpFilePath);
+		byte[] content = readAndDeleteFileAtPath(tmpFilePath);
 		saveAtPermanentStorage(filename, content);
-	}
-
-	private byte[] readAndDeleteFileByPath(Path path) {
-		try {
-			byte[] content = Files.readAllBytes(path);
-			Files.delete(path);
-			return content;
-		} catch(IOException e) {
-			throw new PalindromeException("Error while managing file " + path.toString());
-		}
 	}
 
 	private String toTmpFilePath(String filename) {
