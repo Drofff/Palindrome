@@ -13,7 +13,7 @@ import com.drofff.palindrome.exception.PalindromeException;
 
 public class ResourceUtils {
 
-	private static final Pattern FILE_SCHEME_PATTERN = Pattern.compile("^(file:[/\\\\])");
+	private static final Pattern FILE_SCHEME_PATTERN = Pattern.compile("(file:[/\\\\])");
 
 	private ResourceUtils() {}
 
