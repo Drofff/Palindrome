@@ -13,14 +13,6 @@ public class ResourceUtils {
 
 	private ResourceUtils() {}
 
-	public static String getClasspathResourcesRootUrl() {
-		ClassLoader classLoader = ReflectionUtils.class.getClassLoader();
-		URL rootPath = classLoader.getResource("");
-		return Optional.ofNullable(rootPath)
-				.map(URL::toString)
-				.orElseThrow(() -> new PalindromeException("Can not reach classpath resources root url"));
-	}
-
 	public static byte[] loadClasspathResource(String resourceUri) {
 		String resourceUrl = getUrlOfClasspathResource(resourceUri);
 		File resource = new File(resourceUrl);
@@ -28,12 +20,21 @@ public class ResourceUtils {
 	}
 
 	public static String getUrlOfClasspathResource(String resourceUri) {
+		return getClasspathResourceUrlIfPresent(resourceUri)
+				.orElseThrow(() -> new PalindromeException("Resource " + resourceUri + " was not found"));
+	}
+
+	public static String getClasspathResourcesRootUrl() {
+		return getClasspathResourceUrlIfPresent("")
+				.orElseThrow(() -> new PalindromeException("Can not reach classpath resources root url"));
+	}
+
+	private static Optional<String> getClasspathResourceUrlIfPresent(String resourceUri) {
 		ClassLoader classLoader = ReflectionUtils.class.getClassLoader();
 		URL resourceUrl = classLoader.getResource(resourceUri);
 		return Optional.ofNullable(resourceUrl)
 				.map(URL::toString)
-				.map(ResourceUtils::removeFileSchemeIfPresent)
-				.orElseThrow(() -> new PalindromeException("Resource " + resourceUri + " was not found"));
+				.map(ResourceUtils::removeFileSchemeIfPresent);
 	}
 
 	private static String removeFileSchemeIfPresent(String url) {
