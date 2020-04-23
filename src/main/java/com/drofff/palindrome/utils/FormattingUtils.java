@@ -3,6 +3,7 @@ package com.drofff.palindrome.utils;
 import static com.drofff.palindrome.utils.StringUtils.removeAllNonDigits;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
+import java.io.File;
 import java.util.Deque;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import com.drofff.palindrome.enums.ByteUnit;
 public class FormattingUtils {
 
 	private static final UriBuilderFactory URI_BUILDER_FACTORY = new DefaultUriBuilderFactory();
+
+	private static final String PATH_DELIMITER = "/";
 
 	private FormattingUtils() {}
 
@@ -53,7 +56,12 @@ public class FormattingUtils {
 	}
 
 	public static String concatPathSegments(String ... segments) {
-		return String.join("/", segments);
+		return String.join(PATH_DELIMITER, segments);
+	}
+
+	public static String appendUrlPathSegment(String filePath, String segment) {
+		File file = new File(filePath, segment);
+		return file.getAbsolutePath();
 	}
 
 }

@@ -1,8 +1,10 @@
 package com.drofff.palindrome.service;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.FileUtils.getAbsolutePathOfFileWithName;
+import static com.drofff.palindrome.utils.FormattingUtils.appendUrlPathSegment;
 import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
+import static com.drofff.palindrome.utils.ResourceUtils.getUrlOfClasspathResource;
+import static com.drofff.palindrome.utils.ResourceUtils.loadClasspathResource;
 import static com.drofff.palindrome.utils.StringUtils.joinWithSpace;
 import static com.drofff.palindrome.utils.TicketUtils.getChargeIdTitle;
 import static com.drofff.palindrome.utils.TicketUtils.getPayerTitle;
@@ -61,14 +63,14 @@ public class PdfTicketService implements TicketService {
 	private final DriverService driverService;
 	private final FileService fileService;
 
-	@Value("${application.storage.tmp}")
-	private String tmpStoragePath;
+	@Value("${classpath.resource.tmp.storage}")
+	private String tmpStorageDir;
 
-	@Value("${application.logo.path}")
-	private String logoPath;
+	@Value("${classpath.resource.logo}")
+	private String logoUri;
 
-	@Value("${ticket.font.path}")
-	private String fontPath;
+	@Value("${classpath.resource.font}")
+	private String fontUri;
 
 	@Autowired
 	public PdfTicketService(TicketRepository ticketRepository, ViolationService violationService,
@@ -134,13 +136,9 @@ public class PdfTicketService implements TicketService {
 	}
 
 	private Image getPalindromeLogo() {
-		try {
-			String logoAbsolutePath = getAbsolutePathOfFileWithName(logoPath);
-			ImageData imageData = ImageDataFactory.create(logoAbsolutePath);
-			return new Image(imageData);
-		} catch(IOException e) {
-			throw new PalindromeException("Error while loading Palindrome logo");
-		}
+		byte[] logo = loadClasspathResource(logoUri);
+		ImageData imageData = ImageDataFactory.create(logo);
+		return new Image(imageData);
 	}
 
 	private void addPaymentTableToDocument(PaymentHistory paymentHistory, Driver payer, Document document) {
@@ -178,8 +176,8 @@ public class PdfTicketService implements TicketService {
 
 	private PdfFont getPaymentTableFont() {
 		try {
-			String fontAbsolutePath = getAbsolutePathOfFileWithName(fontPath);
-			return createFont(fontAbsolutePath, PAYMENT_TABLE_FONT_ENCODING, PAYMENT_TABLE_FONT_EMBEDDED);
+			byte[] font = loadClasspathResource(fontUri);
+			return createFont(font, PAYMENT_TABLE_FONT_ENCODING, PAYMENT_TABLE_FONT_EMBEDDED);
 		} catch(IOException e) {
 			throw new PalindromeException("Error while loading font");
 		}
@@ -216,7 +214,8 @@ public class PdfTicketService implements TicketService {
 	}
 
 	private String toTmpFilePath(String filename) {
-		return tmpStoragePath + filename;
+		String tmpStorageUrl = getUrlOfClasspathResource(tmpStorageDir);
+		return appendUrlPathSegment(tmpStorageUrl, filename);
 	}
 
 	private void saveAtPermanentStorage(String filename, byte[] content) {
