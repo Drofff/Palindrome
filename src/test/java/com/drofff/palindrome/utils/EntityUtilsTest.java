@@ -1,13 +1,12 @@
 package com.drofff.palindrome.utils;
 
+import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.exception.ValidationException;
+import org.junit.Test;
+
 import static com.drofff.palindrome.utils.StringUtils.randomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-
-import org.junit.Test;
-
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.exception.ValidationException;
 
 public class EntityUtilsTest {
 

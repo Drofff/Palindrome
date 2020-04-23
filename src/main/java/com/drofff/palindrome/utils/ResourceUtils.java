@@ -11,14 +11,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.drofff.palindrome.exception.PalindromeException;
 
 public class ResourceUtils {
-
-	private static final Logger LOG = LoggerFactory.getLogger(ResourceUtils.class);
 
 	private static final Pattern FILE_SCHEME_PATTERN = Pattern.compile("^(file:[/\\\\])");
 
@@ -32,7 +27,6 @@ public class ResourceUtils {
 
 	public static String getUrlOfClasspathResource(String resourceUri) {
 		ClassLoader classLoader = ReflectionUtils.class.getClassLoader();
-		LOG.info("Resources are at {}", classLoader.getResource("").toString());
 		URL resourceUrl = classLoader.getResource(resourceUri);
 		return Optional.ofNullable(resourceUrl)
 				.map(URL::toString)
