@@ -1,5 +1,7 @@
 package com.drofff.palindrome.utils;
 
+import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,11 +12,6 @@ import com.drofff.palindrome.exception.PalindromeException;
 public class FileUtils {
 
 	private FileUtils() {}
-
-	public static byte[] readFile(File file) {
-		Path pathToFile = file.toPath();
-		return readFileAtPath(pathToFile);
-	}
 
 	public static byte[] readAndDeleteFileAtPath(Path path) {
 		byte[] content = readFileAtPath(path);
@@ -44,6 +41,16 @@ public class FileUtils {
 		} catch(IOException e) {
 			throw new PalindromeException(e.getMessage());
 		}
+	}
+
+	public static String relativeToAbsolutePath(String relativePath) {
+		File fileAtPath = new File(relativePath);
+		String absolutePath = fileAtPath.getAbsolutePath();
+		return removeFileScheme(absolutePath);
+	}
+
+	private static String removeFileScheme(String url) {
+		return removePartFromStr("file:", url);
 	}
 
 }

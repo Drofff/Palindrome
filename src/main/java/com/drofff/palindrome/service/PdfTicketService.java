@@ -3,11 +3,9 @@ package com.drofff.palindrome.service;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.FileUtils.createDirectoryAtPath;
 import static com.drofff.palindrome.utils.FileUtils.readAndDeleteFileAtPath;
+import static com.drofff.palindrome.utils.FileUtils.relativeToAbsolutePath;
 import static com.drofff.palindrome.utils.FormattingUtils.appendUrlPathSegment;
 import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
-import static com.drofff.palindrome.utils.ResourceUtils.getClasspathResourcesRootUrl;
-import static com.drofff.palindrome.utils.ResourceUtils.getUrlOfClasspathResource;
-import static com.drofff.palindrome.utils.ResourceUtils.loadClasspathResource;
 import static com.drofff.palindrome.utils.StringUtils.joinWithSpace;
 import static com.drofff.palindrome.utils.TicketUtils.getChargeIdTitle;
 import static com.drofff.palindrome.utils.TicketUtils.getPayerTitle;
@@ -18,12 +16,14 @@ import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 import static com.itextpdf.kernel.font.PdfFontFactory.createFont;
 import static com.itextpdf.kernel.geom.PageSize.A4;
 import static com.itextpdf.layout.property.HorizontalAlignment.CENTER;
+import static java.nio.file.Paths.get;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,14 +65,14 @@ public class PdfTicketService implements TicketService {
 	private final DriverService driverService;
 	private final FileService fileService;
 
-	@Value("${classpath.resource.tmp.storage}")
-	private String tmpStorageDir;
+	@Value("${application.tmp.storage}")
+	private String tmpStoragePath;
 
-	@Value("${classpath.resource.logo}")
-	private String logoUri;
+	@Value("${application.logo}")
+	private String logoPath;
 
-	@Value("${classpath.resource.font}")
-	private String fontUri;
+	@Value("${application.font}")
+	private String fontPath;
 
 	@Autowired
 	public PdfTicketService(TicketRepository ticketRepository, ViolationService violationService,
@@ -116,18 +116,15 @@ public class PdfTicketService implements TicketService {
 	}
 
 	private void createTmpStorageDirIfNotExists() {
-		try {
-			getUrlOfClasspathResource(tmpStorageDir);
-		} catch(PalindromeException e) {
-			createTmpStorageDir();
+		File tmpStorage = new File(tmpStoragePath);
+		if(notExists(tmpStorage)) {
+			Path tmpStorageDirPath = get(tmpStoragePath);
+			createDirectoryAtPath(tmpStorageDirPath);
 		}
 	}
 
-	private void createTmpStorageDir() {
-		String resourcesRootUrl = getClasspathResourcesRootUrl();
-		String tmpStorageUrl = appendUrlPathSegment(resourcesRootUrl, tmpStorageDir);
-		Path tmpStoragePath = Paths.get(tmpStorageUrl);
-		createDirectoryAtPath(tmpStoragePath);
+	private boolean notExists(File file) {
+		return !file.exists();
 	}
 
 	private String generateTicketFilename(PaymentHistory paymentHistory) {
@@ -154,9 +151,13 @@ public class PdfTicketService implements TicketService {
 	}
 
 	private Image getPalindromeLogo() {
-		byte[] logo = loadClasspathResource(logoUri);
-		ImageData imageData = ImageDataFactory.create(logo);
-		return new Image(imageData);
+		try {
+			String absoluteLogoPath = relativeToAbsolutePath(logoPath);
+			ImageData imageData = ImageDataFactory.create(absoluteLogoPath);
+			return new Image(imageData);
+		} catch(MalformedURLException e) {
+			throw new PalindromeException(e.getMessage());
+		}
 	}
 
 	private void addPaymentTableToDocument(PaymentHistory paymentHistory, Driver payer, Document document) {
@@ -194,8 +195,8 @@ public class PdfTicketService implements TicketService {
 
 	private PdfFont getPaymentTableFont() {
 		try {
-			byte[] font = loadClasspathResource(fontUri);
-			return createFont(font, PAYMENT_TABLE_FONT_ENCODING, PAYMENT_TABLE_FONT_EMBEDDED);
+			String absoluteFontPath = relativeToAbsolutePath(fontPath);
+			return createFont(absoluteFontPath, PAYMENT_TABLE_FONT_ENCODING, PAYMENT_TABLE_FONT_EMBEDDED);
 		} catch(IOException e) {
 			throw new PalindromeException("Error while loading font");
 		}
@@ -216,14 +217,14 @@ public class PdfTicketService implements TicketService {
 
 	private void moveFileFromTmpStorage(String filename) {
 		String tmpFilePathStr = toTmpFilePath(filename);
-		Path tmpFilePath = Paths.get(tmpFilePathStr);
+		Path tmpFilePath = get(tmpFilePathStr);
 		byte[] content = readAndDeleteFileAtPath(tmpFilePath);
 		saveAtPermanentStorage(filename, content);
 	}
 
 	private String toTmpFilePath(String filename) {
-		String tmpStorageUrl = getUrlOfClasspathResource(tmpStorageDir);
-		return appendUrlPathSegment(tmpStorageUrl, filename);
+		String tmpStorageAbsolutePath = relativeToAbsolutePath(tmpStoragePath);
+		return appendUrlPathSegment(tmpStorageAbsolutePath, filename);
 	}
 
 	private void saveAtPermanentStorage(String filename, byte[] content) {
