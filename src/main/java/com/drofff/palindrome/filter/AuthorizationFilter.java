@@ -3,6 +3,7 @@ package com.drofff.palindrome.filter;
 import static com.drofff.palindrome.constants.EndpointConstants.API_RESOURCE_ENDPOINTS_BASE;
 import static com.drofff.palindrome.constants.EndpointConstants.AUTHENTICATE_API_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.REFRESH_TOKEN_API_ENDPOINT;
+import static com.drofff.palindrome.constants.RegexConstants.ANY_SYMBOL;
 import static com.drofff.palindrome.utils.AuthenticationUtils.setCurrentUser;
 import static com.drofff.palindrome.utils.StringUtils.removePartFromStr;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
@@ -28,7 +29,7 @@ public class AuthorizationFilter implements Filter {
 
     private static final List<String> OPEN_ENDPOINT_PATTERNS = asList(AUTHENTICATE_API_ENDPOINT,
 		    REFRESH_TOKEN_API_ENDPOINT, "/api/drivers/.*/photo", "/api/polices/.*/photo",
-		    API_RESOURCE_ENDPOINTS_BASE + ".*");
+		    API_RESOURCE_ENDPOINTS_BASE + ANY_SYMBOL);
 
     private final AuthorizationTokenService authorizationTokenService;
 

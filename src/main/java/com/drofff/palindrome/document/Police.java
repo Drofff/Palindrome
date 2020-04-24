@@ -1,12 +1,16 @@
 package com.drofff.palindrome.document;
 
-import com.drofff.palindrome.annotation.FromRepository;
-import com.drofff.palindrome.annotation.NonEditable;
-import com.drofff.palindrome.repository.DepartmentRepository;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.constraints.NotBlank;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotBlank;
+import com.drofff.palindrome.annotation.FromRepository;
+import com.drofff.palindrome.annotation.NonEditable;
+import com.drofff.palindrome.repository.DepartmentRepository;
 
 @Document
 public class Police implements Entity {
@@ -37,6 +41,10 @@ public class Police implements Entity {
 
 	@NonEditable
 	private String userId;
+
+	private boolean twoStepAuthEnabled;
+
+	private List<String> accessTokens = new ArrayList<>();
 
 	@Override
 	public String getId() {
@@ -109,6 +117,22 @@ public class Police implements Entity {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public boolean isTwoStepAuthEnabled() {
+		return twoStepAuthEnabled;
+	}
+
+	public void setTwoStepAuthEnabled(boolean twoStepAuthEnabled) {
+		this.twoStepAuthEnabled = twoStepAuthEnabled;
+	}
+
+	public List<String> getAccessTokens() {
+		return accessTokens;
+	}
+
+	public void setAccessTokens(List<String> accessTokens) {
+		this.accessTokens = accessTokens;
 	}
 
 }

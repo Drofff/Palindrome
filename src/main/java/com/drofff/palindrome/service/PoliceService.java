@@ -12,6 +12,8 @@ public interface PoliceService {
 
 	void updatePoliceProfile(Police police);
 
+	void assignAccessTokenToPoliceWithId(String accessToken, String policeId);
+
 	Police getPoliceById(String id);
 
 	Police getPoliceByUserId(String id);

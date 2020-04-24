@@ -26,6 +26,10 @@ public class EndpointConstants {
 
 	public static final String ADMIN_USERS_ENDPOINT = "/admin/users";
 
+	public static final String EXTERNAL_AUTH_ENDPOINT = "/authenticate/external";
+
+	public static final String COMPLETE_EXTERNAL_AUTH_ENDPOINT = "/authenticate/external/complete";
+
 	public static final String API_ENDPOINTS = "/api";
 
 	public static final String AUTHENTICATE_API_ENDPOINT = "/api/authenticate";
