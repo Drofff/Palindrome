@@ -66,13 +66,19 @@ public class EmailAuthenticator implements ExternalAuthenticator {
 	public void authenticateUsingOptionWithId(String optionId) {
 		validateIsEmailOptionId(optionId);
 		User currentUser = getCurrentUser();
+		removeUserTokenFromBuffer(currentUser);
 		String token = randomString();
 		sendTokenToUserViaMail(token, currentUser);
 		waitTillUserAuthComplete(currentUser);
 		validateUserAuthCompleted(currentUser);
 		String receivedToken = getTokenReceivedForUser(currentUser);
 		validateToken(receivedToken, token);
-		removeUserTokenFromBuffer(currentUser);
+	}
+
+	private void removeUserTokenFromBuffer(User user) {
+		synchronized(TOKENS_BUFFER) {
+			TOKENS_BUFFER.remove(user.getId());
+		}
 	}
 
 	private void sendTokenToUserViaMail(String token, User user) {
@@ -139,12 +145,6 @@ public class EmailAuthenticator implements ExternalAuthenticator {
 	private void validateToken(String receivedToken, String originalToken) {
 		if(areNotEqual(originalToken, receivedToken)) {
 			throw new TwoStepAuthException("Token is invalid");
-		}
-	}
-
-	private void removeUserTokenFromBuffer(User user) {
-		synchronized(TOKENS_BUFFER) {
-			TOKENS_BUFFER.remove(user.getId());
 		}
 	}
 

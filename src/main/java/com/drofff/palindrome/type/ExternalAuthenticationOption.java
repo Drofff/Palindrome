@@ -2,8 +2,8 @@ package com.drofff.palindrome.type;
 
 import static com.drofff.palindrome.enums.ExternalAuthType.DEVICE;
 import static com.drofff.palindrome.enums.ExternalAuthType.EMAIL;
-import static java.util.Collections.emptySet;
 
+import java.util.Collections;
 import java.util.Set;
 
 import com.drofff.palindrome.enums.ExternalAuthType;
@@ -69,7 +69,7 @@ public class ExternalAuthenticationOption {
 		}
 
 		public Set<ExternalAuthenticationOption> singleton() {
-			return emptySet();
+			return Collections.singleton(authenticationOption);
 		}
 
 	}
