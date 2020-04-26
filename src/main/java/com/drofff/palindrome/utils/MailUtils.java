@@ -34,8 +34,13 @@ public class MailUtils {
 	private static final String CHANGE_REQUEST_REFUSED_MAIL_KEY = "request-refused";
 	private static final String CHANGE_PASS_CONFIRMATION_MAIL_KEY = "change-password";
 	private static final String VIOLATION_ADDED_MAIL_KEY = "violation-added";
+	private static final String TWO_STEP_AUTH_MAIL_KEY = "two-step-auth";
 
 	private MailUtils() {}
+
+	public static Mail getTwoStepAuthMail(String firstName, String link) {
+		return mailByKeyWithParams(TWO_STEP_AUTH_MAIL_KEY, FIRST_NAME_PARAM, firstName, LINK_PARAM, link);
+	}
 
 	public static Mail getViolationAddedMail(String link) {
 		return mailByKeyWithParams(VIOLATION_ADDED_MAIL_KEY, LINK_PARAM, link);

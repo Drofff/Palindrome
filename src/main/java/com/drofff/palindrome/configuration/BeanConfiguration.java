@@ -1,9 +1,10 @@
 package com.drofff.palindrome.configuration;
 
-import com.drofff.palindrome.configuration.properties.MailProperties;
-import com.drofff.palindrome.filter.AuthorizationFilter;
-import com.drofff.palindrome.repository.UserRepository;
-import com.drofff.palindrome.service.AuthorizationTokenService;
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
+
+import java.util.Collections;
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -18,10 +19,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collections;
-import java.util.List;
-
-import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
+import com.drofff.palindrome.configuration.properties.MailProperties;
+import com.drofff.palindrome.filter.AuthorizationFilter;
+import com.drofff.palindrome.filter.TwoStepAuthFilter;
+import com.drofff.palindrome.repository.UserRepository;
+import com.drofff.palindrome.service.AuthorizationTokenService;
+import com.drofff.palindrome.service.PoliceService;
 
 @Configuration
 public class BeanConfiguration {
@@ -74,6 +77,15 @@ public class BeanConfiguration {
 		String apiEndpointsPattern = API_ENDPOINTS + SERVLET_PATH_WILDCARD;
 		List<String> urlPatterns = Collections.singletonList(apiEndpointsPattern);
 		registrationBean.setUrlPatterns(urlPatterns);
+		return registrationBean;
+	}
+
+	@Bean
+	@Autowired
+	public FilterRegistrationBean<TwoStepAuthFilter> twoStepAuthFilter(PoliceService policeService) {
+		TwoStepAuthFilter authFilter = new TwoStepAuthFilter(policeService);
+		FilterRegistrationBean<TwoStepAuthFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(authFilter);
 		return registrationBean;
 	}
 

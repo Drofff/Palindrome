@@ -1,17 +1,18 @@
 package com.drofff.palindrome.service;
 
-import com.drofff.palindrome.document.Police;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.repository.PoliceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.drofff.palindrome.document.Police;
+import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.repository.PoliceRepository;
 
 @Service
 public class PoliceServiceImpl implements PoliceService {
@@ -96,6 +97,14 @@ public class PoliceServiceImpl implements PoliceService {
 			return getPoliceById(police.getId());
 		}
 		return getPoliceByUserId(currentUser.getId());
+	}
+
+	@Override
+	public void assignAccessTokenToPoliceWithId(String accessToken, String policeId) {
+		validateNotNull(accessToken, "Access token should not be null");
+		Police police = getPoliceById(policeId);
+		police.getAccessTokens().add(accessToken);
+		policeRepository.save(police);
 	}
 
 	@Override

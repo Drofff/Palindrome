@@ -52,6 +52,10 @@ public class ParameterConstants {
 
 	public static final String DEPARTMENTS_PARAM = "departments";
 
+	public static final String ACCESS_TOKEN_PARAM = "access_token";
+
+	public static final String OPTION_ID_PARAM = "option_id";
+
 	private ParameterConstants() {}
 
 }
