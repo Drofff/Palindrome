@@ -1,36 +1,44 @@
 package com.drofff.palindrome.service;
 
-import static java.util.Collections.emptySet;
+import com.drofff.palindrome.document.UserDevice;
+import com.drofff.palindrome.type.ExternalAuthenticationOption;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.Set;
 
-import org.springframework.stereotype.Service;
-
-import com.drofff.palindrome.type.ExternalAuthenticationOption;
+import static java.util.stream.Collectors.toSet;
 
 @Service
-public class PushNotificationAuthenticator implements ExternalAuthenticator {
+public class PushNotificationAuthenticator extends TokenAuthenticator {
 
-	private static final String OPTION_ID_PREFIX = "device_";
+	private final UserDeviceService userDeviceService;
+
+	@Value("${external.auth.max-token-wait-time}")
+	private long maxTokenWaitTime;
+
+	@Autowired
+	public PushNotificationAuthenticator(UserDeviceService userDeviceService) {
+		this.userDeviceService = userDeviceService;
+	}
 
 	@Override
 	public Set<ExternalAuthenticationOption> getAuthenticationOptions() {
-		return emptySet();
+		return userDeviceService.getActiveDevices().stream()
+				.map(UserDevice::toAuthOption)
+				.collect(toSet());
 	}
 
 	@Override
-	public void authenticateUsingOptionWithId(String optionId) {
-
+	protected void sendTokenToAuthenticatorOfOptionWithId(String token, String optionId) {
+		UserDevice optionAuthenticator = userDeviceService.getUserDeviceById(optionId);
+		userDeviceService.requestExternalAuthThroughDeviceUsingToken(optionAuthenticator, token);
 	}
 
 	@Override
-	public void completeAuthenticationWithOptionId(String optionId, String token) {
-
-	}
-
-	@Override
-	public boolean hasOptionWithId(String optionId) {
-		return false;
+	protected long getMaxTokenWaitTime() {
+		return maxTokenWaitTime;
 	}
 
 }

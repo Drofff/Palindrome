@@ -1,7 +1,19 @@
 package com.drofff.palindrome.filter;
 
-import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
-import static com.drofff.palindrome.constants.EndpointConstants.EXTERNAL_AUTH_ENDPOINT;
+import com.drofff.palindrome.document.Police;
+import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.exception.TwoStepAuthException;
+import com.drofff.palindrome.service.PoliceService;
+
+import javax.servlet.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static com.drofff.palindrome.constants.EndpointConstants.*;
 import static com.drofff.palindrome.constants.ParameterConstants.ACCESS_TOKEN_PARAM;
 import static com.drofff.palindrome.constants.RegexConstants.ANY_SYMBOL;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
@@ -9,27 +21,10 @@ import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
-import com.drofff.palindrome.document.Police;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.exception.TwoStepAuthException;
-import com.drofff.palindrome.service.PoliceService;
-
 public class TwoStepAuthFilter implements Filter {
 
 	private static final List<String> NON_APPLICABLE_URI_PATTERNS = asList(API_ENDPOINTS + ANY_SYMBOL,
-			EXTERNAL_AUTH_ENDPOINT);
+			EXTERNAL_AUTH_ENDPOINT, COMPLETE_EXTERNAL_AUTH_ENDPOINT, ERROR_ENDPOINT);
 
 	private final PoliceService policeService;
 
@@ -39,12 +34,19 @@ public class TwoStepAuthFilter implements Filter {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-		if(shouldFilterRequest(httpServletRequest)) {
-			String accessToken = getAccessTokenFromRequest(httpServletRequest);
+		try {
+			processRequest((HttpServletRequest) request);
+			chain.doFilter(request, response);
+		} catch(TwoStepAuthException e) {
+			redirectToTwoStepAuthPage((HttpServletResponse) response);
+		}
+	}
+
+	private void processRequest(HttpServletRequest request) {
+		if(shouldFilterRequest(request)) {
+			String accessToken = getAccessTokenFromRequest(request);
 			validateAccessToken(accessToken);
 		}
-		chain.doFilter(request, response);
 	}
 
 	private boolean shouldFilterRequest(HttpServletRequest request) {
@@ -104,6 +106,10 @@ public class TwoStepAuthFilter implements Filter {
 	private Police getCurrentPolice() {
 		User currentUser = getCurrentUser();
 		return policeService.getPoliceByUserId(currentUser.getId());
+	}
+
+	private void redirectToTwoStepAuthPage(HttpServletResponse response) throws IOException {
+		response.sendRedirect(EXTERNAL_AUTH_ENDPOINT);
 	}
 
 }
