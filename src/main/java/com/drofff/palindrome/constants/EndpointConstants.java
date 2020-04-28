@@ -40,6 +40,8 @@ public class EndpointConstants {
 
 	public static final String PATH_ANY_SEGMENTS = "/**";
 
+	public static final String FAVICON_ENDPOINT = "/favicon.ico";
+
 	private EndpointConstants() {}
 
 }

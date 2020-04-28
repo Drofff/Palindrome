@@ -30,7 +30,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		String apiEndpointsPattern = API_ENDPOINTS + PATH_ANY_SEGMENTS;
 		http.authorizeRequests()
 				.antMatchers(HOME_ENDPOINT, REGISTRATION_ENDPOINT, ACTIVATE_ACCOUNT_ENDPOINT,
-						FORGOT_PASS_ENDPOINT, PASS_RECOVERY_ENDPOINT, ERROR_ENDPOINT, apiEndpointsPattern)
+						FORGOT_PASS_ENDPOINT, PASS_RECOVERY_ENDPOINT, ERROR_ENDPOINT, FAVICON_ENDPOINT,
+						apiEndpointsPattern)
 				.permitAll()
 				.anyRequest()
 				.authenticated()

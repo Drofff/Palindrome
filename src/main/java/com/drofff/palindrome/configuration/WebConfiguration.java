@@ -1,8 +1,11 @@
 package com.drofff.palindrome.configuration;
 
-import static com.drofff.palindrome.constants.EndpointConstants.API_RESOURCE_ENDPOINTS_BASE;
-import static com.drofff.palindrome.constants.EndpointConstants.PATH_ANY_SEGMENTS;
-
+import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
+import com.drofff.palindrome.interceptor.DriverInterceptor;
+import com.drofff.palindrome.interceptor.PoliceInterceptor;
+import com.drofff.palindrome.service.DriverService;
+import com.drofff.palindrome.service.PoliceService;
+import com.drofff.palindrome.service.UserBlockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,12 +14,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.drofff.palindrome.interceptor.BlockedUserInterceptor;
-import com.drofff.palindrome.interceptor.DriverInterceptor;
-import com.drofff.palindrome.interceptor.PoliceInterceptor;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.PoliceService;
-import com.drofff.palindrome.service.UserBlockService;
+import static com.drofff.palindrome.constants.EndpointConstants.*;
 
 @Configuration
 @EnableWebMvc
@@ -44,6 +42,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 		String apiResourcesPattern = API_RESOURCE_ENDPOINTS_BASE + PATH_ANY_SEGMENTS;
 		registry.addResourceHandler(apiResourcesPattern)
 				.addResourceLocations("classpath:/static/img/");
+		registry.addResourceHandler(FAVICON_ENDPOINT)
+				.addResourceLocations("classpath:/static/favicon.ico");
 	}
 
 }

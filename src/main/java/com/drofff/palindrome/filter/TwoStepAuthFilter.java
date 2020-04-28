@@ -24,7 +24,7 @@ import static java.util.Arrays.stream;
 public class TwoStepAuthFilter implements Filter {
 
 	private static final List<String> NON_APPLICABLE_URI_PATTERNS = asList(API_ENDPOINTS + ANY_SYMBOL,
-			EXTERNAL_AUTH_ENDPOINT, COMPLETE_EXTERNAL_AUTH_ENDPOINT, ERROR_ENDPOINT);
+			EXTERNAL_AUTH_ENDPOINT, COMPLETE_EXTERNAL_AUTH_ENDPOINT, ERROR_ENDPOINT, FAVICON_ENDPOINT);
 
 	private final PoliceService policeService;
 
