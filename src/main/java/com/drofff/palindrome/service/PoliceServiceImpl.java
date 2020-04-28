@@ -1,18 +1,17 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.PoliceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
+import static com.drofff.palindrome.utils.ValidationUtils.validate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
 public class PoliceServiceImpl implements PoliceService {
@@ -112,6 +111,40 @@ public class PoliceServiceImpl implements PoliceService {
 		validateNotNull(id, "Missing police id");
 		return policeRepository.findById(id)
 				.orElseThrow(() -> new ValidationException("Police with such id doesn't exist"));
+	}
+
+	@Override
+	public void enableTwoStepAuth() {
+		User currentUser = getCurrentUser();
+		Police police = getPoliceByUserId(currentUser.getId());
+		validateHasTwoStepAuthDisabled(police);
+		police.setTwoStepAuthEnabled(true);
+		policeRepository.save(police);
+	}
+
+	private void validateHasTwoStepAuthDisabled(Police police) {
+		if(police.isTwoStepAuthEnabled()) {
+			throw new ValidationException("Two step authentication is already enabled");
+		}
+	}
+
+	@Override
+	public void disableTwoStepAuth() {
+		User currentUser = getCurrentUser();
+		Police police = getPoliceByUserId(currentUser.getId());
+		validateHasTwoStepAuthEnabled(police);
+		police.setTwoStepAuthEnabled(false);
+		policeRepository.save(police);
+	}
+
+	private void validateHasTwoStepAuthEnabled(Police police) {
+		if(hasTwoStepAuthDisabled(police)) {
+			throw new ValidationException("Two step authentication is already disabled");
+		}
+	}
+
+	private boolean hasTwoStepAuthDisabled(Police police) {
+		return !police.isTwoStepAuthEnabled();
 	}
 
 	@Override

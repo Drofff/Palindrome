@@ -16,6 +16,10 @@ public interface PoliceService {
 
 	Police getPoliceById(String id);
 
+	void enableTwoStepAuth();
+
+	void disableTwoStepAuth();
+
 	Police getPoliceByUserId(String id);
 
 }

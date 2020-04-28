@@ -1,18 +1,9 @@
 package com.drofff.palindrome.controller;
 
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.drofff.palindrome.document.Department;
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.dto.RestMessageDto;
 import com.drofff.palindrome.dto.RestPoliceDto;
 import com.drofff.palindrome.dto.RestResponseDto;
 import com.drofff.palindrome.dto.RestValidationDto;
@@ -21,6 +12,16 @@ import com.drofff.palindrome.mapper.RestPoliceDtoMapper;
 import com.drofff.palindrome.service.DepartmentService;
 import com.drofff.palindrome.service.PhotoService;
 import com.drofff.palindrome.service.PoliceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 
 @Controller
 @RequestMapping("/api/polices")
@@ -85,6 +86,32 @@ public class PoliceApiController {
 		} catch(ValidationException e) {
 			return ResponseEntity.badRequest()
 					.body(new byte[] {});
+		}
+	}
+
+	@PostMapping("/two-step-auth/enable")
+	public ResponseEntity<RestResponseDto> enableTwoStepAuthForPolice() {
+		try {
+			policeService.enableTwoStepAuth();
+			RestMessageDto restMessageDto = new RestMessageDto("Two step authentication has been successfully enabled");
+			return ResponseEntity.ok(restMessageDto);
+		} catch(ValidationException e) {
+			RestValidationDto restValidationDto = RestValidationDto.fromValidationException(e);
+			return ResponseEntity.badRequest()
+					.body(restValidationDto);
+		}
+	}
+
+	@PostMapping("/two-step-auth/disable")
+	public ResponseEntity<RestResponseDto> disableTwoStepAuthForPolice() {
+		try {
+			policeService.disableTwoStepAuth();
+			RestMessageDto restMessageDto = new RestMessageDto("Two step authentication has been successfully disabled");
+			return ResponseEntity.ok(restMessageDto);
+		} catch(ValidationException e) {
+			RestValidationDto restValidationDto = RestValidationDto.fromValidationException(e);
+			return ResponseEntity.badRequest()
+					.body(restValidationDto);
 		}
 	}
 

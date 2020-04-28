@@ -18,6 +18,8 @@ public class RestPoliceDto implements RestResponseDto {
 
     private String department;
 
+    private boolean twoStepAuthEnabled;
+
 	public String getId() {
 		return id;
 	}
@@ -80,6 +82,14 @@ public class RestPoliceDto implements RestResponseDto {
 
 	public void setDepartment(String department) {
 		this.department = department;
+	}
+
+	public boolean isTwoStepAuthEnabled() {
+		return twoStepAuthEnabled;
+	}
+
+	public void setTwoStepAuthEnabled(boolean twoStepAuthEnabled) {
+		this.twoStepAuthEnabled = twoStepAuthEnabled;
 	}
 
 }

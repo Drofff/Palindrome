@@ -39,10 +39,10 @@ public class UserDeviceApiController {
         }
     }
 
-    @GetMapping("/{id}/requests")
-    public ResponseEntity<RestResponseDto> getRequestsForDevice(@PathVariable String id) {
+    @GetMapping("/requests")
+    public ResponseEntity<RestResponseDto> getRequestsForDevice(String macAddress) {
         try {
-            List<UserDeviceRequest> requests = userDeviceService.getRequestsForDeviceWithId(id);
+            List<UserDeviceRequest> requests = userDeviceService.getRequestsForDeviceWithMacAddress(macAddress);
             RestListDto<UserDeviceRequest> requestsListDto = new RestListDto<>(requests);
             return ResponseEntity.ok(requestsListDto);
         } catch(ValidationException e) {

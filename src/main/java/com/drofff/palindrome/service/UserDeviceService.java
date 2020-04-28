@@ -13,7 +13,7 @@ public interface UserDeviceService {
 
     void requestExternalAuthThroughDeviceUsingToken(UserDevice device, String token);
 
-    List<UserDeviceRequest> getRequestsForDeviceWithId(String deviceId);
+    List<UserDeviceRequest> getRequestsForDeviceWithMacAddress(String macAddress);
 
     UserDevice getUserDeviceById(String id);
 

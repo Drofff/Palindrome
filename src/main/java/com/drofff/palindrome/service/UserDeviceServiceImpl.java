@@ -40,7 +40,7 @@ public class UserDeviceServiceImpl implements UserDeviceService {
 
     private void validateMacAddressIsUnique(String macAddress) {
         if(existsDeviceWithMacAddress(macAddress)) {
-            throw new ValidationException("Device with such a mac address already exists");
+            throw new ValidationException("Device with such MAC address already exists");
         }
     }
 
@@ -62,11 +62,17 @@ public class UserDeviceServiceImpl implements UserDeviceService {
     }
 
     @Override
-    public List<UserDeviceRequest> getRequestsForDeviceWithId(String deviceId) {
-        UserDevice userDevice = getUserDeviceById(deviceId);
+    public List<UserDeviceRequest> getRequestsForDeviceWithMacAddress(String macAddress) {
+        UserDevice userDevice = getUserDeviceByMacAddress(macAddress);
         return getRequestForUserDeviceIfPresent(userDevice)
                 .map(Collections::singletonList)
                 .orElse(emptyList());
+    }
+
+    private UserDevice getUserDeviceByMacAddress(String macAddress) {
+        validateNotNull(macAddress, "MAC Address is required");
+        return userDeviceRepository.findByMacAddress(macAddress)
+                .orElseThrow(() -> new ValidationException("Device with such MAC Address doesn't exist"));
     }
 
     @Override
