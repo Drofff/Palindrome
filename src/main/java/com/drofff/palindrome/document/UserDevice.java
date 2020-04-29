@@ -15,7 +15,7 @@ public class UserDevice {
     private String label;
 
     @NotBlank(message = "Mac Address should be provided")
-    @Pattern(regexp = "^[0-9a-fA-F]{1,2}(:[0-9a-fA-F]{1,2}){3}$", message = "Mac Address is of incorrect format")
+    @Pattern(regexp = "^[0-9a-fA-F]{1,2}(:[0-9a-fA-F]{1,2}){5}$", message = "Mac Address is of incorrect format")
     private String macAddress;
 
     private String userId;
