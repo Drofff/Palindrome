@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.api;
 
 import com.drofff.palindrome.document.Department;
 import com.drofff.palindrome.document.Police;
@@ -6,8 +6,6 @@ import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.RestMessageDto;
 import com.drofff.palindrome.dto.RestPoliceDto;
 import com.drofff.palindrome.dto.RestResponseDto;
-import com.drofff.palindrome.dto.RestValidationDto;
-import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.RestPoliceDtoMapper;
 import com.drofff.palindrome.service.DepartmentService;
 import com.drofff.palindrome.service.PhotoService;
@@ -46,16 +44,10 @@ public class PoliceApiController {
 
 	@GetMapping("/info")
 	public ResponseEntity<RestResponseDto> getCurrentPolice() {
-		try {
-			User user = getCurrentUser();
-			Police police = policeService.getPoliceByUserId(user.getId());
-			RestPoliceDto restPoliceDto = toRestPoliceDto(police);
-			return ResponseEntity.ok(restPoliceDto);
-		} catch (ValidationException e) {
-			RestValidationDto restValidationDto = RestValidationDto.fromValidationException(e);
-			return ResponseEntity.badRequest()
-					.body(restValidationDto);
-		}
+		User user = getCurrentUser();
+		Police police = policeService.getPoliceByUserId(user.getId());
+		RestPoliceDto restPoliceDto = toRestPoliceDto(police);
+		return ResponseEntity.ok(restPoliceDto);
 	}
 
 	private RestPoliceDto toRestPoliceDto(Police police) {
@@ -78,41 +70,24 @@ public class PoliceApiController {
 
 	@GetMapping("/{id}/photo")
 	public ResponseEntity<byte[]> getPhotoOfPoliceWithId(@PathVariable String id) {
-		try {
-			Police police = policeService.getPoliceById(id);
-			String policePhotoUri = police.getPhotoUri();
-			byte[] photo = photoService.loadPhotoByUri(policePhotoUri);
-			return ResponseEntity.ok(photo);
-		} catch(ValidationException e) {
-			return ResponseEntity.badRequest()
-					.body(new byte[] {});
-		}
+		Police police = policeService.getPoliceById(id);
+		String policePhotoUri = police.getPhotoUri();
+		byte[] photo = photoService.loadPhotoByUri(policePhotoUri);
+		return ResponseEntity.ok(photo);
 	}
 
 	@PostMapping("/two-step-auth/enable")
 	public ResponseEntity<RestResponseDto> enableTwoStepAuthForPolice() {
-		try {
-			policeService.enableTwoStepAuth();
-			RestMessageDto restMessageDto = new RestMessageDto("Two step authentication has been successfully enabled");
-			return ResponseEntity.ok(restMessageDto);
-		} catch(ValidationException e) {
-			RestValidationDto restValidationDto = RestValidationDto.fromValidationException(e);
-			return ResponseEntity.badRequest()
-					.body(restValidationDto);
-		}
+		policeService.enableTwoStepAuth();
+		RestMessageDto restMessageDto = new RestMessageDto("Two step authentication has been successfully enabled");
+		return ResponseEntity.ok(restMessageDto);
 	}
 
 	@PostMapping("/two-step-auth/disable")
 	public ResponseEntity<RestResponseDto> disableTwoStepAuthForPolice() {
-		try {
-			policeService.disableTwoStepAuth();
-			RestMessageDto restMessageDto = new RestMessageDto("Two step authentication has been successfully disabled");
-			return ResponseEntity.ok(restMessageDto);
-		} catch(ValidationException e) {
-			RestValidationDto restValidationDto = RestValidationDto.fromValidationException(e);
-			return ResponseEntity.badRequest()
-					.body(restValidationDto);
-		}
+		policeService.disableTwoStepAuth();
+		RestMessageDto restMessageDto = new RestMessageDto("Two step authentication has been successfully disabled");
+		return ResponseEntity.ok(restMessageDto);
 	}
 
 }

@@ -1,10 +1,11 @@
 package com.drofff.palindrome.configuration;
 
-import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
-
-import java.util.Collections;
-import java.util.List;
-
+import com.drofff.palindrome.configuration.properties.MailProperties;
+import com.drofff.palindrome.filter.AuthorizationFilter;
+import com.drofff.palindrome.filter.TwoStepAuthFilter;
+import com.drofff.palindrome.repository.UserRepository;
+import com.drofff.palindrome.service.AuthorizationTokenService;
+import com.drofff.palindrome.service.PoliceService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -18,13 +19,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
-import com.drofff.palindrome.configuration.properties.MailProperties;
-import com.drofff.palindrome.filter.AuthorizationFilter;
-import com.drofff.palindrome.filter.TwoStepAuthFilter;
-import com.drofff.palindrome.repository.UserRepository;
-import com.drofff.palindrome.service.AuthorizationTokenService;
-import com.drofff.palindrome.service.PoliceService;
+import java.util.Collections;
+import java.util.List;
+
+import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
 
 @Configuration
 public class BeanConfiguration {
@@ -87,6 +87,11 @@ public class BeanConfiguration {
 		FilterRegistrationBean<TwoStepAuthFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(authFilter);
 		return registrationBean;
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.drofff.palindrome.service;
 
 import com.drofff.palindrome.document.UserDevice;
-import com.drofff.palindrome.type.UserDeviceRequest;
 
 import java.util.List;
 
@@ -9,11 +8,11 @@ public interface UserDeviceService {
 
     void registerDevice(UserDevice userDevice);
 
+    void updateDeviceRegistrationToken(String macAddress, String registrationToken);
+
     List<UserDevice> getActiveDevices();
 
     void requestExternalAuthThroughDeviceUsingToken(UserDevice device, String token);
-
-    List<UserDeviceRequest> getRequestsForDeviceWithMacAddress(String macAddress);
 
     UserDevice getUserDeviceById(String id);
 

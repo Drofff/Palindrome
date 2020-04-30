@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.mvc;
 
 import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.CONFIRM_PASS_CHANGE_ENDPOINT;

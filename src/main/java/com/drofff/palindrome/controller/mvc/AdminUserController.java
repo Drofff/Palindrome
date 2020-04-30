@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.mvc;
 
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.BlockUserDto;

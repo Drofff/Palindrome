@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.mvc;
 
 import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
 import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;

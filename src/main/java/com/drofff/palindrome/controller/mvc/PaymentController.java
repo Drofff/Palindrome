@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.mvc;
 
 import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;

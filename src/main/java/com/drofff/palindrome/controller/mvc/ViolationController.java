@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.mvc;
 
 import com.drofff.palindrome.document.*;
 import com.drofff.palindrome.dto.CarFatDto;

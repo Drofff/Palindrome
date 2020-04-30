@@ -18,6 +18,9 @@ public class UserDevice {
     @Pattern(regexp = "^[0-9a-fA-F]{1,2}(:[0-9a-fA-F]{1,2}){5}$", message = "Mac Address is of incorrect format")
     private String macAddress;
 
+    @NotBlank(message = "Registration token is required")
+    private String registrationToken;
+
     private String userId;
 
     public String getId() {
@@ -42,6 +45,14 @@ public class UserDevice {
 
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
+    }
+
+    public String getRegistrationToken() {
+        return registrationToken;
+    }
+
+    public void setRegistrationToken(String registrationToken) {
+        this.registrationToken = registrationToken;
     }
 
     public String getUserId() {

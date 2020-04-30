@@ -1,4 +1,4 @@
-package com.drofff.palindrome.controller;
+package com.drofff.palindrome.controller.mvc;
 
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.service.ExternalAuthenticationService;
@@ -60,7 +60,7 @@ public class ExternalAuthenticationController {
 	}
 
 	@GetMapping(COMPLETE_EXTERNAL_AUTH_ENDPOINT)
-	public String completeExternalAuth(@RequestParam(name = OPTION_ID_PARAM) String optionId, String token) {
+	public String completeExternalAuth(String optionId, String token) {
 		try {
 			externalAuthenticationService.completeAuthenticationWithOptionId(optionId, token);
 			return "externalAuthCompletedPage";
