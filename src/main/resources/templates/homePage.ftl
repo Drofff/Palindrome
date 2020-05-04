@@ -11,6 +11,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Nunito&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200&display=swap" rel="stylesheet">
+	<script src="https://kit.fontawesome.com/79433ece4b.js" crossorigin="anonymous"></script>
 	<style>
 		.demo-card-wide.mdl-card {
 			width: 512px;
@@ -37,8 +38,12 @@
 		 }
 	</style>
 </head>
-<body <#if user?? && user.isAdmin()>
+<body
+<#if user?? && user.isAdmin()>
     style="background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1') center / cover"
+</#if>
+<#if user?? && user.isPolice()>
+	style="background: url('https://images.unsplash.com/photo-1502240868472-18259bc0f863?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80') center / cover"
 </#if>
 <#if !user??>
     style="background: url('https://images.unsplash.com/photo-1526666361175-e3595627c376?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1049&q=80') center / cover"
@@ -47,7 +52,9 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
 	<header class="mdl-layout__header">
 		<div class="mdl-layout__header-row">
-			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <#if user?? && user.isAdmin()><font color="#ffd700">Admin</font></#if></span>
+			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <#if user?? && user.isAdmin()><font color="#ffd700">Admin</font></#if>
+				<#if user?? && user.isPolice()><font color="#ffd700">Police</font></#if>
+			</span>
             <#if user?? && user.isAdmin()>
 				<a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
 	            <a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
@@ -100,7 +107,7 @@
 				<div class="mdl-grid" style="background: #fff; width: 100%; flex-grow: 1; min-height: 300px; margin-top: 70px;
 				 padding-top: 40px;">
 
-					<div class="mdl-cell mdl-cell--5-col" style="margin-left: 15%;">
+					<div class="mdl-cell mdl-cell--5-col" style="margin-left: auto; width: 330px;">
 						<div class="demo-card-square mdl-card mdl-shadow--2dp">
 							<div class="mdl-card__supporting-text" style="text-align: center">
 								Моніторте власні порушення
@@ -108,7 +115,9 @@
 							</div>
 						</div>
 					</div>
-					<div class="mdl-cell mdl-cell--5-col">
+					<div class="mdl-cell mdl-cell--2-col">
+					</div>
+					<div class="mdl-cell mdl-cell--5-col" style="margin-right: auto; width: 330px;">
 						<div class="demo-card-square mdl-card mdl-shadow--2dp">
 							<div class="mdl-card__supporting-text" style="text-align: center">
 								Оплачуйте штрафи онлайн
@@ -117,10 +126,62 @@
 						</div>
 					</div>
 
-					<div style="font-family: 'Josefin Sans', sans-serif; margin-left: -10px; font-size: 18px; text-align: center; margin-top: 5%; margin-bottom: 3%; width: 100%;">
+					<div style="font-family: 'Josefin Sans', sans-serif; font-size: 18px; text-align: center; margin-top: 5%; margin-bottom: 3%; width: 100%;">
 						<b>Palindrome</b>
 					</div>
 
+				</div>
+			</#if>
+
+			<#if user?? && user.isPolice()>
+				<div class="mdl-grid" style="margin-top: 3%;">
+					<div class="mdl-cell mdl-cell--4-col"></div>
+					<div class="mdl-cell mdl-cell--4-col">
+						<div class="demo-card-wide mdl-card mdl-shadow--2dp" style="width: 600px; height: 110px; min-height: 100px;">
+							<div class="mdl-card__supporting-text" style="margin-left: 76px;">
+								<form action="#" style="margin-top: 5px;">
+									<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+										<input class="mdl-textfield__input" type="text" id="name" name="name">
+										<label class="mdl-textfield__label" for="name">ПІБ водія</label>
+										<button type="submit" class="mdl-button mdl-js-button mdl-button--raised" style="margin-left: 320px;">
+											Пошук
+										</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--4-col"></div>
+				</div>
+				<div class="mdl-grid" style="background: #fff; width: 100%; flex-grow: 1; min-height: 500px; margin-top: 260px;
+					 padding-top: 40px;">
+
+					<h3 style="margin-top: 10px; margin-bottom: 24px; margin-left: 10%; width: 90%;">Меню</h3>
+
+					<div class="mdl-cell mdl-cell--3-col" style="width: 330px; margin-left: auto; margin-right: 190px;">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp" style="text-align: center; cursor: pointer">
+							<div class="mdl-card__supporting-text" style="margin-bottom: 15px;">
+								<h4>Фіксовані порушення</h4>
+								<p style="margin-top: 35px; font-size: 80px;"><i class="far fa-file-alt"></i></p>
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--3-col" style="width: 330px; margin-right: 190px;">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp" style="text-align: center; cursor: pointer">
+							<div class="mdl-card__supporting-text" style="margin-bottom: 15px;">
+								<h4>Запити</h4>
+								<p style="margin-top: 35px; font-size: 80px; margin-left: 20px;"><i class="far fa-edit"></i></p>
+							</div>
+						</div>
+					</div>
+					<div class="mdl-cell mdl-cell--3-col" style="width: 330px; margin-right: auto">
+						<div class="demo-card-square mdl-card mdl-shadow--2dp" onclick="location.href='/police/'" style="text-align: center; cursor: pointer">
+							<div class="mdl-card__supporting-text" style="margin-bottom: 15px;">
+								<h4>Профіль</h4>
+								<p style="margin-top: 35px; font-size: 80px;"><i class="far fa-id-badge"></i></p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</#if>
 

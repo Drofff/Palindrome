@@ -22,6 +22,8 @@ import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
 @Controller
 public class ExternalAuthenticationController {
 
+	private static final int ACCESS_TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
 	private static final String EXTERNAL_AUTH_VIEW = "externalAuthPage";
 
 	private final ExternalAuthenticationService externalAuthenticationService;
@@ -56,6 +58,7 @@ public class ExternalAuthenticationController {
 	private void addAccessTokenToCookies(String accessToken, HttpServletResponse response) {
 		Cookie cookie = new Cookie(ACCESS_TOKEN_PARAM, accessToken);
 		cookie.setPath("/");
+		cookie.setMaxAge(ACCESS_TOKEN_COOKIE_MAX_AGE);
 		response.addCookie(cookie);
 	}
 
