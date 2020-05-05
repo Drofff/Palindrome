@@ -7,17 +7,21 @@ import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.DriverRepository;
+import com.drofff.palindrome.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class DriverServiceImpl implements DriverService, EntityManager {
@@ -157,6 +161,41 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	private Driver getOwnerOfCarWithId(String id) {
 		return driverRepository.findByCarId(id)
 				.orElseThrow(() -> new ValidationException("Can not find an owner of the car"));
+	}
+
+	@Override
+	public List<Driver> getDriversByName(String name) {
+		validateNotNull(name, "Name should be provided");
+		return getAllDrivers().stream()
+				.filter(driver -> matchesNameOfDriver(name, driver))
+				.sorted(nameMatchComparator(name))
+				.collect(toList());
+	}
+
+	private boolean matchesNameOfDriver(String namePattern, Driver driver) {
+		return calculateNameMatchForDriver(namePattern, driver) > 0;
+	}
+
+	private Comparator<Driver> nameMatchComparator(String name) {
+		return (d0, d1) -> {
+			int d0NameMatch = calculateNameMatchForDriver(name, d0);
+			int d1NameMatch = calculateNameMatchForDriver(name, d1);
+			return d1NameMatch - d0NameMatch;
+		};
+	}
+
+	private int calculateNameMatchForDriver(String namePattern, Driver driver) {
+		List<String> patternNames = getNamesOfPattern(namePattern);
+		return (int) driver.getNamesAsList().stream()
+				.filter(patternNames::contains)
+				.count();
+	}
+
+	private List<String> getNamesOfPattern(String namePattern) {
+		String[] names = namePattern.split("\\s");
+		return Stream.of(names)
+				.filter(StringUtils::isNotBlank)
+				.collect(toList());
 	}
 
 	@Override

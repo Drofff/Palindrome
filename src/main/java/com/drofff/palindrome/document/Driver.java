@@ -8,7 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 @Document
 public class Driver implements Entity {
@@ -111,6 +114,10 @@ public class Driver implements Entity {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public List<String> getNamesAsList() {
+		return asList(firstName, lastName, middleName);
 	}
 
 	@Override

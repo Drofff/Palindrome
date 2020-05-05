@@ -38,6 +38,8 @@ public class EndpointConstants {
 
 	public static final String API_RESOURCE_ENDPOINTS_BASE = "/api/resources/img/";
 
+	public static final String DRIVERS_API_ENDPOINT = "/api/drivers";
+
 	public static final String PATH_ANY_SEGMENTS = "/**";
 
 	public static final String FAVICON_ENDPOINT = "/favicon.ico";

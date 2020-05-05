@@ -29,6 +29,8 @@ public interface DriverService {
 
 	Driver getOwnerOfCar(Car car);
 
+	List<Driver> getDriversByName(String name);
+
 	List<Driver> getAllDrivers();
 
 	Driver getDriverById(String id);

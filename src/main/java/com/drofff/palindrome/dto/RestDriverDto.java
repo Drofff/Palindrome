@@ -1,38 +1,16 @@
 package com.drofff.palindrome.dto;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-
-public class RestDriverDto implements RestResponseDto {
-
-    private String id;
+public class RestDriverDto {
 
     private String firstName;
 
-    private String middleName;
-
     private String lastName;
 
-    private String address;
-
-    private String photoUrl;
+    private String middleName;
 
     private String licenceNumber;
 
-    private int violationsCount;
-
-    private LocalDateTime lastViolationDateTime;
-
-	private Set<String> ownedCarNumbers = new HashSet<>();
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+    private String photoUrl;
 
     public String getFirstName() {
         return firstName;
@@ -40,14 +18,6 @@ public class RestDriverDto implements RestResponseDto {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public String getMiddleName() {
-        return middleName;
-    }
-
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
     }
 
     public String getLastName() {
@@ -58,23 +28,15 @@ public class RestDriverDto implements RestResponseDto {
         this.lastName = lastName;
     }
 
-    public String getAddress() {
-        return address;
+    public String getMiddleName() {
+        return middleName;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
     }
 
-	public String getPhotoUrl() {
-		return photoUrl;
-	}
-
-	public void setPhotoUrl(String photoUrl) {
-		this.photoUrl = photoUrl;
-	}
-
-	public String getLicenceNumber() {
+    public String getLicenceNumber() {
         return licenceNumber;
     }
 
@@ -82,28 +44,12 @@ public class RestDriverDto implements RestResponseDto {
         this.licenceNumber = licenceNumber;
     }
 
-    public int getViolationsCount() {
-        return violationsCount;
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 
-    public void setViolationsCount(int violationsCount) {
-        this.violationsCount = violationsCount;
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
-
-    public LocalDateTime getLastViolationDateTime() {
-        return lastViolationDateTime;
-    }
-
-    public void setLastViolationDateTime(LocalDateTime lastViolationDateTime) {
-        this.lastViolationDateTime = lastViolationDateTime;
-    }
-
-	public Set<String> getOwnedCarNumbers() {
-		return ownedCarNumbers;
-	}
-
-	public void setOwnedCarNumbers(Set<String> ownedCarNumbers) {
-		this.ownedCarNumbers = ownedCarNumbers;
-	}
 
 }
