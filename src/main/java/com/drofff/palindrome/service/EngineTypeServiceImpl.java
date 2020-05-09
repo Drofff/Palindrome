@@ -1,14 +1,15 @@
 package com.drofff.palindrome.service;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.EngineType;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.EngineTypeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
 public class EngineTypeServiceImpl implements EngineTypeService, CarPropertyService {
@@ -39,6 +40,13 @@ public class EngineTypeServiceImpl implements EngineTypeService, CarPropertyServ
 
 	private boolean existsEngineTypeWithId(String id) {
 		return engineTypeRepository.findById(id).isPresent();
+	}
+
+	@Override
+	public EngineType getById(String id) {
+		validateNotNull(id, "Engine type id should not be null");
+		return engineTypeRepository.findById(id)
+				.orElseThrow(() -> new ValidationException("Engine type with such id doesn't exist"));
 	}
 
 }

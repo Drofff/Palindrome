@@ -1,12 +1,13 @@
 package com.drofff.palindrome.controller.api;
 
+import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.dto.RestDriverDto;
-import com.drofff.palindrome.dto.RestListDto;
-import com.drofff.palindrome.dto.RestResponseDto;
+import com.drofff.palindrome.document.Violation;
+import com.drofff.palindrome.dto.*;
+import com.drofff.palindrome.mapper.RestCarDtoMapper;
 import com.drofff.palindrome.mapper.RestDriverDtoMapper;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.PhotoService;
+import com.drofff.palindrome.mapper.RestViolationDtoMapper;
+import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -27,17 +28,29 @@ public class DriverApiController {
 
     private final DriverService driverService;
     private final PhotoService photoService;
+    private final CarService carService;
+    private final ViolationService violationService;
     private final RestDriverDtoMapper restDriverDtoMapper;
+    private final RestCarDtoMapper restCarDtoMapper;
+    private final RestViolationDtoMapper restViolationDtoMapper;
+    private final MappingsResolver mappingsResolver;
 
     @Value("${application.url}")
     private String applicationUrl;
 
     @Autowired
     public DriverApiController(DriverService driverService, PhotoService photoService,
-                               RestDriverDtoMapper restDriverDtoMapper) {
+                               CarService carService, ViolationService violationService,
+                               RestDriverDtoMapper restDriverDtoMapper, RestCarDtoMapper restCarDtoMapper,
+                               RestViolationDtoMapper restViolationDtoMapper, MappingsResolver mappingsResolver) {
         this.driverService = driverService;
         this.photoService = photoService;
+        this.carService = carService;
+        this.violationService = violationService;
         this.restDriverDtoMapper = restDriverDtoMapper;
+        this.restCarDtoMapper = restCarDtoMapper;
+        this.restViolationDtoMapper = restViolationDtoMapper;
+        this.mappingsResolver = mappingsResolver;
     }
 
     @GetMapping
@@ -67,6 +80,34 @@ public class DriverApiController {
         String driverPhotoUri = driver.getPhotoUri();
         byte[] photo = photoService.loadPhotoByUri(driverPhotoUri);
         return ResponseEntity.ok(photo);
+    }
+
+    @GetMapping("/{id}/cars")
+    public ResponseEntity<RestResponseDto> getCarsOfDriverWithId(@PathVariable String id) {
+        Driver driver = driverService.getDriverById(id);
+        List<Car> cars = carService.getCarsOfDriver(driver);
+        List<RestCarDto> restCarDtos = applyToEachListElement(this::toRestCarDto, cars);
+        RestListDto<RestCarDto> restListDto = new RestListDto<>(restCarDtos);
+        return ResponseEntity.ok(restListDto);
+    }
+
+    private RestCarDto toRestCarDto(Car car) {
+        RestCarDto restCarDto = restCarDtoMapper.toDto(car);
+        return mappingsResolver.resolveMappings(car, restCarDto);
+    }
+
+    @GetMapping("/{id}/violations")
+    public ResponseEntity<RestResponseDto> getViolationsOfDriverWithId(@PathVariable String id) {
+        Driver driver = driverService.getDriverById(id);
+        List<Violation> violations = violationService.getDriverViolations(driver);
+        List<RestViolationDto> restViolationDtos = applyToEachListElement(this::toRestViolationDto, violations);
+        RestListDto<RestViolationDto> restListDto = new RestListDto<>(restViolationDtos);
+        return ResponseEntity.ok(restListDto);
+    }
+
+    private RestViolationDto toRestViolationDto(Violation violation) {
+        RestViolationDto restViolationDto = restViolationDtoMapper.toDto(violation);
+        return mappingsResolver.resolveMappings(violation, restViolationDto);
     }
 
 }

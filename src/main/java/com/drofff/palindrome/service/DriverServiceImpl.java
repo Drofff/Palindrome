@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
+import static com.drofff.palindrome.utils.ListUtils.containsStrIgnoreCase;
 import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 import static java.util.stream.Collectors.toList;
@@ -187,7 +188,7 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 	private int calculateNameMatchForDriver(String namePattern, Driver driver) {
 		List<String> patternNames = getNamesOfPattern(namePattern);
 		return (int) driver.getNamesAsList().stream()
-				.filter(patternNames::contains)
+				.filter(driverName -> containsStrIgnoreCase(patternNames, driverName))
 				.count();
 	}
 

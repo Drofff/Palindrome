@@ -8,4 +8,6 @@ public interface EngineTypeService {
 
 	List<EngineType> getAll();
 
+	EngineType getById(String id);
+
 }

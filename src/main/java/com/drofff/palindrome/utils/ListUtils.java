@@ -14,4 +14,9 @@ public class ListUtils {
 				.collect(Collectors.toList());
 	}
 
+	public static boolean containsStrIgnoreCase(List<String> list, String str) {
+		return list.stream()
+				.anyMatch(str::equalsIgnoreCase);
+	}
+
 }

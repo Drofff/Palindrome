@@ -2,6 +2,8 @@ package com.drofff.palindrome.dto;
 
 public class RestDriverDto {
 
+    private String id;
+
     private String firstName;
 
     private String lastName;
@@ -11,6 +13,14 @@ public class RestDriverDto {
     private String licenceNumber;
 
     private String photoUrl;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
