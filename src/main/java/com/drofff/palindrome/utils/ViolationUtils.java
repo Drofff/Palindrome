@@ -1,7 +1,6 @@
 package com.drofff.palindrome.utils;
 
-import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
-import static java.util.Comparator.comparingInt;
+import com.drofff.palindrome.document.Violation;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -9,7 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
 
-import com.drofff.palindrome.document.Violation;
+import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
+import static java.util.Comparator.comparingInt;
 
 public class ViolationUtils {
 
@@ -17,7 +17,7 @@ public class ViolationUtils {
 
 	public static Optional<LocalDateTime> getLatestViolationDateTimeIfPresent(List<Violation> violations) {
 		return violations.stream()
-				.max(violationsByDateTimeComparator())
+				.max(violationsDateTimeComparatorAsc())
 				.map(Violation::getDateTime);
 	}
 
@@ -31,9 +31,14 @@ public class ViolationUtils {
 				.count();
 	}
 
-	public static Comparator<Violation> violationsByDateTimeComparator() {
-		ToIntFunction<Violation> violationDateTimeToIntFunction = violation -> dateTimeToEpochSeconds(violation.getDateTime());
-		return comparingInt(violationDateTimeToIntFunction);
+	private static Comparator<Violation> violationsDateTimeComparatorAsc() {
+		ToIntFunction<Violation> violationDateTimeToIntAsc = violation -> dateTimeToEpochSeconds(violation.getDateTime());
+		return comparingInt(violationDateTimeToIntAsc);
+	}
+
+	public static Comparator<Violation> violationsDateTimeComparatorDesc() {
+		ToIntFunction<Violation> violationDateTimeToIntDesc = violation -> -dateTimeToEpochSeconds(violation.getDateTime());
+		return comparingInt(violationDateTimeToIntDesc);
 	}
 
 }

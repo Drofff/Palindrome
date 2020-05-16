@@ -4,10 +4,16 @@ import com.drofff.palindrome.document.*;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ChangeRequestRepository;
 import com.drofff.palindrome.type.Mail;
+import com.drofff.palindrome.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.drofff.palindrome.enums.Role.ADMIN;
@@ -16,6 +22,7 @@ import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.MailUtils.*;
 import static com.drofff.palindrome.utils.ReflectionUtils.classByName;
 import static com.drofff.palindrome.utils.ValidationUtils.*;
+import static java.time.LocalDateTime.now;
 
 @Service
 public class ChangeRequestServiceImpl implements ChangeRequestService {
@@ -40,34 +47,35 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	}
 
 	@Override
-	public void requestDriverInfoChangeWithComment(Driver driver, String comment) {
+	public void requestDriverInfoChangeWithComment(Driver updatedDriver, String comment) {
 		validateCurrentUserHasRole(POLICE);
-		validate(driver);
-		validateEntityHasId(driver);
-		ChangeRequest changeRequest = changeRequestForDriverWithComment(driver, comment);
+		validate(updatedDriver);
+		validateEntityHasId(updatedDriver);
+		ChangeRequest changeRequest = driverInfoUpdateRequestWithComment(updatedDriver, comment);
 		changeRequestRepository.save(changeRequest);
 	}
 
-	private ChangeRequest changeRequestForDriverWithComment(Driver driver, String comment) {
+	private ChangeRequest driverInfoUpdateRequestWithComment(Driver updatedDriver, String comment) {
+		Driver originalDriver = driverService.getDriverById(updatedDriver.getId());
 		return changeRequestWithComment(comment)
-				.forDriver(driver)
-				.targetOwnerId(driver.getUserId())
+				.withDriverUpdate(updatedDriver)
+				.targetOwnerId(originalDriver.getUserId())
 				.build();
 	}
 
 	@Override
-	public void requestCarInfoChangeWithComment(Car car, String comment) {
+	public void requestCarInfoChangeWithComment(Car updatedCar, String comment) {
 		validateCurrentUserHasRole(POLICE);
-		validate(car);
-		validateEntityHasId(car);
-		ChangeRequest changeRequest = changeRequestForCarWithComment(car, comment);
+		validate(updatedCar);
+		validateEntityHasId(updatedCar);
+		ChangeRequest changeRequest = carInfoUpdateRequestWithComment(updatedCar, comment);
 		changeRequestRepository.save(changeRequest);
 	}
 
-	private ChangeRequest changeRequestForCarWithComment(Car car, String comment) {
-		Driver carOwner = driverService.getOwnerOfCar(car);
+	private ChangeRequest carInfoUpdateRequestWithComment(Car updatedCar, String comment) {
+		Driver carOwner = driverService.getOwnerOfCar(updatedCar);
 		return changeRequestWithComment(comment)
-				.forCar(car)
+				.withCarUpdate(updatedCar)
 				.targetOwnerId(carOwner.getUserId())
 				.build();
 	}
@@ -105,6 +113,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
 	private void approveChangeRequest(ChangeRequest changeRequest) {
 		changeRequest.setApproved(true);
+		changeRequest.setDateTime(now());
 		changeRequestRepository.save(changeRequest);
 	}
 
@@ -119,7 +128,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	}
 
 	private Mail getApprovedDriverMailForRequest(ChangeRequest changeRequest) {
-		Driver driver = driverService.getDriverByUserId(changeRequest.getSenderId());
+		Driver driver = driverService.getDriverByUserId(changeRequest.getTargetOwnerId());
 		return getChangeRequestApprovedDriverMail(driver.getFirstName());
 	}
 
@@ -135,7 +144,7 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
 	private Mail getApprovedSenderMailForRequest(ChangeRequest changeRequest) {
 		Police police = policeService.getPoliceByUserId(changeRequest.getSenderId());
-		User targetOwner = userService.getUserById(changeRequest.getSenderId());
+		User targetOwner = userService.getUserById(changeRequest.getTargetOwnerId());
 		return getChangeRequestApprovedSenderMail(police.getFirstName(), targetOwner.getUsername());
 	}
 
@@ -175,10 +184,15 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	}
 
 	@Override
+	public Page<ChangeRequest> getPageOfChangeRequestsSentBy(Police sender, Pageable pageable) {
+		validateNotNull(sender, "Sender should be provided");
+		return changeRequestRepository.findBySenderIdOrderByDateTimeDesc(sender.getUserId(), pageable);
+	}
+
+	@Override
 	public ChangeRequest getDriverChangeRequestById(String id) {
 		return getChangeRequestByIdAndTargetClass(id, Driver.class);
 	}
-
 
 	@Override
 	public ChangeRequest getCarChangeRequestById(String id) {
@@ -216,6 +230,18 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 	@Override
 	public int countChangeRequests() {
 		return changeRequestRepository.countNotApproved();
+	}
+
+	@Override
+	public Map<LocalDate, Integer> countApprovedChangeRequestsPerLastDays(int days) {
+		List<ChangeRequest> approvedChangeRequests = getApprovedChangeRequestsOfLastDays(days);
+		return DateUtils.countHronablesPerDayForDays(approvedChangeRequests, days);
+	}
+
+	private List<ChangeRequest> getApprovedChangeRequestsOfLastDays(int days) {
+		LocalDateTime threshold = now().minusDays(days);
+		String senderId = getCurrentUser().getId();
+		return changeRequestRepository.findByDateTimeAfterAndApprovedAndSenderId(threshold, true, senderId);
 	}
 
 }

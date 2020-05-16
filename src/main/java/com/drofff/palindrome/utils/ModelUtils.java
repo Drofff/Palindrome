@@ -1,27 +1,24 @@
 package com.drofff.palindrome.utils;
 
-import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.ERROR_MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PAGES_COUNT_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PAGE_NUMBER_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.PAGE_PAYLOAD_PARAM;
-import static com.drofff.palindrome.utils.CollectionPageUtils.countPages;
-import static com.drofff.palindrome.utils.CollectionPageUtils.getContentOfPage;
-import static com.drofff.palindrome.utils.DateUtils.dateTimeToStr;
-import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
-
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.drofff.palindrome.document.UserBlock;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.type.CollectionPage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.ui.Model;
 
-import com.drofff.palindrome.document.UserBlock;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.type.CollectionPage;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+
+import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.CollectionPageUtils.countPages;
+import static com.drofff.palindrome.utils.CollectionPageUtils.getContentOfPage;
+import static com.drofff.palindrome.utils.DateUtils.dateTimeToStr;
+import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 
 public class ModelUtils {
 
@@ -69,6 +66,10 @@ public class ModelUtils {
 		String dateTimeStr = dateTimeToStr(userBlock.getDateTime());
 		model.addAttribute("dateTime", dateTimeStr);
 		model.addAttribute("reason", userBlock.getReason());
+	}
+
+	public static <E, D> List<D> applyToPageContent(Function<E, D> function, Page<E> page) {
+		return applyToEachListElement(function, page.getContent());
 	}
 
 }

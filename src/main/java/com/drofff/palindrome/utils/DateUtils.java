@@ -1,8 +1,16 @@
 package com.drofff.palindrome.utils;
 
+import com.drofff.palindrome.document.Hronable;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.time.LocalDate.now;
+import static java.util.stream.IntStream.range;
 
 public class DateUtils {
 
@@ -28,6 +36,30 @@ public class DateUtils {
 		ZoneOffset offset = ZonedDateTime.now().getOffset();
 		Instant instant = dateTime.toInstant(offset);
 		return Date.from(instant);
+	}
+
+	public static <T extends Hronable> Map<LocalDate, Integer> countHronablesPerDayForDays(List<T> hronables, int days) {
+		Map<LocalDate, Integer> hronablesPerDayCounter = initHronablesPerDayCounterOfDays(days);
+		countHronablesPerDayIntoCounter(hronables, hronablesPerDayCounter);
+		return hronablesPerDayCounter;
+	}
+
+	private static Map<LocalDate, Integer> initHronablesPerDayCounterOfDays(int days) {
+		LocalDate from = now().minusDays(days);
+		Map<LocalDate, Integer> hronablesPerDayCounter = new LinkedHashMap<>();
+		int offsetRightBound = days + 1;
+		range(1, offsetRightBound)
+				.mapToObj(from::plusDays)
+				.forEach(date -> hronablesPerDayCounter.put(date, 0));
+		return hronablesPerDayCounter;
+	}
+
+	private static <T extends Hronable> void countHronablesPerDayIntoCounter(List<T> hronables, Map<LocalDate, Integer> counter) {
+		hronables.forEach(hronable -> {
+			LocalDate date = hronable.getDateTime().toLocalDate();
+			int hronablesCounter = counter.get(date);
+			counter.put(date, ++hronablesCounter);
+		});
 	}
 
 }

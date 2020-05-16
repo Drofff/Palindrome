@@ -9,21 +9,19 @@ import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.PoliceDtoMapper;
 import com.drofff.palindrome.mapper.PoliceFatDtoMapper;
 import com.drofff.palindrome.mapper.UpdatePoliceDtoMapper;
-import com.drofff.palindrome.service.DepartmentService;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.PhotoService;
-import com.drofff.palindrome.service.PoliceService;
+import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.util.Map;
+
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
+import static com.drofff.palindrome.constants.EndpointConstants.RELATIVE_HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.*;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
@@ -33,12 +31,16 @@ import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 @RequestMapping("/police")
 public class PoliceController {
 
+	private static final int STATISTIC_DAYS_COUNT = 7;
+
 	private static final String CREATE_POLICE_VIEW = "createPolicePage";
 	private static final String UPDATE_POLICE_VIEW = "updatePolicePage";
 
 	private final PoliceService policeService;
 	private final DepartmentService departmentService;
 	private final PhotoService photoService;
+	private final ViolationService violationService;
+	private final ChangeRequestService changeRequestService;
 	private final PoliceDtoMapper policeDtoMapper;
 	private final PoliceFatDtoMapper policeFatDtoMapper;
 	private final UpdatePoliceDtoMapper updatePoliceDtoMapper;
@@ -46,16 +48,32 @@ public class PoliceController {
 
 	@Autowired
 	public PoliceController(PoliceService policeService, DepartmentService departmentService,
-							PhotoService photoService, PoliceDtoMapper policeDtoMapper,
+							PhotoService photoService, ViolationService violationService,
+							ChangeRequestService changeRequestService, PoliceDtoMapper policeDtoMapper,
 							PoliceFatDtoMapper policeFatDtoMapper, UpdatePoliceDtoMapper updatePoliceDtoMapper,
 							MappingsResolver mappingsResolver) {
 		this.policeService = policeService;
 		this.departmentService = departmentService;
 		this.photoService = photoService;
+		this.violationService = violationService;
+		this.changeRequestService = changeRequestService;
 		this.policeDtoMapper = policeDtoMapper;
 		this.policeFatDtoMapper = policeFatDtoMapper;
 		this.updatePoliceDtoMapper = updatePoliceDtoMapper;
 		this.mappingsResolver = mappingsResolver;
+	}
+
+	@GetMapping(RELATIVE_HOME_ENDPOINT)
+	@PreAuthorize("hasAuthority('POLICE')")
+	public String getPoliceHomePage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
+									Model model) {
+		model.addAttribute(MESSAGE_PARAM, message);
+		Map<LocalDate, Integer> violationsPerDay = violationService.countViolationsPerLastDays(STATISTIC_DAYS_COUNT);
+		model.addAttribute(VIOLATIONS_PARAM, violationsPerDay);
+		Map<LocalDate, Integer> approvedChangeRequestsPerDay = changeRequestService
+				.countApprovedChangeRequestsPerLastDays(STATISTIC_DAYS_COUNT);
+		model.addAttribute(REQUESTS_PARAM, approvedChangeRequestsPerDay);
+		return "policeHomePage";
 	}
 
 	@GetMapping("/{id}")

@@ -2,11 +2,13 @@ package com.drofff.palindrome.document;
 
 import com.drofff.palindrome.type.ExternalAuthenticationOption;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-public class UserDevice {
+@Document
+public class UserDevice implements Entity {
 
     @Id
     private String id;

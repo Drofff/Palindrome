@@ -1,10 +1,7 @@
 package com.drofff.palindrome.mapper;
 
-import static com.drofff.palindrome.utils.DateUtils.parseDateFromStr;
-
-import java.time.LocalDate;
-import java.util.Objects;
-
+import com.drofff.palindrome.document.Car;
+import com.drofff.palindrome.dto.CarDto;
 import org.modelmapper.Converter;
 import org.modelmapper.ExpressionMap;
 import org.modelmapper.ModelMapper;
@@ -12,8 +9,10 @@ import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.dto.CarDto;
+import java.time.LocalDate;
+import java.util.Objects;
+
+import static com.drofff.palindrome.utils.DateUtils.parseDateFromStr;
 
 @Component
 public class CarDtoMapper extends Mapper<Car, CarDto> {
@@ -23,9 +22,8 @@ public class CarDtoMapper extends Mapper<Car, CarDto> {
 	@Autowired
 	public CarDtoMapper(ModelMapper modelMapper) {
 		super(modelMapper);
-		toEntityTypeMap = modelMapper.createTypeMap(CarDto.class, Car.class)
-				.addMappings(dateMapping())
-				.addMappings(skipIdMapping());
+		toEntityTypeMap = modelMapper.getTypeMap(CarDto.class, Car.class)
+				.addMappings(dateMapping());
 	}
 
 	private ExpressionMap<CarDto, Car> dateMapping() {
@@ -36,10 +34,6 @@ public class CarDtoMapper extends Mapper<Car, CarDto> {
 
 	private Converter<String, LocalDate> strToDateConverter() {
 		return context -> parseDateFromStr(context.getSource());
-	}
-
-	private ExpressionMap<CarDto, Car> skipIdMapping() {
-		return mapping -> mapping.skip(Car::setId);
 	}
 
 	@Override

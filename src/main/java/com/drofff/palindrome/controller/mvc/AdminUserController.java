@@ -27,7 +27,6 @@ import static com.drofff.palindrome.constants.EndpointConstants.ADMIN_USERS_ENDP
 import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
 import static com.drofff.palindrome.constants.ParameterConstants.*;
 import static com.drofff.palindrome.grep.Filter.grepByPattern;
-import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.*;
 
 @Controller
@@ -57,13 +56,13 @@ public class AdminUserController {
 	public String getUsersPage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                           @RequestParam(required = false, defaultValue = DEFAULT_PAGE) Integer page,
 	                           UserPattern userPattern, Model model) {
-		Page<User> allUsers = userService.getAllUsersAtPage(page);
-		List<UsersUserDto> usersUserDtos = applyToEachListElement(this::toUsersUserDto, allUsers.getContent());
+		Page<User> allUsersPage = userService.getAllUsersAtPage(page);
+		List<UsersUserDto> usersUserDtos = applyToPageContent(this::toUsersUserDto, allUsersPage);
 		model.addAttribute("users", grepByPattern(usersUserDtos, userPattern));
 		model.addAttribute(ROLES_PARAM, userService.getAllRoles());
 		model.addAttribute(PATTERN_PARAM, userPattern);
 		model.addAttribute(MESSAGE_PARAM, message);
-		putPageIntoModel(allUsers, model);
+		putPageIntoModel(allUsersPage, model);
 		return "adminUsersPage";
 	}
 

@@ -1,34 +1,5 @@
 package com.drofff.palindrome.controller.mvc;
 
-import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
-import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.BRANDS_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.CAR_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.ENGINE_TYPES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.LICENCE_CATEGORIES_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.SUCCESS_PARAM;
-import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
-import static com.drofff.palindrome.utils.ModelUtils.putCollectionPageIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-import static com.drofff.palindrome.utils.ViolationUtils.countPaidViolations;
-import static com.drofff.palindrome.utils.ViolationUtils.countUnpaidViolations;
-import static com.drofff.palindrome.utils.ViolationUtils.getLatestViolationDateTimeIfPresent;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.Violation;
@@ -39,15 +10,22 @@ import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.CarDtoMapper;
 import com.drofff.palindrome.mapper.CarFatDtoMapper;
 import com.drofff.palindrome.mapper.OwnedCarsCarDtoMapper;
-import com.drofff.palindrome.service.BodyTypeService;
-import com.drofff.palindrome.service.BrandService;
-import com.drofff.palindrome.service.CarService;
-import com.drofff.palindrome.service.DriverService;
-import com.drofff.palindrome.service.EngineTypeService;
-import com.drofff.palindrome.service.LicenceCategoryService;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.ViolationService;
+import com.drofff.palindrome.service.*;
 import com.drofff.palindrome.type.CollectionPage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static com.drofff.palindrome.constants.PageableConstants.DEFAULT_PAGE;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
+import static com.drofff.palindrome.utils.ModelUtils.*;
+import static com.drofff.palindrome.utils.ViolationUtils.*;
 
 @Controller
 @RequestMapping("/car")

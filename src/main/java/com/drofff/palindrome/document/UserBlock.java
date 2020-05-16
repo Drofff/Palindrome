@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Document
-public class UserBlock {
+public class UserBlock implements Entity {
 
 	@Id
 	private String id;

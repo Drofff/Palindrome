@@ -168,6 +168,11 @@ public class CarServiceImpl implements CarService, EntityManager {
 	}
 
 	@Override
+	public List<Car> getAllCars() {
+		return carRepository.findAll();
+	}
+
+	@Override
 	public Page<Car> getAllCarsAtPage(int page) {
 		Pageable pageable = PageRequest.of(page, ALL_CARS_PAGE_SIZE);
 		return carRepository.findAll(pageable);

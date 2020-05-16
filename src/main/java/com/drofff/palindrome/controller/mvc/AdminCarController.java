@@ -70,7 +70,7 @@ public class AdminCarController {
 	                          @RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                          CarPattern carPattern, Model model) {
 		Page<Car> allCarsPage = carService.getAllCarsAtPage(page);
-		List<CarsCarFatDto> carsCarFatDtos = applyToEachListElement(this::toCarsCarFatDto, allCarsPage.getContent());
+		List<CarsCarFatDto> carsCarFatDtos = applyToPageContent(this::toCarsCarFatDto, allCarsPage);
 		model.addAttribute(CARS_PARAM, grepByPattern(carsCarFatDtos, carPattern));
 		model.addAttribute(PATTERN_PARAM, carPattern);
 		model.addAttribute(MESSAGE_PARAM, message);

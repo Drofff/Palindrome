@@ -1,12 +1,12 @@
 package com.drofff.palindrome.document;
 
-import java.time.LocalDateTime;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document
-public class ChangeRequest {
+public class ChangeRequest implements Entity, Hronable {
 
 	@Id
 	private String id;
@@ -25,10 +25,12 @@ public class ChangeRequest {
 
 	private boolean approved;
 
+	@Override
 	public String getId() {
 		return id;
 	}
 
+	@Override
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -73,6 +75,7 @@ public class ChangeRequest {
 		this.senderId = senderId;
 	}
 
+	@Override
 	public LocalDateTime getDateTime() {
 		return dateTime;
 	}
@@ -103,13 +106,13 @@ public class ChangeRequest {
 
 		private final ChangeRequest changeRequest = new ChangeRequest();
 
-		public Builder forDriver(Driver driver) {
+		public Builder withDriverUpdate(Driver driver) {
 			changeRequest.targetClassName = Driver.class.getName();
 			changeRequest.targetValue = driver;
 			return this;
 		}
 
-		public Builder forCar(Car car) {
+		public Builder withCarUpdate(Car car) {
 			changeRequest.targetClassName = Car.class.getName();
 			changeRequest.targetValue = car;
 			return this;

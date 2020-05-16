@@ -4,19 +4,23 @@ import com.drofff.palindrome.document.*;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ViolationRepository;
 import com.drofff.palindrome.type.Mail;
+import com.drofff.palindrome.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.drofff.palindrome.enums.Role.POLICE;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.MailUtils.getViolationAddedMail;
 import static com.drofff.palindrome.utils.ValidationUtils.*;
+import static java.time.LocalDateTime.now;
 
 @Service
 public class ViolationServiceImpl implements ViolationService {
@@ -60,6 +64,13 @@ public class ViolationServiceImpl implements ViolationService {
 		validateNotNull(driver);
 		validateEntityHasId(driver);
 		return violationRepository.findByViolatorId(driver.getUserId(), pageable);
+	}
+
+	@Override
+	public Page<Violation> getPageOfViolationsAddedByPolice(Police police, Pageable pageable) {
+		validateNotNull(police);
+		validateEntityHasId(police);
+		return violationRepository.findByOfficerIdOrderByDateTimeDesc(police.getId(), pageable);
 	}
 
 	@Override
@@ -109,10 +120,20 @@ public class ViolationServiceImpl implements ViolationService {
 		notifyViolationAdded(violation);
 	}
 
+	private void validateViolationTypeId(String id) {
+		if(notExistsViolationTypeWithId(id)) {
+			throw new ValidationException("Invalid violation type id");
+		}
+	}
+
+	private boolean notExistsViolationTypeWithId(String id) {
+		return !violationTypeService.existsViolationTypeWithId(id);
+	}
+
 	private void initViolationValues(Violation violation) {
 		Police police = getCurrentPolice();
 		violation.setOfficerId(police.getId());
-		violation.setDateTime(LocalDateTime.now());
+		violation.setDateTime(now());
 		initViolationPaidStatus(violation);
 	}
 
@@ -130,22 +151,6 @@ public class ViolationServiceImpl implements ViolationService {
 		return violationType.getFee().getAmount() > 0;
 	}
 
-	private Police getCurrentPolice() {
-		User currentUser = getCurrentUser();
-		return policeService.getPoliceByUserId(currentUser.getId());
-	}
-
-	private void validateViolationTypeId(String id) {
-		validateNotNull(id, "Violation type is required");
-		if(notExistsViolationTypeWithId(id)) {
-			throw new ValidationException("Invalid violation type id");
-		}
-	}
-
-	private boolean notExistsViolationTypeWithId(String id) {
-		return !violationTypeService.existsViolationTypeWithId(id);
-	}
-
 	private void notifyViolationAdded(Violation violation) {
 		User violator = userService.getUserById(violation.getViolatorId());
 		String linkToViolation = generateLinkToViolationWithId(violation.getId());
@@ -155,6 +160,23 @@ public class ViolationServiceImpl implements ViolationService {
 
 	private String generateLinkToViolationWithId(String id) {
 		return applicationUrl + "/violation/" + id;
+	}
+
+	@Override
+	public Map<LocalDate, Integer> countViolationsPerLastDays(int days) {
+		List<Violation> violations = getViolationsOfLastDays(days);
+		return DateUtils.countHronablesPerDayForDays(violations, days);
+	}
+
+	private List<Violation> getViolationsOfLastDays(int days) {
+		LocalDateTime threshold = now().minusDays(days);
+		String officerId = getCurrentPolice().getId();
+		return violationRepository.findByDateTimeAfterAndOfficerId(threshold, officerId);
+	}
+
+	private Police getCurrentPolice() {
+		User currentUser = getCurrentUser();
+		return policeService.getPoliceByUserId(currentUser.getId());
 	}
 
 }

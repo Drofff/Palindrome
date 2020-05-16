@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Brand {
+public class Brand implements Entity {
 
 	@Id
 	private String id;

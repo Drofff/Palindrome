@@ -17,7 +17,7 @@
 		.demo-card-wide > .mdl-card__title {
 			color: #fff;
 			height: 200px;
-			background: url('https://wallup.net/wp-content/uploads/2017/03/27/414163-car-wireframe-BMW-digital_art-artwork.jpg') center / cover;
+			background: url('/api/resources/img/background_wireframe.jpg') center / cover;
 		}
 	</style>
 </head>

@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Document
-public class User implements UserDetails {
+public class User implements UserDetails, Entity {
 
 	@Id
 	private String id;

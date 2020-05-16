@@ -1,28 +1,38 @@
 package com.drofff.palindrome.mapper;
 
-import static com.drofff.palindrome.utils.ReflectionUtils.getGenericTypeParameters;
+import com.drofff.palindrome.document.Entity;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 
 import java.lang.reflect.Type;
 
-import org.modelmapper.ModelMapper;
+import static com.drofff.palindrome.utils.ReflectionUtils.getGenericTypeParameters;
 
-abstract class Mapper<E, D> {
+abstract class Mapper<E extends Entity, D> {
 
 	private final ModelMapper modelMapper;
+	private final TypeMap<D, E> toEntityTypeMap;
 
-	private Type entityType;
-	private Type dtoType;
+	private Class<E> entityType;
+	private Class<D> dtoType;
 
 	protected Mapper(ModelMapper modelMapper) {
-		this.modelMapper = modelMapper;
 		initTypes();
+		this.modelMapper = modelMapper;
+		this.toEntityTypeMap = initToEntityTypeMap();
 	}
 
+	@SuppressWarnings("unchecked")
 	private void initTypes() {
 		Type superClass = getClass().getGenericSuperclass();
 		Type[] genericTypeParams = getGenericTypeParameters(superClass);
-		entityType = genericTypeParams[0];
-		dtoType = genericTypeParams[1];
+		entityType = (Class<E>) genericTypeParams[0];
+		dtoType = (Class<D>) genericTypeParams[1];
+	}
+
+	private TypeMap<D, E> initToEntityTypeMap() {
+		return modelMapper.createTypeMap(dtoType, entityType)
+				.addMappings(mapping -> mapping.skip(E::setId));
 	}
 
 	public D toDto(E entity) {
@@ -30,7 +40,7 @@ abstract class Mapper<E, D> {
 	}
 
 	public E toEntity(D dto) {
-		return modelMapper.map(dto, entityType);
+		return toEntityTypeMap.map(dto);
 	}
 
 }

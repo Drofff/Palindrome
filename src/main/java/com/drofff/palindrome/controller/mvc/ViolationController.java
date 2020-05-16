@@ -1,16 +1,10 @@
 package com.drofff.palindrome.controller.mvc;
 
 import com.drofff.palindrome.document.*;
-import com.drofff.palindrome.dto.CarFatDto;
-import com.drofff.palindrome.dto.ViolationDto;
-import com.drofff.palindrome.dto.ViolationFatDto;
-import com.drofff.palindrome.dto.ViolationsViolationDto;
+import com.drofff.palindrome.dto.*;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.grep.pattern.ViolationPattern;
-import com.drofff.palindrome.mapper.CarFatDtoMapper;
-import com.drofff.palindrome.mapper.ViolationDtoMapper;
-import com.drofff.palindrome.mapper.ViolationFatDtoMapper;
-import com.drofff.palindrome.mapper.ViolationsViolationDtoMapper;
+import com.drofff.palindrome.mapper.*;
 import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,10 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +23,7 @@ import static com.drofff.palindrome.grep.Filter.grepByPattern;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.*;
-import static com.drofff.palindrome.utils.ViolationUtils.violationsByDateTimeComparator;
+import static com.drofff.palindrome.utils.ViolationUtils.violationsDateTimeComparatorDesc;
 
 @Controller
 @RequestMapping("/violation")
@@ -51,14 +42,16 @@ public class ViolationController {
 	private final ViolationFatDtoMapper violationFatDtoMapper;
 	private final CarFatDtoMapper carFatDtoMapper;
 	private final ViolationDtoMapper violationDtoMapper;
+	private final PoliceViolationDtoMapper policeViolationDtoMapper;
 	private final MappingsResolver mappingsResolver;
 
 	@Autowired
 	public ViolationController(ViolationService violationService, DriverService driverService,
-	                           PoliceService policeService, CarService carService,
-	                           ViolationTypeService violationTypeService, ViolationsViolationDtoMapper violationsViolationDtoMapper,
-	                           ViolationFatDtoMapper violationFatDtoMapper, CarFatDtoMapper carFatDtoMapper,
-	                           ViolationDtoMapper violationDtoMapper, MappingsResolver mappingsResolver) {
+							   PoliceService policeService, CarService carService,
+							   ViolationTypeService violationTypeService, ViolationsViolationDtoMapper violationsViolationDtoMapper,
+							   ViolationFatDtoMapper violationFatDtoMapper, CarFatDtoMapper carFatDtoMapper,
+							   ViolationDtoMapper violationDtoMapper, PoliceViolationDtoMapper policeViolationDtoMapper,
+							   MappingsResolver mappingsResolver) {
 		this.violationService = violationService;
 		this.driverService = driverService;
 		this.policeService = policeService;
@@ -68,6 +61,7 @@ public class ViolationController {
 		this.violationFatDtoMapper = violationFatDtoMapper;
 		this.carFatDtoMapper = carFatDtoMapper;
 		this.violationDtoMapper = violationDtoMapper;
+		this.policeViolationDtoMapper = policeViolationDtoMapper;
 		this.mappingsResolver = mappingsResolver;
 	}
 
@@ -86,7 +80,7 @@ public class ViolationController {
 
 	private void putViolationsIntoModel(List<Violation> violations, Model model) {
 		List<ViolationsViolationDto> violationsViolationDtos = violations.stream()
-				.sorted(violationsByDateTimeComparator())
+				.sorted(violationsDateTimeComparatorDesc())
 				.map(this::toViolationsViolationDto)
 				.collect(Collectors.toList());
 		model.addAttribute(VIOLATIONS_PARAM, violationsViolationDtos);
@@ -108,6 +102,26 @@ public class ViolationController {
 		return mappingsResolver.resolveMappings(car, carFatDto);
 	}
 
+	@GetMapping("/police")
+	@PreAuthorize("hasAuthority('POLICE')")
+	public String getPoliceViolationsPage(Pageable pageable, Model model) {
+		User currentUser = getCurrentUser();
+		Police police = policeService.getPoliceByUserId(currentUser.getId());
+		Page<Violation> violationsPage = violationService.getPageOfViolationsAddedByPolice(police, pageable);
+		List<PoliceViolationDto> policeViolationDtos = applyToPageContent(this::toPoliceViolationDto, violationsPage);
+		model.addAttribute(VIOLATIONS_PARAM, policeViolationDtos);
+		putPageIntoModel(violationsPage, model);
+		putViolationTypesIntoModel(model);
+		return "policeViolationsPage";
+	}
+
+	private PoliceViolationDto toPoliceViolationDto(Violation violation) {
+		PoliceViolationDto policeViolationDto = policeViolationDtoMapper.toDto(violation);
+		Driver violator = driverService.getDriverByUserId(violation.getViolatorId());
+		policeViolationDto.setViolator(violator);
+		return mappingsResolver.resolveMappings(violation, policeViolationDto);
+	}
+
 	@GetMapping("/{id}")
 	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getViolationPage(@PathVariable String id, Model model) {
@@ -123,15 +137,14 @@ public class ViolationController {
 
 	private ViolationFatDto toViolationFatDto(Violation violation) {
 		ViolationFatDto violationFatDto = violationFatDtoMapper.toDto(violation);
-		Police officer = policeService.getPoliceById(violation.getOfficerId());
-		violationFatDto.setOfficer(officer);
 		return mappingsResolver.resolveMappings(violation, violationFatDto);
 	}
 
 	@GetMapping("/create")
 	@PreAuthorize("hasAuthority('POLICE')")
-	public String getCreateViolationPage(Model model) {
+	public String getCreateViolationPage(@RequestParam(required = false) String number, Model model) {
 		putViolationTypesIntoModel(model);
+		model.addAttribute("number", number);
 		return CREATE_VIOLATION_VIEW;
 	}
 

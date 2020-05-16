@@ -1,13 +1,12 @@
 package com.drofff.palindrome.service;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.document.Violation;
+import com.drofff.palindrome.document.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface ViolationService {
 
@@ -17,6 +16,8 @@ public interface ViolationService {
 
 	Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable);
 
+	Page<Violation> getPageOfViolationsAddedByPolice(Police police, Pageable pageable);
+
 	Violation getViolationOfUserById(User user, String id);
 
 	Violation getViolationById(String id);
@@ -24,5 +25,7 @@ public interface ViolationService {
 	void markAsPaid(Violation violation);
 
 	void addViolation(Violation violation);
+
+	Map<LocalDate, Integer> countViolationsPerLastDays(int days);
 
 }

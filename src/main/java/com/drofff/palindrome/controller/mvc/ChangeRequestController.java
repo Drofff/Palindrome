@@ -1,18 +1,19 @@
 package com.drofff.palindrome.controller.mvc;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.ChangeRequest;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.Police;
+import com.drofff.palindrome.document.*;
 import com.drofff.palindrome.dto.CarDto;
 import com.drofff.palindrome.dto.CarFatDto;
 import com.drofff.palindrome.dto.DriverDto;
+import com.drofff.palindrome.dto.SentChangeRequestDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.CarDtoMapper;
 import com.drofff.palindrome.mapper.CarFatDtoMapper;
 import com.drofff.palindrome.mapper.DriverDtoMapper;
+import com.drofff.palindrome.mapper.SentChangeRequestDtoMapper;
 import com.drofff.palindrome.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
 import static com.drofff.palindrome.utils.ModelUtils.*;
 import static java.util.Comparator.comparingInt;
@@ -36,7 +38,10 @@ public class ChangeRequestController {
 	private static final String CHANGE_REQUEST_PARAM = "change_request";
 	private static final String COMMENT_PARAM = "comment";
 
-	private static final String CHANGE_REQUESTS_ENDPOINT = "/change-request";
+	private static final String ADMIN_CHANGE_REQUESTS_ENDPOINT = "/change-request";
+	private static final String POLICE_CHANGE_REQUESTS_ENDPOINT = "/change-request/sent";
+
+	private static final String CHANGE_REQUEST_SENT_MESSAGE = "Change request has been sent successfully";
 
 	private final ChangeRequestService changeRequestService;
 	private final DriverService driverService;
@@ -50,6 +55,7 @@ public class ChangeRequestController {
 	private final CarDtoMapper carDtoMapper;
 	private final CarFatDtoMapper carFatDtoMapper;
 	private final DriverDtoMapper driverDtoMapper;
+	private final SentChangeRequestDtoMapper sentChangeRequestDtoMapper;
 	private final MappingsResolver mappingsResolver;
 
 	@Autowired
@@ -59,7 +65,7 @@ public class ChangeRequestController {
 								   EngineTypeService engineTypeService, LicenceCategoryService licenceCategoryService,
 								   PoliceService policeService, CarDtoMapper carDtoMapper,
 								   CarFatDtoMapper carFatDtoMapper, DriverDtoMapper driverDtoMapper,
-								   MappingsResolver mappingsResolver) {
+								   SentChangeRequestDtoMapper sentChangeRequestDtoMapper, MappingsResolver mappingsResolver) {
 		this.changeRequestService = changeRequestService;
 		this.driverService = driverService;
 		this.carService = carService;
@@ -72,6 +78,7 @@ public class ChangeRequestController {
 		this.carDtoMapper = carDtoMapper;
 		this.carFatDtoMapper = carFatDtoMapper;
 		this.driverDtoMapper = driverDtoMapper;
+		this.sentChangeRequestDtoMapper = sentChangeRequestDtoMapper;
 		this.mappingsResolver = mappingsResolver;
 	}
 
@@ -88,6 +95,27 @@ public class ChangeRequestController {
 		return changeRequestService.getAllChangeRequests().stream()
 				.sorted(comparingInt(request -> dateTimeToEpochSeconds(request.getDateTime())))
 				.collect(Collectors.toList());
+	}
+
+	@GetMapping("/sent")
+	@PreAuthorize("hasAuthority('POLICE')")
+	public String getSentChangeRequestsPage(Pageable pageable, Model model) {
+		User currentUser = getCurrentUser();
+		Police sender = policeService.getPoliceByUserId(currentUser.getId());
+		Page<ChangeRequest> changeRequestsPage = changeRequestService.getPageOfChangeRequestsSentBy(sender, pageable);
+		List<SentChangeRequestDto> sentChangeRequestDtos = applyToPageContent(this::toSentChangeRequestDto, changeRequestsPage);
+		model.addAttribute(REQUESTS_PARAM, sentChangeRequestDtos);
+		putPageIntoModel(changeRequestsPage, model);
+		return "sentChangeRequestsPage";
+	}
+
+	private SentChangeRequestDto toSentChangeRequestDto(ChangeRequest changeRequest) {
+		SentChangeRequestDto sentChangeRequestDto = sentChangeRequestDtoMapper.toDto(changeRequest);
+		Driver targetOwner = driverService.getDriverByUserId(changeRequest.getTargetOwnerId());
+		String encodedPhoto = photoService.loadEncodedPhotoByUri(targetOwner.getPhotoUri());
+		targetOwner.setPhotoUri(encodedPhoto);
+		sentChangeRequestDto.setTargetOwner(targetOwner);
+		return sentChangeRequestDto;
 	}
 
 	@GetMapping("/driver/{id}")
@@ -134,7 +162,7 @@ public class ChangeRequestController {
 	public String approveChangeRequestById(String id) {
 		try {
 			changeRequestService.approveChangeById(id);
-			return redirectToWithMessage(CHANGE_REQUESTS_ENDPOINT, "Change request has been approved successfully");
+			return redirectToWithMessage(ADMIN_CHANGE_REQUESTS_ENDPOINT, "Change request has been approved successfully");
 		} catch(ValidationException e) {
 			return errorPageWithMessage(e.getMessage());
 		}
@@ -145,10 +173,27 @@ public class ChangeRequestController {
 	public String refuseChangeRequestById(String id) {
 		try {
 			changeRequestService.refuseChangeById(id);
-			return redirectToWithMessage(CHANGE_REQUESTS_ENDPOINT, "Change request has been refused successfully");
+			return redirectToWithMessage(ADMIN_CHANGE_REQUESTS_ENDPOINT, "Change request has been refused successfully");
 		} catch(ValidationException e) {
 			return errorPageWithMessage(e.getMessage());
 		}
+	}
+
+	@GetMapping("/send")
+	public String getSendChangeRequestPage() {
+		return "sendChangeRequestPage";
+	}
+
+	@GetMapping("/list/driver")
+	@ResponseBody
+	public List<Driver> getAllDrivers() {
+		return driverService.getAllDrivers();
+	}
+
+	@GetMapping("/list/car")
+	@ResponseBody
+	public List<Car> getAllCars() {
+		return carService.getAllCars();
 	}
 
 	@GetMapping("/send/driver/{id}")
@@ -169,16 +214,16 @@ public class ChangeRequestController {
 		driver.setId(id);
 		try {
 			changeRequestService.requestDriverInfoChangeWithComment(driver, comment);
-			model.addAttribute(MESSAGE_PARAM, "Change request has been sent successfully");
+			return redirectToWithMessage(POLICE_CHANGE_REQUESTS_ENDPOINT, CHANGE_REQUEST_SENT_MESSAGE);
 		} catch(ValidationException e) {
+			model.addAttribute(DRIVER_PARAM, driver);
+			Driver originalDriver = driverService.getDriverById(driver.getId());
+			String photo = photoService.loadEncodedPhotoByUri(originalDriver.getPhotoUri());
+			model.addAttribute(PHOTO_PARAM, photo);
+			model.addAttribute(COMMENT_PARAM, comment);
 			putValidationExceptionIntoModel(e, model);
+			return DRIVER_CHANGE_REQUEST_VIEW;
 		}
-		model.addAttribute(DRIVER_PARAM, driver);
-		Driver originalDriver = driverService.getDriverById(driver.getId());
-		String photo = photoService.loadEncodedPhotoByUri(originalDriver.getPhotoUri());
-		model.addAttribute(PHOTO_PARAM, photo);
-		model.addAttribute(COMMENT_PARAM, comment);
-		return DRIVER_CHANGE_REQUEST_VIEW;
 	}
 
 	@GetMapping("/send/car/{id}")
@@ -192,20 +237,20 @@ public class ChangeRequestController {
 
 	@PostMapping("/send/car/{id}")
 	@PreAuthorize("hasAuthority('POLICE')")
-	public String sendChangeRequest(@PathVariable String id, CarDto carDto, @RequestParam(required = false) String comment,
-	                                Model model) {
+	public String sendChangeRequest(@PathVariable String id, CarDto carDto,
+									@RequestParam(required = false) String comment, Model model) {
 		Car car = carDtoMapper.toEntity(carDto);
 		car.setId(id);
 		try {
 			changeRequestService.requestCarInfoChangeWithComment(car, comment);
-			model.addAttribute(MESSAGE_PARAM, "Change request has been sent successfully");
+			return redirectToWithMessage(POLICE_CHANGE_REQUESTS_ENDPOINT, CHANGE_REQUEST_SENT_MESSAGE);
 		} catch(ValidationException e) {
+			model.addAttribute(CAR_PARAM, car);
+			model.addAttribute(COMMENT_PARAM, comment);
+			putCarPropertiesIntoModel(model);
 			putValidationExceptionIntoModel(e, model);
+			return CAR_CHANGE_REQUEST_VIEW;
 		}
-		model.addAttribute(CAR_PARAM, car);
-		model.addAttribute(COMMENT_PARAM, comment);
-		putCarPropertiesIntoModel(model);
-		return CAR_CHANGE_REQUEST_VIEW;
 	}
 
 	private void putCarPropertiesIntoModel(Model model) {
