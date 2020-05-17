@@ -42,7 +42,7 @@
                         <a class="mdl-navigation__link" href="/">Головна</a>
                         <a class="mdl-navigation__link" href="/violation/police">Фіксовані порушення</a>
                         <a class="mdl-navigation__link" href="/change-request/sent">Запити</a>
-                        <a class="mdl-navigation__link" href="">Профіль</a>
+                        <a class="mdl-navigation__link" href="/police">Профіль</a>
                     </nav>
                 </div>
                 <main class="mdl-layout__content">

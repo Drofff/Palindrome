@@ -33,7 +33,7 @@
     <main class="mdl-layout__content">
         <div class="page-content">
 
-            <dialog class="mdl-dialog">
+            <dialog class="mdl-dialog" style="z-index: 100000">
                 <div class="mdl-dialog__content">
                     <p style="color: red">
                         <#if error_message??>
@@ -59,7 +59,7 @@
                         <a class="mdl-navigation__link" href="/">Головна</a>
                         <a class="mdl-navigation__link" href="/violation/police">Фіксовані порушення</a>
                         <a class="mdl-navigation__link" href="/change-request/sent">Запити</a>
-                        <a class="mdl-navigation__link" href="">Профіль</a>
+                        <a class="mdl-navigation__link" href="/police">Профіль</a>
                     </nav>
                 </div>
                 <main class="mdl-layout__content">

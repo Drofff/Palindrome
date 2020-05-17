@@ -1,5 +1,6 @@
 package com.drofff.palindrome.controller.mvc;
 
+import com.drofff.palindrome.document.Department;
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.PoliceDto;
@@ -35,6 +36,7 @@ public class PoliceController {
 
 	private static final String CREATE_POLICE_VIEW = "createPolicePage";
 	private static final String UPDATE_POLICE_VIEW = "updatePolicePage";
+	private static final String UPDATE_POLICE_PHOTO_VIEW = "updatePolicePhotoPage";
 
 	private final PoliceService policeService;
 	private final DepartmentService departmentService;
@@ -63,6 +65,21 @@ public class PoliceController {
 		this.mappingsResolver = mappingsResolver;
 	}
 
+	@GetMapping
+	public String getPoliceProfilePage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
+									   Model model) {
+		User currentUser = getCurrentUser();
+		model.addAttribute(EMAIL_PARAM, currentUser.getUsername());
+		Police police = policeService.getPoliceByUserId(currentUser.getId());
+		String encodedPhoto = photoService.loadEncodedPhotoByUri(police.getPhotoUri());
+		police.setPhotoUri(encodedPhoto);
+		model.addAttribute(POLICE_PARAM, police);
+		Department department = departmentService.getDepartmentById(police.getDepartmentId());
+		model.addAttribute("department", department);
+		model.addAttribute(MESSAGE_PARAM, message);
+		return "policeProfile";
+	}
+
 	@GetMapping(RELATIVE_HOME_ENDPOINT)
 	@PreAuthorize("hasAuthority('POLICE')")
 	public String getPoliceHomePage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
@@ -78,7 +95,7 @@ public class PoliceController {
 
 	@GetMapping("/{id}")
 	@PreAuthorize("hasAuthority('DRIVER')")
-	public String getPoliceProfilePage(@PathVariable String id, Model model) {
+	public String getPoliceWithIdPage(@PathVariable String id, Model model) {
 		Police police = policeService.getPoliceById(id);
 		model.addAttribute(POLICE_PARAM, toPoliceFatDto(police));
 		String encodedPhoto = photoService.loadEncodedPhotoByUri(police.getPhotoUri());
@@ -129,13 +146,29 @@ public class PoliceController {
 		Police police = updatePoliceDtoMapper.toEntity(updatePoliceDto);
 		try {
 			policeService.updatePoliceProfile(police);
-			return redirectToWithMessage(HOME_ENDPOINT, "Successfully updated profile data");
+			return redirectToWithMessage("/police", "Successfully updated profile data");
 		} catch(ValidationException e) {
 			model.addAttribute(POLICE_PARAM, police);
 			model.addAttribute(DEPARTMENTS_PARAM, departmentService.getAll());
 			putValidationExceptionIntoModel(e, model);
 			return UPDATE_POLICE_VIEW;
 		}
+	}
+
+	@GetMapping("/update/photo")
+	public String getUpdatePolicePhotoPage() {
+		return UPDATE_POLICE_PHOTO_VIEW;
+	}
+
+	@PostMapping("/update/photo")
+	public String updatePolicePhoto(MultipartFile photo, Model model) {
+		try {
+			policeService.updatePolicePhoto(photo);
+			model.addAttribute(SUCCESS_PARAM, true);
+		} catch(ValidationException e) {
+			putValidationExceptionIntoModel(e, model);
+		}
+		return UPDATE_POLICE_PHOTO_VIEW;
 	}
 
 }

@@ -24,8 +24,8 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header">
         <div class="mdl-layout__header-row">
-            <span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome Police</span>
-            <a class="mdl-navigation__link" href="/" style="cursor: pointer">Головна</a>
+			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Police</font>
+			</span>
             <div class="mdl-layout-spacer"></div>
             <a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
         </div>
@@ -33,90 +33,107 @@
     <main class="mdl-layout__content">
         <div class="page-content">
 
-            <dialog class="mdl-dialog">
-                <div class="mdl-dialog__content">
-                    <p style="color: red">
-                        <#if error_message??>
-                            ${error_message}
-                        </#if>
-                    </p>
+            <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+                <div class="mdl-layout__drawer">
+                    <span class="mdl-layout-title" style="margin-top: 20px">
+                        <img src="/api/resources/img/logo.png" width="150px" height="50px">
+                    </span>
+                    <nav class="mdl-navigation">
+                        <a class="mdl-navigation__link" href="/">Головна</a>
+                        <a class="mdl-navigation__link" href="/violation/police">Фіксовані порушення</a>
+                        <a class="mdl-navigation__link" href="/change-request/sent">Запити</a>
+                        <a class="mdl-navigation__link" href="/police">Профіль</a>
+                    </nav>
                 </div>
-                <div class="mdl-dialog__actions">
-                    <button type="button" class="mdl-button close">Закрити</button>
-                </div>
-            </dialog>
+                <main class="mdl-layout__content">
+                    <div class="page-content">
 
-            <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-left: 22%; margin-top: 5%;">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text" style="color: black;">Оновлення даних поліцейського</h2>
-                </div>
-                <div class="mdl-card__supporting-text">
-                    <form action="/police/update" method="post">
-
-                        <div>
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" <#if police.firstName??>value="${police.firstName}"</#if> autocomplete="off" name="firstName" type="text">
-                                <label class="mdl-textfield__label" <#if firstNameError??>style="color: red;"</#if> for="password">
-                                    <#if firstNameError??>${firstNameError}<#else>Ім'я</#if>
-                                </label>
+                        <dialog class="mdl-dialog">
+                            <div class="mdl-dialog__content">
+                                <p style="color: red">
+                                    <#if error_message??>
+                                        ${error_message}
+                                    </#if>
+                                </p>
                             </div>
-
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" <#if police.middleName??>value="${police.middleName}"</#if> autocomplete="off" name="middleName" type="text">
-                                <label class="mdl-textfield__label" for="password">По батькові</label>
+                            <div class="mdl-dialog__actions">
+                                <button type="button" class="mdl-button close">Закрити</button>
                             </div>
+                        </dialog>
 
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" <#if police.lastName??>value="${police.lastName}"</#if> autocomplete="off" name="lastName" type="text">
-                                <label class="mdl-textfield__label" <#if lastNameError??>style="color: red;"</#if> for="password">
-                                    <#if lastNameError??>${lastNameError}<#else>Прізвище</#if>
-                                </label>
-                            </div>
+                        <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-left: 7%; margin-top: 2%;">
+                            <div class="mdl-card__title">
+                                <h2 class="mdl-card__title-text" style="color: black;">Оновлення даних поліцейського</h2>
                         </div>
+                        <div class="mdl-card__supporting-text">
+                            <form action="/police/update" method="post">
 
-                        <div>
+                                <div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" <#if police.firstName??>value="${police.firstName}"</#if> autocomplete="off" name="firstName" type="text">
+                                        <label class="mdl-textfield__label" <#if firstNameError??>style="color: red;"</#if> for="password">
+                                            <#if firstNameError??>${firstNameError}<#else>Ім'я</#if>
+                                        </label>
+                                    </div>
 
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" <#if police.position??>value="${police.position}"</#if> autocomplete="off" name="position" type="text">
-                                <label class="mdl-textfield__label" <#if positionError??>style="color: red;" </#if> for="password">
-                                    <#if positionError??>${positionError}<#else>Посада</#if>
-                                </label>
-                            </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" <#if police.middleName??>value="${police.middleName}"</#if> autocomplete="off" name="middleName" type="text">
+                                        <label class="mdl-textfield__label" for="password">По батькові</label>
+                                    </div>
 
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <input class="mdl-textfield__input" <#if police.tokenNumber??>value="${police.tokenNumber}"</#if> autocomplete="off" name="tokenNumber" type="text">
-                                <label <#if tokenNumberError??>style="color: red;" </#if> class="mdl-textfield__label" for="password">
-                                    <#if tokenNumberError??>${tokenNumberError}<#else>Номер жетона</#if>
-                                </label>
-                            </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" <#if police.lastName??>value="${police.lastName}"</#if> autocomplete="off" name="lastName" type="text">
+                                        <label class="mdl-textfield__label" <#if lastNameError??>style="color: red;"</#if> for="password">
+                                            <#if lastNameError??>${lastNameError}<#else>Прізвище</#if>
+                                        </label>
+                                    </div>
+                                </div>
 
-                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                                <select class="mdl-textfield__input" id="departmentId" name="departmentId">
-                                    <option></option>
-                                    <#list departments as department>
-                                        <option <#if police.departmentId?? && police.departmentId == department.id>selected</#if> value="${department.id}">${department.name}</option>
-                                    </#list>
-                                </select>
-                                <label class="mdl-textfield__label" <#if departmentIdError??>style="color: red;"</#if> for="licenceCategoryId">
-                                    <#if departmentIdError??>${departmentIdError}<#else>Відділення</#if>
-                                </label>
-                            </div>
+                                <div>
 
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" <#if police.position??>value="${police.position}"</#if> autocomplete="off" name="position" type="text">
+                                        <label class="mdl-textfield__label" <#if positionError??>style="color: red;" </#if> for="password">
+                                            <#if positionError??>${positionError}<#else>Посада</#if>
+                                        </label>
+                                    </div>
+
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <input class="mdl-textfield__input" <#if police.tokenNumber??>value="${police.tokenNumber}"</#if> autocomplete="off" name="tokenNumber" type="text">
+                                        <label <#if tokenNumberError??>style="color: red;" </#if> class="mdl-textfield__label" for="password">
+                                            <#if tokenNumberError??>${tokenNumberError}<#else>Номер жетона</#if>
+                                        </label>
+                                    </div>
+
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                        <select class="mdl-textfield__input" id="departmentId" name="departmentId">
+                                            <option></option>
+                                            <#list departments as department>
+                                                <option <#if police.departmentId?? && police.departmentId == department.id>selected</#if> value="${department.id}">${department.name}</option>
+                                            </#list>
+                                        </select>
+                                        <label class="mdl-textfield__label" <#if departmentIdError??>style="color: red;"</#if> for="licenceCategoryId">
+                                            <#if departmentIdError??>${departmentIdError}<#else>Відділення</#if>
+                                        </label>
+                                    </div>
+
+                                </div>
+
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+                                <div style="margin-top: 4%;">
+                                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
+                                        Зберегти
+                                    </button>
+                                </div>
+
+                            </form>
                         </div>
-
-                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-                        <div style="margin-top: 4%;">
-                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" type="submit">
-                                Зберегти
-                            </button>
-                        </div>
-
-                    </form>
+                    </div>
                 </div>
-            </div>
-
+            </main>
         </div>
-    </main>
+    </div>
+</main>
 </div>
 <script>
     var dialog = document.querySelector('dialog');

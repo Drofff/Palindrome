@@ -42,10 +42,6 @@ public class PoliceServiceImpl implements PoliceService {
 		policeRepository.save(police);
 	}
 
-	private void validatePhoto(MultipartFile photo) {
-		validateNotNull(photo, "Photo should be provided");
-	}
-
 	private void validateIsPolice(User user) {
 		if(isNotPolice(user)) {
 			throw new ValidationException("The user should obtain a role of a police officer");
@@ -60,15 +56,6 @@ public class PoliceServiceImpl implements PoliceService {
 		if(hasPoliceProfile(user)) {
 			throw new ValidationException("User already has police profile");
 		}
-	}
-
-	@Override
-	public boolean hasNoPoliceProfile(User user) {
-		return !hasPoliceProfile(user);
-	}
-
-	private boolean hasPoliceProfile(User user) {
-		return policeRepository.findByUserId(user.getId()).isPresent();
 	}
 
 	@Override
@@ -96,6 +83,36 @@ public class PoliceServiceImpl implements PoliceService {
 			return getPoliceById(police.getId());
 		}
 		return getPoliceByUserId(currentUser.getId());
+	}
+
+	@Override
+	public void updatePolicePhoto(MultipartFile photo) {
+		User currentUser = getCurrentUser();
+		validateHasPoliceProfile(currentUser);
+		validatePhoto(photo);
+		String photoUri = photoService.savePhotoForUser(photo, currentUser);
+		Police police = getPoliceByUserId(currentUser.getId());
+		police.setPhotoUri(photoUri);
+		policeRepository.save(police);
+	}
+
+	private void validateHasPoliceProfile(User user) {
+		if(hasNoPoliceProfile(user)) {
+			throw new ValidationException("User should obtain a police profile");
+		}
+	}
+
+	private void validatePhoto(MultipartFile photo) {
+		validateNotNull(photo, "Photo should be provided");
+	}
+
+	@Override
+	public boolean hasNoPoliceProfile(User user) {
+		return !hasPoliceProfile(user);
+	}
+
+	private boolean hasPoliceProfile(User user) {
+		return policeRepository.findByUserId(user.getId()).isPresent();
 	}
 
 	@Override

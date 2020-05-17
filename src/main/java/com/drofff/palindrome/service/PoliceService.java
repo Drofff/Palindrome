@@ -8,9 +8,11 @@ public interface PoliceService {
 
 	void createPoliceProfileWithPhoto(Police police, MultipartFile photo);
 
-	boolean hasNoPoliceProfile(User user);
-
 	void updatePoliceProfile(Police police);
+
+	void updatePolicePhoto(MultipartFile photo);
+
+	boolean hasNoPoliceProfile(User user);
 
 	void assignAccessTokenToPoliceWithId(String accessToken, String policeId);
 
