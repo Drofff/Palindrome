@@ -23,7 +23,7 @@ import static com.drofff.palindrome.grep.Filter.grepByPattern;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ListUtils.applyToEachListElement;
 import static com.drofff.palindrome.utils.ModelUtils.*;
-import static com.drofff.palindrome.utils.ViolationUtils.violationsDateTimeComparatorDesc;
+import static com.drofff.palindrome.utils.ViolationUtils.invertedViolationsDateTimeComparator;
 
 @Controller
 @RequestMapping("/violation")
@@ -80,7 +80,7 @@ public class ViolationController {
 
 	private void putViolationsIntoModel(List<Violation> violations, Model model) {
 		List<ViolationsViolationDto> violationsViolationDtos = violations.stream()
-				.sorted(violationsDateTimeComparatorDesc())
+				.sorted(invertedViolationsDateTimeComparator())
 				.map(this::toViolationsViolationDto)
 				.collect(Collectors.toList());
 		model.addAttribute(VIOLATIONS_PARAM, violationsViolationDtos);

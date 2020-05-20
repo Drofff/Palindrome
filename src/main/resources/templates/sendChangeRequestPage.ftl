@@ -100,7 +100,7 @@
             }
             $.ajax({
                 type : 'GET',
-                url : "/change-request/list/" + targetType,
+                url : '/' + targetType + '/list',
                 headers : {
                     'Accept' : 'application/json'
                 }

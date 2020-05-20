@@ -1,13 +1,11 @@
 package com.drofff.palindrome.service;
 
-import java.util.List;
-
 import com.drofff.palindrome.document.EngineType;
 
-public interface EngineTypeService {
+import java.util.List;
+
+public interface EngineTypeService extends SimpleEntityManager<EngineType> {
 
 	List<EngineType> getAll();
-
-	EngineType getById(String id);
 
 }

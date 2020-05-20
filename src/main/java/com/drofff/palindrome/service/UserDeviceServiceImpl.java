@@ -43,7 +43,6 @@ public class UserDeviceServiceImpl implements UserDeviceService {
 
     @Override
     public void registerDevice(UserDevice userDevice) {
-        validateNotNull(userDevice);
         validate(userDevice);
         validateMacAddressIsUnique(userDevice.getMacAddress());
         User currentUser = getCurrentUser();

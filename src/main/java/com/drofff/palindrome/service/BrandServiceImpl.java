@@ -12,18 +12,26 @@ import java.util.List;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
-public class BrandServiceImpl implements BrandService, CarPropertyService {
+public class BrandServiceImpl extends AbstractSimpleEntityManager<Brand> implements BrandService, CarPropertyService {
 
 	private final BrandRepository brandRepository;
 
 	@Autowired
 	public BrandServiceImpl(BrandRepository brandRepository) {
+		super(brandRepository);
 		this.brandRepository = brandRepository;
 	}
 
 	@Override
 	public List<Brand> getAll() {
 		return brandRepository.findAll();
+	}
+
+	@Override
+	public Brand getById(String id) {
+		validateNotNull(id, "Id should be provided");
+		return brandRepository.findById(id)
+				.orElseThrow(() -> new ValidationException("Brand with such id doesn't exist"));
 	}
 
 	@Override
@@ -40,13 +48,6 @@ public class BrandServiceImpl implements BrandService, CarPropertyService {
 
 	private boolean existsBrandWithId(String id) {
 		return brandRepository.findById(id).isPresent();
-	}
-
-	@Override
-	public Brand getById(String id) {
-		validateNotNull(id, "Brand id should not be null");
-		return brandRepository.findById(id)
-				.orElseThrow(() -> new ValidationException("Brand with such id doesn't exist"));
 	}
 
 }

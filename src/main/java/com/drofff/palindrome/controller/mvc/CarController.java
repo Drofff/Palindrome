@@ -29,7 +29,6 @@ import static com.drofff.palindrome.utils.ViolationUtils.*;
 
 @Controller
 @RequestMapping("/car")
-@PreAuthorize("hasAuthority('DRIVER')")
 public class CarController {
 
 	private static final String CREATE_CAR_VIEW = "createCarPage";
@@ -72,6 +71,7 @@ public class CarController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getOwnedCarsPage(@RequestParam(required = false, defaultValue = DEFAULT_PAGE) Integer page,
 	                               @RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                               Model model) {
@@ -93,6 +93,7 @@ public class CarController {
 	}
 
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getCar(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 	                     @PathVariable String id, Model model) {
 		Car car = carService.getOwnedCarById(id);
@@ -117,13 +118,22 @@ public class CarController {
 		model.addAttribute("not_payed_violations_count", countUnpaidViolations(violations));
 	}
 
+	@GetMapping("/list")
+	@PreAuthorize("hasAuthority('POLICE')")
+	@ResponseBody
+	public List<Car> getAllCars() {
+		return carService.getAllCars();
+	}
+
 	@GetMapping("/create")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getCreateCarPage(Model model) {
 		putCarPropertiesIntoModel(model);
 		return CREATE_CAR_VIEW;
 	}
 
 	@PostMapping("/create")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String createCar(CarDto carDto, Model model) {
 		Car car = carDtoMapper.toEntity(carDto);
 		try {
@@ -138,6 +148,7 @@ public class CarController {
 	}
 
 	@GetMapping("/update/{id}")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getUpdateCarPage(@PathVariable String id, Model model) {
 		Car car = carService.getOwnedCarById(id);
 		model.addAttribute(CAR_PARAM, car);
@@ -146,6 +157,7 @@ public class CarController {
 	}
 
 	@PostMapping("/update/{id}")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String updateCarPage(@PathVariable String id, CarDto carDto, Model model) {
 		Car car = carDtoMapper.toEntity(carDto);
 		car.setId(id);
@@ -161,6 +173,7 @@ public class CarController {
 	}
 
 	@PostMapping("/delete/{id}")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String deleteCarById(@PathVariable String id) {
 		try {
 			carService.deleteCarById(id);

@@ -1,22 +1,22 @@
 package com.drofff.palindrome.service;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.drofff.palindrome.document.Car;
 import com.drofff.palindrome.document.LicenceCategory;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.LicenceCategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
-public class LicenceCategoryServiceImpl implements LicenceCategoryService, CarPropertyService {
+public class LicenceCategoryServiceImpl extends AbstractSimpleEntityManager<LicenceCategory> implements LicenceCategoryService, CarPropertyService {
 
 	private final LicenceCategoryRepository licenceCategoryRepository;
 
 	@Autowired
 	public LicenceCategoryServiceImpl(LicenceCategoryRepository licenceCategoryRepository) {
+		super(licenceCategoryRepository);
 		this.licenceCategoryRepository = licenceCategoryRepository;
 	}
 

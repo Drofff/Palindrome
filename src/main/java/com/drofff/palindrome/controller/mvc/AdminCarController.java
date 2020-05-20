@@ -83,7 +83,7 @@ public class AdminCarController {
 		putCarPropertiesIntoModel(model);
 		List<Driver> drivers = driverService.getAllDrivers();
 		List<CarsDriverDto> carsDriverDtos = applyToEachListElement(this::toCarsDriverDto, drivers);
- 		model.addAttribute("drivers", carsDriverDtos);
+ 		model.addAttribute(DRIVERS_PARAM, carsDriverDtos);
 	}
 
 	private CarsDriverDto toCarsDriverDto(Driver driver) {

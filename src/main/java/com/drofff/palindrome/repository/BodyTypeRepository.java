@@ -1,11 +1,9 @@
 package com.drofff.palindrome.repository;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.drofff.palindrome.document.BodyType;
 import org.springframework.stereotype.Repository;
 
-import com.drofff.palindrome.document.BodyType;
-
 @Repository
-public interface BodyTypeRepository extends MongoRepository<BodyType, String> {
+public interface BodyTypeRepository extends SimpleEntityRepository<BodyType> {
 
 }

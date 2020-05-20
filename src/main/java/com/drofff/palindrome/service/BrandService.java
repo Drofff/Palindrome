@@ -4,7 +4,7 @@ import com.drofff.palindrome.document.Brand;
 
 import java.util.List;
 
-public interface BrandService {
+public interface BrandService extends SimpleEntityManager<Brand>  {
 
 	List<Brand> getAll();
 

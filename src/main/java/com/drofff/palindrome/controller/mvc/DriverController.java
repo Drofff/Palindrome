@@ -6,16 +6,15 @@ import com.drofff.palindrome.document.Violation;
 import com.drofff.palindrome.dto.DriverDto;
 import com.drofff.palindrome.dto.HomeViolationDto;
 import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.grep.pattern.DriverPattern;
 import com.drofff.palindrome.mapper.DriverDtoMapper;
 import com.drofff.palindrome.mapper.HomeViolationDtoMapper;
 import com.drofff.palindrome.service.*;
+import com.drofff.palindrome.type.ViolationsStatistic;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -23,15 +22,16 @@ import java.util.List;
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.RELATIVE_HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.grep.Filter.grepByPattern;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-import static com.drofff.palindrome.utils.ViolationUtils.violationsDateTimeComparatorDesc;
+import static com.drofff.palindrome.utils.ViolationUtils.invertedViolationsDateTimeComparator;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 @Controller
 @RequestMapping("/driver")
-@PreAuthorize("hasAuthority('DRIVER')")
 public class DriverController {
 
 	private static final String DRIVER_CREATED_MESSAGE = "You have successfully created your driver profile! Welcome!";
@@ -65,6 +65,7 @@ public class DriverController {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getDriverProfilePage(@RequestParam(required = false, name = MESSAGE_PARAM) String message, Model model) {
 		model.addAttribute(MESSAGE_PARAM, message);
 		Driver driver = driverService.getCurrentDriver();
@@ -76,7 +77,42 @@ public class DriverController {
 		return "driverPage";
 	}
 
+	@GetMapping("/list")
+	@PreAuthorize("hasAuthority('POLICE')")
+	@ResponseBody
+	public List<Driver> getAllDrivers() {
+		return driverService.getAllDrivers();
+	}
+
+	@GetMapping("/search")
+	@PreAuthorize("hasAuthority('POLICE')")
+	public String getDriverSearchPage(@RequestParam(required = false) String name, DriverPattern driverPattern, Model model) {
+		List<Driver> drivers = nonNull(name) ? driverService.getDriversByName(name) : driverService.getAllDrivers();
+		List<Driver> filteredDrivers = grepByPattern(drivers, driverPattern);
+		loadPhotosOfDrivers(filteredDrivers);
+		model.addAttribute(DRIVERS_PARAM, filteredDrivers);
+		model.addAttribute(PATTERN_PARAM, driverPattern);
+		model.addAttribute("name", name);
+		return "driverSearchPage";
+	}
+
+	private void loadPhotosOfDrivers(List<Driver> drivers) {
+		drivers.forEach(driver -> {
+			String encodedPhoto = photoService.loadEncodedPhotoByUri(driver.getPhotoUri());
+			driver.setPhotoUri(encodedPhoto);
+		});
+	}
+
+	@GetMapping("/{id}/statistic")
+	public String getStatisticOfDriverWithId(@PathVariable String id, Model model) {
+		Driver driver = driverService.getDriverById(id);
+		ViolationsStatistic violationsStatistic = violationService.getViolationsStatisticForDriver(driver);
+		model.addAttribute("statistic", violationsStatistic);
+		return "driverStatisticPage";
+	}
+
 	@GetMapping(RELATIVE_HOME_ENDPOINT)
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getDriverHomePage(@RequestParam(required = false, name = MESSAGE_PARAM) String message,
 									Model model) {
 		model.addAttribute(MESSAGE_PARAM, message);
@@ -96,7 +132,7 @@ public class DriverController {
 
 	private List<HomeViolationDto> getShortenViolationsListForDriver(Driver driver) {
 		return violationService.getDriverViolations(driver).stream()
-				.sorted(violationsDateTimeComparatorDesc())
+				.sorted(invertedViolationsDateTimeComparator())
 				.limit(VIOLATIONS_SHORT_LIST_SIZE)
 				.map(this::toHomeViolationDto)
 				.collect(toList());
@@ -108,11 +144,13 @@ public class DriverController {
 	}
 
 	@GetMapping("/create")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getCreateDriverProfilePage() {
 		return CREATE_DRIVER_VIEW;
 	}
 
 	@PostMapping("/create")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String createDriver(DriverDto driverDto, MultipartFile photo, Model model) {
 		Driver driver = driverDtoMapper.toEntity(driverDto);
 		try {
@@ -126,6 +164,7 @@ public class DriverController {
 	}
 
 	@GetMapping("/update")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getUpdateDriverProfilePage(Model model) {
 		Driver driverProfile = driverService.getCurrentDriver();
 		model.addAttribute(DRIVER_PARAM, driverProfile);
@@ -135,6 +174,7 @@ public class DriverController {
 	}
 
 	@PostMapping("/update")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String updateDriver(DriverDto driverDto, Model model) {
 		Driver driver = driverDtoMapper.toEntity(driverDto);
 		try {
@@ -149,11 +189,13 @@ public class DriverController {
 	}
 
 	@GetMapping("/update/photo")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String getUpdateDriverPhotoPage() {
 		return UPDATE_DRIVER_PHOTO_VIEW;
 	}
 
 	@PostMapping("/update/photo")
+	@PreAuthorize("hasAuthority('DRIVER')")
 	public String updateDriverPhoto(MultipartFile photo, Model model) {
 		try {
 			driverService.updateDriverPhoto(photo);

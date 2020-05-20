@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.drofff.palindrome.document.LicenceCategory;
 
-public interface LicenceCategoryService {
+public interface LicenceCategoryService extends SimpleEntityManager<LicenceCategory> {
 
 	List<LicenceCategory> getAll();
 

@@ -118,7 +118,7 @@
                                     <div class="demo-card-square mdl-card mdl-shadow--2dp" style="width: 400px;">
                                         <div class="mdl-card__supporting-text" style="width: 300px; margin-left: auto; margin-right: auto;">
                                             <h4>Знайти водія</h4>
-                                            <form action="/driver/find" method="get">
+                                            <form action="/driver/search" method="get">
                                                 <div class="mdl-textfield mdl-js-textfield">
                                                     <input class="mdl-textfield__input" name="name" type="text" id="sample1">
                                                     <label class="mdl-textfield__label" for="sample1">ПІБ водія</label>

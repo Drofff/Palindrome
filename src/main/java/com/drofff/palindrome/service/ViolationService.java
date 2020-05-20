@@ -1,6 +1,7 @@
 package com.drofff.palindrome.service;
 
 import com.drofff.palindrome.document.*;
+import com.drofff.palindrome.type.ViolationsStatistic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,5 +28,7 @@ public interface ViolationService {
 	void addViolation(Violation violation);
 
 	Map<LocalDate, Integer> countViolationsPerLastDays(int days);
+
+	ViolationsStatistic getViolationsStatisticForDriver(Driver driver);
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.drofff.palindrome.document.Department;
 
-public interface DepartmentService {
+public interface DepartmentService extends SimpleEntityManager<Department> {
 
 	List<Department> getAll();
 

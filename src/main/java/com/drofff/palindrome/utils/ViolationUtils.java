@@ -17,7 +17,7 @@ public class ViolationUtils {
 
 	public static Optional<LocalDateTime> getLatestViolationDateTimeIfPresent(List<Violation> violations) {
 		return violations.stream()
-				.max(violationsDateTimeComparatorAsc())
+				.max(violationsDateTimeComparator())
 				.map(Violation::getDateTime);
 	}
 
@@ -31,12 +31,12 @@ public class ViolationUtils {
 				.count();
 	}
 
-	private static Comparator<Violation> violationsDateTimeComparatorAsc() {
+	public static Comparator<Violation> violationsDateTimeComparator() {
 		ToIntFunction<Violation> violationDateTimeToIntAsc = violation -> dateTimeToEpochSeconds(violation.getDateTime());
 		return comparingInt(violationDateTimeToIntAsc);
 	}
 
-	public static Comparator<Violation> violationsDateTimeComparatorDesc() {
+	public static Comparator<Violation> invertedViolationsDateTimeComparator() {
 		ToIntFunction<Violation> violationDateTimeToIntDesc = violation -> -dateTimeToEpochSeconds(violation.getDateTime());
 		return comparingInt(violationDateTimeToIntDesc);
 	}

@@ -184,18 +184,6 @@ public class ChangeRequestController {
 		return "sendChangeRequestPage";
 	}
 
-	@GetMapping("/list/driver")
-	@ResponseBody
-	public List<Driver> getAllDrivers() {
-		return driverService.getAllDrivers();
-	}
-
-	@GetMapping("/list/car")
-	@ResponseBody
-	public List<Car> getAllCars() {
-		return carService.getAllCars();
-	}
-
 	@GetMapping("/send/driver/{id}")
 	@PreAuthorize("hasAuthority('POLICE')")
 	public String getSendDriverChangeRequestPage(@PathVariable String id, Model model) {

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.drofff.palindrome.document.ViolationType;
 
-public interface ViolationTypeService {
+public interface ViolationTypeService extends SimpleEntityManager<ViolationType> {
 
 	ViolationType getViolationTypeById(String id);
 

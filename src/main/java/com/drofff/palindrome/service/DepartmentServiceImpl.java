@@ -1,21 +1,21 @@
 package com.drofff.palindrome.service;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.drofff.palindrome.document.Department;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.DepartmentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
-public class DepartmentServiceImpl implements DepartmentService {
+public class DepartmentServiceImpl extends AbstractSimpleEntityManager<Department> implements DepartmentService {
 
 	private final DepartmentRepository departmentRepository;
 
 	@Autowired
 	public DepartmentServiceImpl(DepartmentRepository departmentRepository) {
+		super(departmentRepository);
 		this.departmentRepository = departmentRepository;
 	}
 

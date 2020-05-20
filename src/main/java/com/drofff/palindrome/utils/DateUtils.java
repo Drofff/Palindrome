@@ -10,13 +10,16 @@ import java.util.List;
 import java.util.Map;
 
 import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.stream.IntStream.range;
 
 public class DateUtils {
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd");
-
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("kk:mm dd-MM-uuuu");
+
+	private static final int MAX_HOUR = 23;
+	private static final int MAX_MINUTE = 59;
 
 	private DateUtils() {}
 
@@ -60,6 +63,18 @@ public class DateUtils {
 			int hronablesCounter = counter.get(date);
 			counter.put(date, ++hronablesCounter);
 		});
+	}
+
+	public static LocalDateTime endOfDay(LocalDateTime dateTime) {
+		return dateTime.withHour(MAX_HOUR)
+				.withMinute(MAX_MINUTE)
+				.truncatedTo(MINUTES);
+	}
+
+	public static boolean inSameMonth(LocalDate d0, LocalDate d1) {
+		boolean haveSameYear = d0.getYear() == d1.getYear();
+		boolean haveSameMonth = d0.getMonth() == d1.getMonth();
+		return haveSameMonth && haveSameYear;
 	}
 
 }
