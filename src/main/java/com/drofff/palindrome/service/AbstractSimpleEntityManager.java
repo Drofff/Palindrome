@@ -3,18 +3,20 @@ package com.drofff.palindrome.service;
 import com.drofff.palindrome.document.SimpleEntity;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.SimpleEntityRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.*;
 
-public abstract class AbstractSimpleEntityManager<T extends SimpleEntity> implements SimpleEntityManager<T> {
+public abstract class AbstractSimpleEntityManager<T extends SimpleEntity,
+        R extends SimpleEntityRepository<T> & MongoRepository<T, String>> implements SimpleEntityManager<T> {
 
     private static final String NO_ENTITY_WITH_ID_MESSAGE = "Entity with such id doesn't exist";
 
-    private final SimpleEntityRepository<T> simpleEntityRepository;
+    private final R repository;
 
-    protected AbstractSimpleEntityManager(SimpleEntityRepository<T> simpleEntityRepository) {
-        this.simpleEntityRepository = simpleEntityRepository;
+    protected AbstractSimpleEntityManager(R repository) {
+        this.repository = repository;
     }
 
     @Override
@@ -23,7 +25,7 @@ public abstract class AbstractSimpleEntityManager<T extends SimpleEntity> implem
         t.setId(null);
         validateHasUniqueName(t);
         beforeSave(t);
-        simpleEntityRepository.save(t);
+        repository.save(t);
     }
 
     protected void beforeSave(T t) {
@@ -39,11 +41,11 @@ public abstract class AbstractSimpleEntityManager<T extends SimpleEntity> implem
             validateHasUniqueName(t);
         }
         beforeUpdate(t);
-        simpleEntityRepository.save(t);
+        repository.save(t);
     }
 
     private boolean changedName(T t) {
-        return simpleEntityRepository.findById(t.getId())
+        return repository.findById(t.getId())
                 .map(originalT -> {
                     String originalName = originalT.getName();
                     return areNotEqual(originalName, t.getName());
@@ -57,7 +59,7 @@ public abstract class AbstractSimpleEntityManager<T extends SimpleEntity> implem
     }
 
     private boolean existsSimpleEntityWithName(String name) {
-        return simpleEntityRepository.findByName(name).isPresent();
+        return repository.findByName(name).isPresent();
     }
 
     protected void beforeUpdate(T t) {
@@ -69,7 +71,7 @@ public abstract class AbstractSimpleEntityManager<T extends SimpleEntity> implem
         validateNotNull(t);
         validateEntityHasId(t);
         validateExists(t);
-        simpleEntityRepository.deleteById(t.getId());
+        repository.deleteById(t.getId());
     }
 
     private void validateExists(T t) {
@@ -83,7 +85,7 @@ public abstract class AbstractSimpleEntityManager<T extends SimpleEntity> implem
     }
 
     private boolean existsSimpleEntityWithId(String id) {
-        return simpleEntityRepository.findById(id).isPresent();
+        return repository.findById(id).isPresent();
     }
 
 }

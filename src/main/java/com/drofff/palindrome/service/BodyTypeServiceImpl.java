@@ -12,7 +12,7 @@ import java.util.List;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
-public class BodyTypeServiceImpl extends AbstractSimpleEntityManager<BodyType> implements BodyTypeService, CarPropertyService {
+public class BodyTypeServiceImpl extends AbstractSimpleEntityManager<BodyType, BodyTypeRepository> implements BodyTypeService, CarPropertyService {
 
 	private final BodyTypeRepository bodyTypeRepository;
 

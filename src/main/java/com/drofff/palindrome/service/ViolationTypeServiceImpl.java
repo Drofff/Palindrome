@@ -13,7 +13,7 @@ import static com.drofff.palindrome.utils.ValidationUtils.validate;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 @Service
-public class ViolationTypeServiceImpl extends AbstractSimpleEntityManager<ViolationType> implements ViolationTypeService {
+public class ViolationTypeServiceImpl extends AbstractSimpleEntityManager<ViolationType, ViolationTypeRepository> implements ViolationTypeService {
 
 	private final ViolationTypeRepository violationTypeRepository;
 

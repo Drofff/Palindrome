@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class DepartmentServiceImpl extends AbstractSimpleEntityManager<Department> implements DepartmentService {
+public class DepartmentServiceImpl extends AbstractSimpleEntityManager<Department, DepartmentRepository> implements DepartmentService {
 
 	private final DepartmentRepository departmentRepository;
 

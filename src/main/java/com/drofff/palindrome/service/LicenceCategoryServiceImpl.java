@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class LicenceCategoryServiceImpl extends AbstractSimpleEntityManager<LicenceCategory> implements LicenceCategoryService, CarPropertyService {
+public class LicenceCategoryServiceImpl extends AbstractSimpleEntityManager<LicenceCategory, LicenceCategoryRepository> implements LicenceCategoryService, CarPropertyService {
 
 	private final LicenceCategoryRepository licenceCategoryRepository;
 
