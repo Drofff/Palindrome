@@ -18,7 +18,8 @@ import java.util.List;
 
 import static com.drofff.palindrome.constants.ParameterConstants.BRANDS_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.utils.ModelUtils.*;
+import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
+import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
 @Controller("/admin/brand")
 @PreAuthorize("hasAuthority('ADMIN')")
@@ -68,13 +69,9 @@ public class AdminBrandController {
 
     @GetMapping("/update/{id}")
     public String getUpdateBrandPage(@PathVariable String id, Model model) {
-        try {
-            Brand brand = brandService.getById(id);
-            model.addAttribute(BRAND_PARAM, brand);
-            return UPDATE_BRAND_VIEW;
-        } catch(ValidationException e) {
-            return errorPageWithMessage(e.getMessage());
-        }
+        Brand brand = brandService.getById(id);
+        model.addAttribute(BRAND_PARAM, brand);
+        return UPDATE_BRAND_VIEW;
     }
 
     @PostMapping("/update/{id}")
@@ -93,13 +90,9 @@ public class AdminBrandController {
 
     @PostMapping("/delete/{id}")
     public String deleteBrandWithId(@PathVariable String id) {
-        try {
-            Brand brand = brandService.getById(id);
-            brandService.delete(brand);
-            return redirectToWithMessage(ALL_BRANDS_ENDPOINT, "Brand has been successfully deleted");
-        } catch(ValidationException e) {
-            return errorPageWithMessage(e.getMessage());
-        }
+        Brand brand = brandService.getById(id);
+        brandService.delete(brand);
+        return redirectToWithMessage(ALL_BRANDS_ENDPOINT, "Brand has been successfully deleted");
     }
 
 }

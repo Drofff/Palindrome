@@ -1,29 +1,5 @@
 package com.drofff.palindrome.controller.mvc;
 
-import static com.drofff.palindrome.constants.EndpointConstants.ACTIVATE_ACCOUNT_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.CONFIRM_PASS_CHANGE_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.FORGOT_PASS_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.LOGIN_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.PASS_RECOVERY_ENDPOINT;
-import static com.drofff.palindrome.constants.EndpointConstants.REGISTRATION_ENDPOINT;
-import static com.drofff.palindrome.constants.ParameterConstants.ERROR_MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.USER_PARAM;
-import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
-import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
-import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.dto.ChangePasswordDto;
 import com.drofff.palindrome.dto.UserDto;
@@ -31,6 +7,18 @@ import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.UserDtoMapper;
 import com.drofff.palindrome.service.AuthenticationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static com.drofff.palindrome.constants.EndpointConstants.*;
+import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
+import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
 @Controller
 public class AuthenticationController {
@@ -88,14 +76,9 @@ public class AuthenticationController {
 	}
 
 	@GetMapping(ACTIVATE_ACCOUNT_ENDPOINT)
-	public String activateAccount(String token, String userId, Model model) {
-		try {
-			authenticationService.activateUserAccountByToken(userId, token);
-			return redirectToWithMessage(HOME_ENDPOINT, "Successfully activated account");
-		} catch(PalindromeException e) {
-			model.addAttribute(ERROR_MESSAGE_PARAM, e.getMessage());
-			return errorPageWithMessage(e.getMessage());
-		}
+	public String activateAccount(String token, String userId) {
+		authenticationService.activateUserAccountByToken(userId, token);
+		return redirectToWithMessage(HOME_ENDPOINT, "Successfully activated account");
 	}
 
 	@GetMapping(FORGOT_PASS_ENDPOINT)
@@ -116,14 +99,10 @@ public class AuthenticationController {
 
 	@GetMapping(PASS_RECOVERY_ENDPOINT)
 	public String verifyPasswordRecovery(String token, String userId, Model model) {
-		try {
-			authenticationService.verifyRecoveryAttemptForUserByToken(userId, token);
-			model.addAttribute(TOKEN_PARAM, token);
-			model.addAttribute(USER_ID_PARAM, userId);
-			return PASS_RECOVERY_VIEW;
-		} catch(PalindromeException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		authenticationService.verifyRecoveryAttemptForUserByToken(userId, token);
+		model.addAttribute(TOKEN_PARAM, token);
+		model.addAttribute(USER_ID_PARAM, userId);
+		return PASS_RECOVERY_VIEW;
 	}
 
 	@PostMapping(PASS_RECOVERY_ENDPOINT)
@@ -136,8 +115,6 @@ public class AuthenticationController {
 			model.addAttribute(USER_ID_PARAM, userId);
 			putValidationExceptionIntoModel(e, model);
 			return PASS_RECOVERY_VIEW;
-		} catch(PalindromeException e) {
-			return errorPageWithMessage(e.getMessage());
 		}
 	}
 
@@ -165,12 +142,8 @@ public class AuthenticationController {
 
 	@GetMapping(CONFIRM_PASS_CHANGE_ENDPOINT)
 	public String confirmPasswordChange(String token) {
-		try {
-			authenticationService.confirmUserPasswordChangeByToken(token);
-			return redirectToWithMessage(HOME_ENDPOINT, PASS_CHANGED_MESSAGE);
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		authenticationService.confirmUserPasswordChangeByToken(token);
+		return redirectToWithMessage(HOME_ENDPOINT, PASS_CHANGED_MESSAGE);
 	}
 
 }

@@ -5,6 +5,10 @@ import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.SimpleEntityRepository;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
+import static com.drofff.palindrome.utils.ReflectionUtils.getGenericTypeParameters;
 import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
 import static com.drofff.palindrome.utils.ValidationUtils.*;
 
@@ -86,6 +90,28 @@ public abstract class AbstractSimpleEntityManager<T extends SimpleEntity,
 
     private boolean existsSimpleEntityWithId(String id) {
         return repository.findById(id).isPresent();
+    }
+
+    @Override
+    public List<T> getAll() {
+        return repository.findAll();
+    }
+
+    @Override
+    public T getById(String id) {
+        validateNotNull(id, "Id should be provided");
+        return repository.findById(id)
+                .orElseThrow(() -> new ValidationException(noEntityWithIdMessage()));
+    }
+
+    private String noEntityWithIdMessage() {
+        String entityName = getEntityClass().getSimpleName();
+        return entityName + " with such id doesn't exist";
+    }
+
+    private Class<?> getEntityClass() {
+        Type[] typeParams = getGenericTypeParameters(getClass());
+        return (Class<?>) typeParams[0];
     }
 
 }

@@ -7,10 +7,6 @@ import com.drofff.palindrome.repository.BrandRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
 @Service
 public class BrandServiceImpl extends AbstractSimpleEntityManager<Brand, BrandRepository> implements BrandService, CarPropertyService {
 
@@ -20,18 +16,6 @@ public class BrandServiceImpl extends AbstractSimpleEntityManager<Brand, BrandRe
 	public BrandServiceImpl(BrandRepository brandRepository) {
 		super(brandRepository);
 		this.brandRepository = brandRepository;
-	}
-
-	@Override
-	public List<Brand> getAll() {
-		return brandRepository.findAll();
-	}
-
-	@Override
-	public Brand getById(String id) {
-		validateNotNull(id, "Id should be provided");
-		return brandRepository.findById(id)
-				.orElseThrow(() -> new ValidationException("Brand with such id doesn't exist"));
 	}
 
 	@Override

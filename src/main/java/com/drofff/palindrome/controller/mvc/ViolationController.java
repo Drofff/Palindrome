@@ -168,7 +168,7 @@ public class ViolationController {
 	}
 
 	private void putViolationTypesIntoModel(Model model) {
-		List<ViolationType> violationTypes = violationTypeService.getAllViolationTypes();
+		List<ViolationType> violationTypes = violationTypeService.getAll();
 		model.addAttribute(VIOLATION_TYPES_PARAM, violationTypes);
 	}
 

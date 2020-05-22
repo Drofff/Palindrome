@@ -1,5 +1,28 @@
 package com.drofff.palindrome.controller.mvc;
 
+import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.document.Violation;
+import com.drofff.palindrome.document.ViolationType;
+import com.drofff.palindrome.dto.PaymentViolationDto;
+import com.drofff.palindrome.exception.ValidationException;
+import com.drofff.palindrome.mapper.PaymentViolationDtoMapper;
+import com.drofff.palindrome.service.*;
+import com.drofff.palindrome.type.Payment;
+import com.drofff.palindrome.type.PaymentHistory;
+import com.drofff.palindrome.type.TicketFile;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
+
 import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.ERROR_MESSAGE_PARAM;
@@ -10,39 +33,6 @@ import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoM
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-
-import java.io.IOException;
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.drofff.palindrome.document.User;
-import com.drofff.palindrome.document.Violation;
-import com.drofff.palindrome.document.ViolationType;
-import com.drofff.palindrome.dto.PaymentViolationDto;
-import com.drofff.palindrome.exception.ValidationException;
-import com.drofff.palindrome.mapper.PaymentViolationDtoMapper;
-import com.drofff.palindrome.service.MappingsResolver;
-import com.drofff.palindrome.service.PaymentService;
-import com.drofff.palindrome.service.TicketService;
-import com.drofff.palindrome.service.ViolationService;
-import com.drofff.palindrome.service.ViolationTypeService;
-import com.drofff.palindrome.type.Payment;
-import com.drofff.palindrome.type.PaymentHistory;
-import com.drofff.palindrome.type.TicketFile;
 
 @Controller
 @RequestMapping("/pay")
@@ -93,7 +83,7 @@ public class PaymentController {
 	@PostMapping("/{id}")
 	public String payForViolationWithId(@PathVariable String id, String stripeToken, Model model) {
 		Violation violation = getCurrentUserViolationWithId(id);
-		ViolationType violationType = violationTypeService.getViolationTypeById(violation.getViolationTypeId());
+		ViolationType violationType = violationTypeService.getById(violation.getViolationTypeId());
 		Payment payment = paymentForViolationTypeWithToken(violationType, stripeToken);
 		try {
 			PaymentHistory paymentHistory = paymentService.executePayment(payment);

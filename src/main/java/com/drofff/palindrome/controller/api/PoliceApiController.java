@@ -60,7 +60,7 @@ public class PoliceApiController {
 	}
 
 	private String getNameOfDepartmentWithId(String id) {
-		Department department = departmentService.getDepartmentById(id);
+		Department department = departmentService.getById(id);
 		return department.getName();
 	}
 

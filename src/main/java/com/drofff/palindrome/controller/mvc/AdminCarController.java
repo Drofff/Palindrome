@@ -117,14 +117,10 @@ public class AdminCarController {
 
 	@GetMapping("/update/{id}")
 	public String getUpdateCarPage(@PathVariable String id, Model model) {
-		try {
-			Car car = carService.getCarById(id);
-			model.addAttribute(CAR_PARAM, car);
-			putCarPropertiesIntoModel(model);
-			return ADMIN_CAR_UPDATE_VIEW;
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		Car car = carService.getCarById(id);
+		model.addAttribute(CAR_PARAM, car);
+		putCarPropertiesIntoModel(model);
+		return ADMIN_CAR_UPDATE_VIEW;
 	}
 
 	@PostMapping("/update/{id}")

@@ -1,8 +1,8 @@
 package com.drofff.palindrome.service;
 
-import java.util.List;
-
 import com.drofff.palindrome.document.Department;
+
+import java.util.List;
 
 public interface DepartmentService extends SimpleEntityManager<Department> {
 
@@ -10,6 +10,6 @@ public interface DepartmentService extends SimpleEntityManager<Department> {
 
 	boolean existsDepartmentWithId(String id);
 
-	Department getDepartmentById(String id);
+	Department getById(String id);
 
 }

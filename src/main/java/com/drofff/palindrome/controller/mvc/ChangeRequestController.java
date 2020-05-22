@@ -160,23 +160,15 @@ public class ChangeRequestController {
 	@PostMapping("/approve")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public String approveChangeRequestById(String id) {
-		try {
-			changeRequestService.approveChangeById(id);
-			return redirectToWithMessage(ADMIN_CHANGE_REQUESTS_ENDPOINT, "Change request has been approved successfully");
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		changeRequestService.approveChangeById(id);
+		return redirectToWithMessage(ADMIN_CHANGE_REQUESTS_ENDPOINT, "Change request has been approved successfully");
 	}
 
 	@PostMapping("/refuse")
 	@PreAuthorize("hasAuthority('ADMIN')")
 	public String refuseChangeRequestById(String id) {
-		try {
-			changeRequestService.refuseChangeById(id);
-			return redirectToWithMessage(ADMIN_CHANGE_REQUESTS_ENDPOINT, "Change request has been refused successfully");
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		changeRequestService.refuseChangeById(id);
+		return redirectToWithMessage(ADMIN_CHANGE_REQUESTS_ENDPOINT, "Change request has been refused successfully");
 	}
 
 	@GetMapping("/send")

@@ -7,8 +7,6 @@ import com.drofff.palindrome.repository.LicenceCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class LicenceCategoryServiceImpl extends AbstractSimpleEntityManager<LicenceCategory, LicenceCategoryRepository> implements LicenceCategoryService, CarPropertyService {
 
@@ -18,11 +16,6 @@ public class LicenceCategoryServiceImpl extends AbstractSimpleEntityManager<Lice
 	public LicenceCategoryServiceImpl(LicenceCategoryRepository licenceCategoryRepository) {
 		super(licenceCategoryRepository);
 		this.licenceCategoryRepository = licenceCategoryRepository;
-	}
-
-	@Override
-	public List<LicenceCategory> getAll() {
-		return licenceCategoryRepository.findAll();
 	}
 
 	@Override

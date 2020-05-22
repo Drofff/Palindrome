@@ -54,7 +54,7 @@ public class ViolationApiController {
 
     @GetMapping("/types")
 	public ResponseEntity<RestResponseDto> getViolationTypes() {
-    	List<ViolationType> violationTypes = violationTypeService.getAllViolationTypes();
+    	List<ViolationType> violationTypes = violationTypeService.getAll();
 	    RestListDto<ViolationType> restViolationTypesDto = new RestListDto<>(violationTypes);
     	return ResponseEntity.ok(restViolationTypesDto);
     }

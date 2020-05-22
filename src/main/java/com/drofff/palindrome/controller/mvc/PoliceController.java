@@ -74,7 +74,7 @@ public class PoliceController {
 		String encodedPhoto = photoService.loadEncodedPhotoByUri(police.getPhotoUri());
 		police.setPhotoUri(encodedPhoto);
 		model.addAttribute(POLICE_PARAM, police);
-		Department department = departmentService.getDepartmentById(police.getDepartmentId());
+		Department department = departmentService.getById(police.getDepartmentId());
 		model.addAttribute("department", department);
 		model.addAttribute(MESSAGE_PARAM, message);
 		return "policeProfile";

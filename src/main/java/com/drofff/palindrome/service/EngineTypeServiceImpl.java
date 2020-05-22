@@ -7,8 +7,6 @@ import com.drofff.palindrome.repository.EngineTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class EngineTypeServiceImpl extends AbstractSimpleEntityManager<EngineType, EngineTypeRepository> implements EngineTypeService, CarPropertyService {
 
@@ -18,11 +16,6 @@ public class EngineTypeServiceImpl extends AbstractSimpleEntityManager<EngineTyp
 	public EngineTypeServiceImpl(EngineTypeRepository engineTypeRepository) {
 		super(engineTypeRepository);
 		this.engineTypeRepository = engineTypeRepository;
-	}
-
-	@Override
-	public List<EngineType> getAll() {
-		return engineTypeRepository.findAll();
 	}
 
 	@Override

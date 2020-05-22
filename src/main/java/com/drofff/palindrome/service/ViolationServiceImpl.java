@@ -163,7 +163,7 @@ public class ViolationServiceImpl implements ViolationService {
 	}
 
 	private boolean hasFee(Violation violation) {
-		ViolationType violationType = violationTypeService.getViolationTypeById(violation.getViolationTypeId());
+		ViolationType violationType = violationTypeService.getById(violation.getViolationTypeId());
 		return violationType.getFee().getAmount() > 0;
 	}
 
@@ -258,7 +258,7 @@ public class ViolationServiceImpl implements ViolationService {
 
 	private Pair<ViolationType, Integer> toViolationTypeFrequency(Map.Entry<String, Integer> violationTypeIdFrequency) {
 		String violationTypeId = violationTypeIdFrequency.getKey();
-		ViolationType violationType = violationTypeService.getViolationTypeById(violationTypeId);
+		ViolationType violationType = violationTypeService.getById(violationTypeId);
 		return Pair.of(violationType, violationTypeIdFrequency.getValue());
 	}
 

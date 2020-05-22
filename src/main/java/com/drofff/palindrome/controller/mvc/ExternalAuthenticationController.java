@@ -1,6 +1,5 @@
 package com.drofff.palindrome.controller.mvc;
 
-import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.service.ExternalAuthenticationService;
 import com.drofff.palindrome.type.ExternalAuthenticationOption;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import java.util.Set;
 import static com.drofff.palindrome.constants.EndpointConstants.COMPLETE_EXTERNAL_AUTH_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.EXTERNAL_AUTH_ENDPOINT;
 import static com.drofff.palindrome.constants.ParameterConstants.*;
-import static com.drofff.palindrome.utils.ModelUtils.errorPageWithMessage;
 
 @Controller
 public class ExternalAuthenticationController {
@@ -45,14 +43,10 @@ public class ExternalAuthenticationController {
 
 	@PostMapping(EXTERNAL_AUTH_ENDPOINT)
 	public String authenticateUsingOption(String optionId, HttpServletResponse response, Model model) {
-		try {
-			String accessToken = externalAuthenticationService.authenticateUsingOptionWithId(optionId);
-			addAccessTokenToCookies(accessToken, response);
-			model.addAttribute(SUCCESS_PARAM, true);
-			return EXTERNAL_AUTH_VIEW;
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		String accessToken = externalAuthenticationService.authenticateUsingOptionWithId(optionId);
+		addAccessTokenToCookies(accessToken, response);
+		model.addAttribute(SUCCESS_PARAM, true);
+		return EXTERNAL_AUTH_VIEW;
 	}
 
 	private void addAccessTokenToCookies(String accessToken, HttpServletResponse response) {
@@ -64,12 +58,8 @@ public class ExternalAuthenticationController {
 
 	@GetMapping(COMPLETE_EXTERNAL_AUTH_ENDPOINT)
 	public String completeExternalAuth(String optionId, String token) {
-		try {
-			externalAuthenticationService.completeAuthenticationWithOptionId(optionId, token);
-			return "externalAuthCompletedPage";
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		externalAuthenticationService.completeAuthenticationWithOptionId(optionId, token);
+		return "externalAuthCompletedPage";
 	}
 
 }

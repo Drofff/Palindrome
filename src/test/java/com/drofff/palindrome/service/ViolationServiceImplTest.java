@@ -107,7 +107,7 @@ public class ViolationServiceImplTest {
 
         when(violationRepository.findByViolatorId(testDriver.getId()))
                 .thenReturn(testViolations);
-        when(violationTypeService.getViolationTypeById(DEFAULT_VIOLATION_TYPE_ID))
+        when(violationTypeService.getById(DEFAULT_VIOLATION_TYPE_ID))
                 .thenReturn(defaultTestViolationType());
 
         ViolationsStatistic violationsStatistic = violationService.getViolationsStatisticForDriver(testDriver);

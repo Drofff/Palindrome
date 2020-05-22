@@ -8,4 +8,6 @@ public interface EngineTypeService extends SimpleEntityManager<EngineType> {
 
 	List<EngineType> getAll();
 
+	EngineType getById(String id);
+
 }

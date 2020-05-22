@@ -95,24 +95,16 @@ public class AdminUserController {
 
 	@PostMapping("/block")
 	public String blockUserById(BlockUserDto blockUserDto, HttpServletRequest request) {
-		try {
-			User user = userService.getUserById(blockUserDto.getUserId());
-			userBlockService.blockUserByReason(user, blockUserDto.getReason());
-			return redirectToReferrerOfRequestWithMessage(request, "Successfully blocked user");
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		User user = userService.getUserById(blockUserDto.getUserId());
+		userBlockService.blockUserByReason(user, blockUserDto.getReason());
+		return redirectToReferrerOfRequestWithMessage(request, "Successfully blocked user");
 	}
 
 	@PostMapping("/unblock")
 	public String unblockUserById(String id, HttpServletRequest request) {
-		try {
-			User user = userService.getUserById(id);
-			userBlockService.unblockUser(user);
-			return redirectToReferrerOfRequestWithMessage(request, "Successfully unblocked user");
-		} catch(ValidationException e) {
-			return errorPageWithMessage(e.getMessage());
-		}
+		User user = userService.getUserById(id);
+		userBlockService.unblockUser(user);
+		return redirectToReferrerOfRequestWithMessage(request, "Successfully unblocked user");
 	}
 
 }

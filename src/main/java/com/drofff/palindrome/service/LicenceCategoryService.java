@@ -8,4 +8,6 @@ public interface LicenceCategoryService extends SimpleEntityManager<LicenceCateg
 
 	List<LicenceCategory> getAll();
 
+	LicenceCategory getById(String id);
+
 }

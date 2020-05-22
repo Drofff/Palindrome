@@ -15,7 +15,8 @@ import java.util.List;
 
 import static com.drofff.palindrome.constants.ParameterConstants.BODY_TYPES_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
-import static com.drofff.palindrome.utils.ModelUtils.*;
+import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
+import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
 @Controller
 @RequestMapping("/admin/body-type")
@@ -66,13 +67,9 @@ public class AdminBodyTypeController {
 
     @GetMapping("/update/{id}")
     public String getUpdateBodyTypePage(@PathVariable String id, Model model) {
-        try {
-            BodyType bodyType = bodyTypeService.getById(id);
-            model.addAttribute(BODY_TYPE_PARAM, bodyType);
-            return UPDATE_BODY_TYPE_VIEW;
-        } catch(ValidationException e) {
-            return errorPageWithMessage(e.getMessage());
-        }
+        BodyType bodyType = bodyTypeService.getById(id);
+        model.addAttribute(BODY_TYPE_PARAM, bodyType);
+        return UPDATE_BODY_TYPE_VIEW;
     }
 
     @PostMapping("/update/{id}")
@@ -87,6 +84,13 @@ public class AdminBodyTypeController {
             model.addAttribute(BODY_TYPE_PARAM, bodyTypeDto);
             return UPDATE_BODY_TYPE_VIEW;
         }
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteBodyTypeWithId(@PathVariable String id) {
+        BodyType bodyType = bodyTypeService.getById(id);
+        bodyTypeService.delete(bodyType);
+        return redirectToWithMessage(ALL_BODY_TYPES_ENDPOINT, "Successfully deleted body type");
     }
 
 }

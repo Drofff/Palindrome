@@ -7,10 +7,6 @@ import com.drofff.palindrome.repository.BodyTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
 @Service
 public class BodyTypeServiceImpl extends AbstractSimpleEntityManager<BodyType, BodyTypeRepository> implements BodyTypeService, CarPropertyService {
 
@@ -20,18 +16,6 @@ public class BodyTypeServiceImpl extends AbstractSimpleEntityManager<BodyType, B
 	public BodyTypeServiceImpl(BodyTypeRepository bodyTypeRepository) {
 		super(bodyTypeRepository);
 		this.bodyTypeRepository = bodyTypeRepository;
-	}
-
-	@Override
-	public List<BodyType> getAll() {
-		return bodyTypeRepository.findAll();
-	}
-
-	@Override
-	public BodyType getById(String id) {
-		validateNotNull(id, "Id should be provided");
-		return bodyTypeRepository.findById(id)
-				.orElseThrow(() -> new ValidationException("Body type with such an id doesn't exist"));
 	}
 
 	@Override
