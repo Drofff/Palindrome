@@ -5,14 +5,12 @@ import com.drofff.palindrome.dto.BrandDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.BrandDtoMapper;
 import com.drofff.palindrome.service.BrandService;
+import com.drofff.palindrome.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,7 +19,8 @@ import static com.drofff.palindrome.constants.ParameterConstants.MESSAGE_PARAM;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
-@Controller("/admin/brand")
+@Controller
+@RequestMapping("/admin/brand")
 @PreAuthorize("hasAuthority('ADMIN')")
 public class AdminBrandController {
 
@@ -33,11 +32,13 @@ public class AdminBrandController {
     private static final String BRAND_PARAM = "brand";
 
     private final BrandService brandService;
+    private final CarService carService;
     private final BrandDtoMapper brandDtoMapper;
 
     @Autowired
-    public AdminBrandController(BrandService brandService, BrandDtoMapper brandDtoMapper) {
+    public AdminBrandController(BrandService brandService, CarService carService, BrandDtoMapper brandDtoMapper) {
         this.brandService = brandService;
+        this.carService = carService;
         this.brandDtoMapper = brandDtoMapper;
     }
 
@@ -76,14 +77,14 @@ public class AdminBrandController {
 
     @PostMapping("/update/{id}")
     public String updateBrand(@PathVariable String id, BrandDto brandDto, Model model) {
+        Brand brand = brandDtoMapper.toEntity(brandDto);
+        brand.setId(id);
         try {
-            Brand brand = brandDtoMapper.toEntity(brandDto);
-            brand.setId(id);
             brandService.update(brand);
             return redirectToWithMessage(ALL_BRANDS_ENDPOINT, "Successfully updated brand " + brand.getName());
         } catch(ValidationException e) {
             putValidationExceptionIntoModel(e, model);
-            model.addAttribute(BRAND_PARAM, brandDto);
+            model.addAttribute(BRAND_PARAM, brand);
             return UPDATE_BRAND_VIEW;
         }
     }
@@ -91,8 +92,16 @@ public class AdminBrandController {
     @PostMapping("/delete/{id}")
     public String deleteBrandWithId(@PathVariable String id) {
         Brand brand = brandService.getById(id);
-        brandService.delete(brand);
-        return redirectToWithMessage(ALL_BRANDS_ENDPOINT, "Brand has been successfully deleted");
+        if(isNotInUse(brand)) {
+            brandService.delete(brand);
+            return redirectToWithMessage(ALL_BRANDS_ENDPOINT, "Brand has been successfully deleted");
+        } else {
+            return redirectToWithMessage(ALL_BRANDS_ENDPOINT, "Brand in use can not be deleted");
+        }
+    }
+
+    private boolean isNotInUse(Brand brand) {
+        return !carService.hasAnyCarWithBrand(brand);
     }
 
 }

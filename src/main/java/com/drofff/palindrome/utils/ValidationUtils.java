@@ -51,6 +51,11 @@ public class ValidationUtils {
 		return !collection.isEmpty();
 	}
 
+	public static <T extends Entity> void validateNotNullEntityHasId(T entity) {
+		validateNotNull(entity);
+		validateEntityHasId(entity);
+	}
+
 	public static <T extends Entity> void validateEntityHasId(T entity) {
 		String entityName = getSimpleClassName(entity);
 		validateNotNull(entity.getId(), entityName + " should obtain an id");

@@ -1,5 +1,6 @@
 package com.drofff.palindrome.service;
 
+import com.drofff.palindrome.document.Department;
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.ValidationException;
@@ -10,8 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 
 @Service
 public class PoliceServiceImpl implements PoliceService {
@@ -169,6 +169,12 @@ public class PoliceServiceImpl implements PoliceService {
 		validateNotNull(id, "User id is required");
 		return policeRepository.findByUserId(id)
 				.orElseThrow(() -> new ValidationException("User with such id has no police profile"));
+	}
+
+	@Override
+	public boolean hasAnyPoliceFromDepartment(Department department) {
+		validateNotNullEntityHasId(department);
+		return policeRepository.existsByDepartmentId(department.getId());
 	}
 
 }

@@ -4,6 +4,7 @@ import com.drofff.palindrome.document.LicenceCategory;
 import com.drofff.palindrome.dto.LicenceCategoryDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.LicenceCategoryDtoMapper;
+import com.drofff.palindrome.service.CarService;
 import com.drofff.palindrome.service.LicenceCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,11 +32,14 @@ public class AdminLicenceCategoryController {
     private static final String LICENCE_CATEGORY_PARAM = "licenceCategory";
 
     private final LicenceCategoryService licenceCategoryService;
+    private final CarService carService;
     private final LicenceCategoryDtoMapper licenceCategoryDtoMapper;
 
     @Autowired
-    public AdminLicenceCategoryController(LicenceCategoryService licenceCategoryService, LicenceCategoryDtoMapper licenceCategoryDtoMapper) {
+    public AdminLicenceCategoryController(LicenceCategoryService licenceCategoryService, CarService carService,
+                                          LicenceCategoryDtoMapper licenceCategoryDtoMapper) {
         this.licenceCategoryService = licenceCategoryService;
+        this.carService = carService;
         this.licenceCategoryDtoMapper = licenceCategoryDtoMapper;
     }
 
@@ -74,15 +78,15 @@ public class AdminLicenceCategoryController {
 
     @PostMapping("/update/{id}")
     public String updateLicenceCategory(@PathVariable String id, LicenceCategoryDto licenceCategoryDto, Model model) {
+        LicenceCategory licenceCategory = licenceCategoryDtoMapper.toEntity(licenceCategoryDto);
+        licenceCategory.setId(id);
         try {
-            LicenceCategory licenceCategory = licenceCategoryDtoMapper.toEntity(licenceCategoryDto);
-            licenceCategory.setId(id);
             licenceCategoryService.update(licenceCategory);
             return redirectToWithMessage(ALL_LICENCE_CATEGORIES_ENDPOINT, "Successfully updated licence category " +
                     licenceCategoryDto.getName());
         } catch(ValidationException e) {
             putValidationExceptionIntoModel(e, model);
-            model.addAttribute(LICENCE_CATEGORY_PARAM, licenceCategoryDto);
+            model.addAttribute(LICENCE_CATEGORY_PARAM, licenceCategory);
             return UPDATE_LICENCE_CATEGORY_VIEW;
         }
     }
@@ -90,8 +94,16 @@ public class AdminLicenceCategoryController {
     @PostMapping("/delete/{id}")
     public String deleteLicenceCategoryWithId(@PathVariable String id) {
         LicenceCategory licenceCategory = licenceCategoryService.getById(id);
-        licenceCategoryService.delete(licenceCategory);
-        return redirectToWithMessage(ALL_LICENCE_CATEGORIES_ENDPOINT, "Successfully deleted licence category");
+        if(isNotInUse(licenceCategory)) {
+            licenceCategoryService.delete(licenceCategory);
+            return redirectToWithMessage(ALL_LICENCE_CATEGORIES_ENDPOINT, "Successfully deleted licence category");
+        } else {
+            return redirectToWithMessage(ALL_LICENCE_CATEGORIES_ENDPOINT, "Licence category in use can not be deleted");
+        }
+    }
+
+    private boolean isNotInUse(LicenceCategory licenceCategory) {
+        return !carService.hasAnyCarWithLicenceCategory(licenceCategory);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.drofff.palindrome.service;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.Driver;
+import com.drofff.palindrome.document.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -25,5 +24,13 @@ public interface CarService {
 	Page<Car> getAllCarsAtPage(int page);
 
 	Car getCarByNumber(String number);
+
+	boolean hasAnyCarWithBodyType(BodyType bodyType);
+
+	boolean hasAnyCarWithBrand(Brand brand);
+
+	boolean hasAnyCarWithLicenceCategory(LicenceCategory licenceCategory);
+
+	boolean hasAnyCarWithEngineType(EngineType engineType);
 
 }

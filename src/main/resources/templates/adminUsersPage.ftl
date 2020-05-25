@@ -23,6 +23,7 @@
 			<a class="mdl-navigation__link" href="/" style="cursor: pointer">Головна</a>
 			<a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
 			<a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
+			<a class="mdl-navigation__link" href="/admin/brand" style="cursor: pointer">Дані</a>
 			<div class="mdl-layout-spacer"></div>
 			<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
 		</div>

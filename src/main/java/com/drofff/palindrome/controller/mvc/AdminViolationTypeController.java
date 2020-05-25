@@ -4,6 +4,7 @@ import com.drofff.palindrome.document.ViolationType;
 import com.drofff.palindrome.dto.ViolationTypeDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.ViolationTypeDtoMapper;
+import com.drofff.palindrome.service.ViolationService;
 import com.drofff.palindrome.service.ViolationTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,11 +33,14 @@ public class AdminViolationTypeController {
     private static final String AVAILABLE_CURRENCIES_PARAM = "availableCurrencies";
 
     private final ViolationTypeService violationTypeService;
+    private final ViolationService violationService;
     private final ViolationTypeDtoMapper violationTypeDtoMapper;
 
     @Autowired
-    public AdminViolationTypeController(ViolationTypeService violationTypeService, ViolationTypeDtoMapper violationTypeDtoMapper) {
+    public AdminViolationTypeController(ViolationTypeService violationTypeService, ViolationService violationService,
+                                        ViolationTypeDtoMapper violationTypeDtoMapper) {
         this.violationTypeService = violationTypeService;
+        this.violationService = violationService;
         this.violationTypeDtoMapper = violationTypeDtoMapper;
     }
 
@@ -78,15 +82,15 @@ public class AdminViolationTypeController {
 
     @PostMapping("/update/{id}")
     public String updateViolationType(@PathVariable String id, ViolationTypeDto violationTypeDto, Model model) {
+        ViolationType violationType = violationTypeDtoMapper.toEntity(violationTypeDto);
+        violationType.setId(id);
         try {
-            ViolationType violationType = violationTypeDtoMapper.toEntity(violationTypeDto);
-            violationType.setId(id);
             violationTypeService.update(violationType);
             return redirectToWithMessage(ALL_VIOLATION_TYPES_ENDPOINT, "Successfully updated violation type " +
                     violationType.getName());
         } catch(ValidationException e) {
             putValidationExceptionIntoModel(e, model);
-            model.addAttribute(VIOLATION_TYPE_PARAM, violationTypeDto);
+            model.addAttribute(VIOLATION_TYPE_PARAM, violationType);
             model.addAttribute(AVAILABLE_CURRENCIES_PARAM, getAvailableCurrencies());
             return UPDATE_VIOLATION_TYPE_VIEW;
         }
@@ -95,8 +99,16 @@ public class AdminViolationTypeController {
     @PostMapping("/delete/{id}")
     public String deleteViolationTypeWithId(@PathVariable String id) {
         ViolationType violationType = violationTypeService.getById(id);
-        violationTypeService.delete(violationType);
-        return redirectToWithMessage(ALL_VIOLATION_TYPES_ENDPOINT, "Successfully deleted violation type");
+        if(isNotInUse(violationType)) {
+            violationTypeService.delete(violationType);
+            return redirectToWithMessage(ALL_VIOLATION_TYPES_ENDPOINT, "Successfully deleted violation type");
+        } else {
+            return redirectToWithMessage(ALL_VIOLATION_TYPES_ENDPOINT, "Violation type in use can not be deleted");
+        }
+    }
+
+    private boolean isNotInUse(ViolationType violationType) {
+        return !violationService.hasAnyViolationOfType(violationType);
     }
 
 }

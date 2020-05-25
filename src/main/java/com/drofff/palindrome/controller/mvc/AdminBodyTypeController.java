@@ -5,6 +5,7 @@ import com.drofff.palindrome.dto.BodyTypeDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.BodyTypeDtoMapper;
 import com.drofff.palindrome.service.BodyTypeService;
+import com.drofff.palindrome.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -31,11 +32,13 @@ public class AdminBodyTypeController {
     private static final String BODY_TYPE_PARAM = "bodyType";
 
     private final BodyTypeService bodyTypeService;
+    private final CarService carService;
     private final BodyTypeDtoMapper bodyTypeDtoMapper;
 
     @Autowired
-    public AdminBodyTypeController(BodyTypeService bodyTypeService, BodyTypeDtoMapper bodyTypeDtoMapper) {
+    public AdminBodyTypeController(BodyTypeService bodyTypeService, CarService carService, BodyTypeDtoMapper bodyTypeDtoMapper) {
         this.bodyTypeService = bodyTypeService;
+        this.carService = carService;
         this.bodyTypeDtoMapper = bodyTypeDtoMapper;
     }
 
@@ -74,14 +77,14 @@ public class AdminBodyTypeController {
 
     @PostMapping("/update/{id}")
     public String updateBodyType(@PathVariable String id, BodyTypeDto bodyTypeDto, Model model) {
+        BodyType bodyType = bodyTypeDtoMapper.toEntity(bodyTypeDto);
+        bodyType.setId(id);
         try {
-            BodyType bodyType = bodyTypeDtoMapper.toEntity(bodyTypeDto);
-            bodyType.setId(id);
             bodyTypeService.update(bodyType);
             return redirectToWithMessage(ALL_BODY_TYPES_ENDPOINT, "Successfully updated body type " + bodyType.getName());
         } catch(ValidationException e) {
             putValidationExceptionIntoModel(e, model);
-            model.addAttribute(BODY_TYPE_PARAM, bodyTypeDto);
+            model.addAttribute(BODY_TYPE_PARAM, bodyType);
             return UPDATE_BODY_TYPE_VIEW;
         }
     }
@@ -89,8 +92,16 @@ public class AdminBodyTypeController {
     @PostMapping("/delete/{id}")
     public String deleteBodyTypeWithId(@PathVariable String id) {
         BodyType bodyType = bodyTypeService.getById(id);
-        bodyTypeService.delete(bodyType);
-        return redirectToWithMessage(ALL_BODY_TYPES_ENDPOINT, "Successfully deleted body type");
+        if(isNotInUse(bodyType)) {
+            bodyTypeService.delete(bodyType);
+            return redirectToWithMessage(ALL_BODY_TYPES_ENDPOINT, "Successfully deleted body type");
+        } else {
+            return redirectToWithMessage(ALL_BODY_TYPES_ENDPOINT, "Body type in use can not be deleted");
+        }
+    }
+
+    private boolean isNotInUse(BodyType bodyType) {
+        return !carService.hasAnyCarWithBodyType(bodyType);
     }
 
 }

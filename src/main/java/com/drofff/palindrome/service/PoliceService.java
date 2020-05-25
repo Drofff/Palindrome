@@ -1,5 +1,6 @@
 package com.drofff.palindrome.service;
 
+import com.drofff.palindrome.document.Department;
 import com.drofff.palindrome.document.Police;
 import com.drofff.palindrome.document.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,5 +24,7 @@ public interface PoliceService {
 	void disableTwoStepAuth();
 
 	Police getPoliceByUserId(String id);
+
+	boolean hasAnyPoliceFromDepartment(Department department);
 
 }

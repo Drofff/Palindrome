@@ -191,11 +191,13 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
 
 	@Override
 	public ChangeRequest getDriverChangeRequestById(String id) {
+		validateNotNull(id, "Driver change request id is required");
 		return getChangeRequestByIdAndTargetClass(id, Driver.class);
 	}
 
 	@Override
 	public ChangeRequest getCarChangeRequestById(String id) {
+		validateNotNull(id, "Car change request id is required");
 		return getChangeRequestByIdAndTargetClass(id, Car.class);
 	}
 

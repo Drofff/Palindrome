@@ -1,34 +1,5 @@
 package com.drofff.palindrome.service;
 
-import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
-import static com.drofff.palindrome.utils.FileUtils.createDirectoryAtPath;
-import static com.drofff.palindrome.utils.FileUtils.readAndDeleteFileAtPath;
-import static com.drofff.palindrome.utils.FileUtils.relativeToAbsolutePath;
-import static com.drofff.palindrome.utils.FormattingUtils.appendUrlPathSegment;
-import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
-import static com.drofff.palindrome.utils.StringUtils.joinWithSpace;
-import static com.drofff.palindrome.utils.TicketUtils.getChargeIdTitle;
-import static com.drofff.palindrome.utils.TicketUtils.getPayerTitle;
-import static com.drofff.palindrome.utils.TicketUtils.getSumTitle;
-import static com.drofff.palindrome.utils.TicketUtils.getViolationIdTitle;
-import static com.drofff.palindrome.utils.ValidationUtils.validateEntityHasId;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-import static com.itextpdf.kernel.font.PdfFontFactory.createFont;
-import static com.itextpdf.kernel.geom.PageSize.A4;
-import static com.itextpdf.layout.property.HorizontalAlignment.CENTER;
-import static java.nio.file.Paths.get;
-import static org.springframework.http.MediaType.APPLICATION_PDF;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.drofff.palindrome.document.Driver;
 import com.drofff.palindrome.document.Ticket;
 import com.drofff.palindrome.document.Violation;
@@ -47,6 +18,28 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
+import static com.drofff.palindrome.utils.FileUtils.*;
+import static com.drofff.palindrome.utils.FormattingUtils.appendUrlPathSegment;
+import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
+import static com.drofff.palindrome.utils.StringUtils.joinWithSpace;
+import static com.drofff.palindrome.utils.TicketUtils.*;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNullEntityHasId;
+import static com.itextpdf.kernel.font.PdfFontFactory.createFont;
+import static com.itextpdf.kernel.geom.PageSize.A4;
+import static com.itextpdf.layout.property.HorizontalAlignment.CENTER;
+import static java.nio.file.Paths.get;
+import static org.springframework.http.MediaType.APPLICATION_PDF;
 
 @Service
 public class PdfTicketService implements TicketService {
@@ -234,8 +227,7 @@ public class PdfTicketService implements TicketService {
 
 	@Override
 	public TicketFile getPayedViolationTicket(Violation violation) {
-		validateNotNull(violation);
-		validateEntityHasId(violation);
+		validateNotNullEntityHasId(violation);
 		return getTicketFileByViolationId(violation.getId());
 	}
 

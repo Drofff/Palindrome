@@ -1,8 +1,6 @@
 package com.drofff.palindrome.service;
 
-import com.drofff.palindrome.document.Car;
-import com.drofff.palindrome.document.Driver;
-import com.drofff.palindrome.document.Entity;
+import com.drofff.palindrome.document.*;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.StringUtils.isBlank;
 import static com.drofff.palindrome.utils.ValidationUtils.*;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class CarServiceImpl implements CarService, EntityManager {
@@ -133,9 +131,10 @@ public class CarServiceImpl implements CarService, EntityManager {
 
 	@Override
 	public List<Car> getCarsOfDriver(Driver driver) {
+		validateNotNull(driver);
 		return driver.getOwnedCarIds().stream()
 				.map(this::getCarById)
-				.collect(Collectors.toList());
+				.collect(toList());
 	}
 
 	@Override
@@ -203,6 +202,30 @@ public class CarServiceImpl implements CarService, EntityManager {
 		if(isBlank(number)) {
 			throw new ValidationException("Car number should not be blank");
 		}
+	}
+
+	@Override
+	public boolean hasAnyCarWithBodyType(BodyType bodyType) {
+		validateNotNullEntityHasId(bodyType);
+		return carRepository.existsByBodyTypeId(bodyType.getId());
+	}
+
+	@Override
+	public boolean hasAnyCarWithBrand(Brand brand) {
+		validateNotNullEntityHasId(brand);
+		return carRepository.existsByBrandId(brand.getId());
+	}
+
+	@Override
+	public boolean hasAnyCarWithLicenceCategory(LicenceCategory licenceCategory) {
+		validateNotNullEntityHasId(licenceCategory);
+		return carRepository.existsByLicenceCategoryId(licenceCategory.getId());
+	}
+
+	@Override
+	public boolean hasAnyCarWithEngineType(EngineType engineType) {
+		validateNotNullEntityHasId(engineType);
+		return carRepository.existsByEngineTypeId(engineType.getId());
 	}
 
 }

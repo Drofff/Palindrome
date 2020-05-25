@@ -4,6 +4,7 @@ import com.drofff.palindrome.document.EngineType;
 import com.drofff.palindrome.dto.EngineTypeDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.EngineTypeDtoMapper;
+import com.drofff.palindrome.service.CarService;
 import com.drofff.palindrome.service.EngineTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,11 +32,14 @@ public class AdminEngineTypeController {
     private static final String ENGINE_TYPE_PARAM = "engineType";
 
     private final EngineTypeService engineTypeService;
+    private final CarService carService;
     private final EngineTypeDtoMapper engineTypeDtoMapper;
 
     @Autowired
-    public AdminEngineTypeController(EngineTypeService engineTypeService, EngineTypeDtoMapper engineTypeDtoMapper) {
+    public AdminEngineTypeController(EngineTypeService engineTypeService, CarService carService,
+                                     EngineTypeDtoMapper engineTypeDtoMapper) {
         this.engineTypeService = engineTypeService;
+        this.carService = carService;
         this.engineTypeDtoMapper = engineTypeDtoMapper;
     }
 
@@ -74,14 +78,14 @@ public class AdminEngineTypeController {
 
     @PostMapping("/update/{id}")
     public String updateEngineType(@PathVariable String id, EngineTypeDto engineTypeDto, Model model) {
+        EngineType engineType = engineTypeDtoMapper.toEntity(engineTypeDto);
+        engineType.setId(id);
         try {
-            EngineType engineType = engineTypeDtoMapper.toEntity(engineTypeDto);
-            engineType.setId(id);
             engineTypeService.update(engineType);
             return redirectToWithMessage(ALL_ENGINE_TYPES_ENDPOINT, "Successfully updated engine type " + engineType.getName());
         } catch(ValidationException e) {
             putValidationExceptionIntoModel(e, model);
-            model.addAttribute(ENGINE_TYPE_PARAM, engineTypeDto);
+            model.addAttribute(ENGINE_TYPE_PARAM, engineType);
             return UPDATE_ENGINE_TYPE_VIEW;
         }
     }
@@ -89,8 +93,16 @@ public class AdminEngineTypeController {
     @PostMapping("/delete/{id}")
     public String deleteEngineTypeWithId(@PathVariable String id) {
         EngineType engineType = engineTypeService.getById(id);
-        engineTypeService.delete(engineType);
-        return redirectToWithMessage(ALL_ENGINE_TYPES_ENDPOINT, "Successfully deleted engine type");
+        if(isNotInUse(engineType)) {
+            engineTypeService.delete(engineType);
+            return redirectToWithMessage(ALL_ENGINE_TYPES_ENDPOINT, "Successfully deleted engine type");
+        } else {
+            return redirectToWithMessage(ALL_ENGINE_TYPES_ENDPOINT, "Engine type in use can not be deleted");
+        }
+    }
+
+    private boolean isNotInUse(EngineType engineType) {
+        return !carService.hasAnyCarWithEngineType(engineType);
     }
 
 }

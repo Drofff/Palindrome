@@ -106,6 +106,7 @@ public class DriverController {
 	@GetMapping("/{id}/statistic")
 	public String getStatisticOfDriverWithId(@PathVariable String id, Model model) {
 		Driver driver = driverService.getDriverById(id);
+		model.addAttribute(DRIVER_PARAM, driver);
 		ViolationsStatistic violationsStatistic = violationService.getViolationsStatisticForDriver(driver);
 		model.addAttribute("statistic", violationsStatistic);
 		return "driverStatisticPage";

@@ -31,4 +31,6 @@ public interface ViolationService {
 
 	ViolationsStatistic getViolationsStatisticForDriver(Driver driver);
 
+	boolean hasAnyViolationOfType(ViolationType violationType);
+
 }

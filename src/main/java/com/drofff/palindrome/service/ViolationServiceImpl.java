@@ -63,29 +63,25 @@ public class ViolationServiceImpl implements ViolationService {
 
 	@Override
 	public List<Violation> getCarViolations(Car car) {
-		validateNotNull(car);
-		validateEntityHasId(car);
+		validateNotNullEntityHasId(car);
 		return violationRepository.findByCarId(car.getId());
 	}
 
 	@Override
 	public List<Violation> getDriverViolations(Driver driver) {
-		validateNotNull(driver);
-		validateEntityHasId(driver);
+		validateNotNullEntityHasId(driver);
 		return violationRepository.findByViolatorId(driver.getUserId());
 	}
 
 	@Override
 	public Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable) {
-		validateNotNull(driver);
-		validateEntityHasId(driver);
+		validateNotNullEntityHasId(driver);
 		return violationRepository.findByViolatorId(driver.getUserId(), pageable);
 	}
 
 	@Override
 	public Page<Violation> getPageOfViolationsAddedByPolice(Police police, Pageable pageable) {
-		validateNotNull(police);
-		validateEntityHasId(police);
+		validateNotNullEntityHasId(police);
 		return violationRepository.findByOfficerIdOrderByDateTimeDesc(police.getId(), pageable);
 	}
 
@@ -104,8 +100,7 @@ public class ViolationServiceImpl implements ViolationService {
 
 	@Override
 	public void markAsPaid(Violation violation) {
-		validateNotNull(violation);
-		validateEntityHasId(violation);
+		validateNotNullEntityHasId(violation);
 		User currentUser = getCurrentUser();
 		validateUserIsViolatorOf(currentUser, violation);
 		violation.setPaid(true);
@@ -210,9 +205,9 @@ public class ViolationServiceImpl implements ViolationService {
 	@Override
 	public ViolationsStatistic getViolationsStatisticForDriver(Driver driver) {
 		validateNotNull(driver, "Driver should be provided");
-		String driverId = driver.getId();
-		validateNotNull(driverId, "Driver should obtain an id");
-		List<Violation> violations = violationRepository.findByViolatorId(driverId);
+		String violatorId = driver.getUserId();
+		validateNotNull(violatorId, "Driver should obtain a user id");
+		List<Violation> violations = violationRepository.findByViolatorId(violatorId);
 		return isNotEmpty(violations) ? statisticOfViolations(violations) : new ViolationsStatistic();
 	}
 
@@ -283,6 +278,12 @@ public class ViolationServiceImpl implements ViolationService {
 	private boolean isViolationOfMonth(Violation violation, LocalDate dateOfMonth) {
 		LocalDate dateOfViolation = violation.getDateTime().toLocalDate();
 		return inSameMonth(dateOfViolation, dateOfMonth);
+	}
+
+	@Override
+	public boolean hasAnyViolationOfType(ViolationType violationType) {
+		validateNotNullEntityHasId(violationType);
+		return violationRepository.existsByViolationTypeId(violationType.getId());
 	}
 
 }

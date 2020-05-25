@@ -12,4 +12,12 @@ public interface CarRepository extends MongoRepository<Car, String> {
 
 	Optional<Car> findByNumber(String number);
 
+	boolean existsByBodyTypeId(String id);
+
+	boolean existsByBrandId(String id);
+
+	boolean existsByLicenceCategoryId(String id);
+
+	boolean existsByEngineTypeId(String id);
+
 }

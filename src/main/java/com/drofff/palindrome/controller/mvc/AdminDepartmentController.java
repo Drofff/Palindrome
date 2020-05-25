@@ -5,6 +5,7 @@ import com.drofff.palindrome.dto.DepartmentDto;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.mapper.DepartmentDtoMapper;
 import com.drofff.palindrome.service.DepartmentService;
+import com.drofff.palindrome.service.PoliceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -31,11 +32,14 @@ public class AdminDepartmentController {
     private static final String DEPARTMENT_PARAM = "department";
 
     private final DepartmentService departmentService;
+    private final PoliceService policeService;
     private final DepartmentDtoMapper departmentDtoMapper;
 
     @Autowired
-    public AdminDepartmentController(DepartmentService departmentService, DepartmentDtoMapper departmentDtoMapper) {
+    public AdminDepartmentController(DepartmentService departmentService, PoliceService policeService,
+                                     DepartmentDtoMapper departmentDtoMapper) {
         this.departmentService = departmentService;
+        this.policeService = policeService;
         this.departmentDtoMapper = departmentDtoMapper;
     }
 
@@ -74,14 +78,14 @@ public class AdminDepartmentController {
 
     @PostMapping("/update/{id}")
     public String updateDepartment(@PathVariable String id, DepartmentDto departmentDto, Model model) {
+        Department department = departmentDtoMapper.toEntity(departmentDto);
+        department.setId(id);
         try {
-            Department department = departmentDtoMapper.toEntity(departmentDto);
-            department.setId(id);
             departmentService.update(department);
             return redirectToWithMessage(ALL_DEPARTMENTS_ENDPOINT, "Successfully updated department " + department.getName());
         } catch(ValidationException e) {
             putValidationExceptionIntoModel(e, model);
-            model.addAttribute(DEPARTMENT_PARAM, departmentDto);
+            model.addAttribute(DEPARTMENT_PARAM, department);
             return UPDATE_DEPARTMENT_VIEW;
         }
     }
@@ -89,8 +93,16 @@ public class AdminDepartmentController {
     @PostMapping("/delete/{id}")
     public String deleteDepartmentWithId(@PathVariable String id) {
         Department department = departmentService.getById(id);
-        departmentService.delete(department);
-        return redirectToWithMessage(ALL_DEPARTMENTS_ENDPOINT, "Successfully deleted department");
+        if(isNotInUse(department)) {
+            departmentService.delete(department);
+            return redirectToWithMessage(ALL_DEPARTMENTS_ENDPOINT, "Successfully deleted department");
+        } else {
+            return redirectToWithMessage(ALL_DEPARTMENTS_ENDPOINT, "Department in use can not be deleted");
+        }
+    }
+
+    private boolean isNotInUse(Department department) {
+        return !policeService.hasAnyPoliceFromDepartment(department);
     }
 
 }
