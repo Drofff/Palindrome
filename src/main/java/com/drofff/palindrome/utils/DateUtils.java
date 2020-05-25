@@ -27,6 +27,10 @@ public class DateUtils {
 		return LocalDate.parse(dateStr, DATE_FORMATTER);
 	}
 
+	public static String dateToStr(LocalDate date) {
+		return date.format(DATE_FORMATTER);
+	}
+
 	public static String dateTimeToStr(LocalDateTime dateTime) {
 		return dateTime.format(DATE_TIME_FORMATTER);
 	}

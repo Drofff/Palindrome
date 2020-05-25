@@ -10,24 +10,20 @@ import com.drofff.palindrome.type.PaymentHistory;
 import com.drofff.palindrome.type.TicketFile;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
-import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
+import static com.drofff.palindrome.constants.FileConstants.PDF_EXTENSION;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.FileUtils.*;
 import static com.drofff.palindrome.utils.FormattingUtils.appendUrlPathSegment;
@@ -35,8 +31,6 @@ import static com.drofff.palindrome.utils.FormattingUtils.concatPathSegments;
 import static com.drofff.palindrome.utils.StringUtils.joinWithSpace;
 import static com.drofff.palindrome.utils.TicketUtils.*;
 import static com.drofff.palindrome.utils.ValidationUtils.validateNotNullEntityHasId;
-import static com.itextpdf.kernel.font.PdfFontFactory.createFont;
-import static com.itextpdf.kernel.geom.PageSize.A4;
 import static com.itextpdf.layout.property.HorizontalAlignment.CENTER;
 import static java.nio.file.Paths.get;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
@@ -44,16 +38,8 @@ import static org.springframework.http.MediaType.APPLICATION_PDF;
 @Service
 public class PdfTicketService implements TicketService {
 
-	private static final String PDF_EXTENSION = ".pdf";
-
-	private static final PageSize TICKET_PAGE_SIZE = A4;
-
-	private static final int PAYMENT_TABLE_COLUMNS_COUNT = 2;
-	private static final float PAYMENT_TABLE_TOP_MARGIN = 60f;
-	private static final String PAYMENT_TABLE_FONT_ENCODING = "Identity-H";
-	private static final boolean PAYMENT_TABLE_FONT_EMBEDDED = true;
-
 	private final TicketRepository ticketRepository;
+	private final PdfService pdfService;
 	private final ViolationService violationService;
 	private final DriverService driverService;
 	private final FileService fileService;
@@ -64,13 +50,12 @@ public class PdfTicketService implements TicketService {
 	@Value("${application.logo}")
 	private String logoPath;
 
-	@Value("${application.font}")
-	private String fontPath;
-
 	@Autowired
-	public PdfTicketService(TicketRepository ticketRepository, ViolationService violationService,
-	                        DriverService driverService, FileService fileService) {
+	public PdfTicketService(TicketRepository ticketRepository, PdfService pdfService,
+							ViolationService violationService, DriverService driverService,
+							FileService fileService) {
 		this.ticketRepository = ticketRepository;
+		this.pdfService = pdfService;
 		this.violationService = violationService;
 		this.driverService = driverService;
 		this.fileService = fileService;
@@ -100,7 +85,7 @@ public class PdfTicketService implements TicketService {
 		createTmpStorageDirIfNotExists();
 		String filename = generateTicketFilename(paymentHistory);
 		String tmpFilePath = toTmpFilePath(filename);
-		Document document = createPdfDocumentWithName(tmpFilePath);
+		Document document = pdfService.newPdfDocument(tmpFilePath);
 		addLogoToDocument(document);
 		addPaymentTableToDocument(paymentHistory, payer, document);
 		document.close();
@@ -124,20 +109,6 @@ public class PdfTicketService implements TicketService {
 		return paymentHistory.getChargeId() + PDF_EXTENSION;
 	}
 
-	private Document createPdfDocumentWithName(String name) {
-		try {
-			return createPdfDocument(name);
-		} catch(FileNotFoundException e) {
-			throw new PalindromeException(e.getMessage());
-		}
-	}
-
-	private Document createPdfDocument(String name) throws FileNotFoundException {
-		PdfWriter pdfWriter = new PdfWriter(name);
-		PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-		return new Document(pdfDocument, TICKET_PAGE_SIZE);
-	}
-
 	private void addLogoToDocument(Document document) {
 		Image logo = getPalindromeLogo();
 		document.add(logo);
@@ -155,44 +126,18 @@ public class PdfTicketService implements TicketService {
 
 	private void addPaymentTableToDocument(PaymentHistory paymentHistory, Driver payer, Document document) {
 		Table table = tableOfPaymentAndPayer(paymentHistory, payer);
-		table.setMarginTop(PAYMENT_TABLE_TOP_MARGIN);
+		table.setMarginTop(60f);
 		table.setHorizontalAlignment(CENTER);
 		document.add(table);
 	}
 
 	private Table tableOfPaymentAndPayer(PaymentHistory paymentHistory, Driver payer) {
-		Table table = new Table(PAYMENT_TABLE_COLUMNS_COUNT);
-		addRowToTable(getChargeIdTitle(), paymentHistory.getChargeId(), table);
-		addRowToTable(getViolationIdTitle(), paymentHistory.getViolationId(), table);
-		addRowToTable(getSumTitle(), getPaymentSumStr(paymentHistory), table);
-		addRowToTable(getPayerTitle(), getPayerFullName(payer), table);
-		return table;
-	}
-
-	private void addRowToTable(String title, String value, Table table) {
-		addCellToTable(title, table);
-		addCellToTable(value, table);
-	}
-
-	private void addCellToTable(String cellValue, Table table) {
-		Paragraph paragraph = paragraphOfText(cellValue);
-		table.addCell(paragraph);
-	}
-
-	private Paragraph paragraphOfText(String text) {
-		Paragraph paragraph = new Paragraph(text);
-		PdfFont tableFont = getPaymentTableFont();
-		paragraph.setFont(tableFont);
-		return paragraph;
-	}
-
-	private PdfFont getPaymentTableFont() {
-		try {
-			String absoluteFontPath = relativeToAbsolutePath(fontPath);
-			return createFont(absoluteFontPath, PAYMENT_TABLE_FONT_ENCODING, PAYMENT_TABLE_FONT_EMBEDDED);
-		} catch(IOException e) {
-			throw new PalindromeException("Error while loading font");
-		}
+		Map<String, String> tableValues = new HashMap<>();
+		tableValues.put(getChargeIdTitle(), paymentHistory.getChargeId());
+		tableValues.put(getViolationIdTitle(), paymentHistory.getViolationId());
+		tableValues.put(getSumTitle(), getPaymentSumStr(paymentHistory));
+		tableValues.put(getPayerTitle(), getPayerFullName(payer));
+		return pdfService.tableFromMap(tableValues);
 	}
 
 	private String getPaymentSumStr(PaymentHistory paymentHistory) {

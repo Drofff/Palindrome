@@ -8,6 +8,9 @@
             src="https://code.jquery.com/jquery-3.4.1.js"
             integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
     <style>
         .mdl-card__menu {
@@ -65,7 +68,7 @@
 
                                 <div>
                                     <#list violations as violation>
-                                        <div class="demo-card-square mdl-card mdl-shadow--2dp" style="margin-top: 6%; width: 400px; min-height: 115px;">
+                                        <div id="${violation.id}" class="demo-card-square contextual mdl-card mdl-shadow--2dp" style="margin-top: 6%; width: 400px; min-height: 115px;">
                                             <div class="mdl-card__supporting-text" style="margin-top: 30px; margin-bottom: 2%; text-align: center;
                                              width: 73%; margin-left: 9%;">
                                                 "${violation.violationType.name}" - ${violation.violator.firstName} ${violation.violator.lastName}
@@ -155,6 +158,24 @@
 
     var geo_request_prefix = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=';
     var geo_request_suffix = '&mode=retrieveAddresses&maxresults=1&gen=9&apiKey=cB0rD3P2fluVKeDwTAIGiRvrnHKhbXOkesVZn4Ht3zQ';
+
+    $(function() {
+
+       $.contextMenu({
+           selector : '.contextual',
+           callback : function (key, options) {
+               if(key === 'export_key') {
+                   window.location.href = '/export/violation/' + this[0].id;
+               }
+           },
+           items : {
+               export_key : {
+                   name : "Export as PDF"
+               }
+           }
+       });
+
+    });
 
     function get_location() {
         if(navigator.geolocation) {

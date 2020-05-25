@@ -25,6 +25,7 @@ import java.util.Collections;
 
 import static com.drofff.palindrome.constants.EndpointConstants.ERROR_ENDPOINT;
 import static com.drofff.palindrome.constants.EndpointConstants.HOME_ENDPOINT;
+import static com.drofff.palindrome.constants.HttpHeaderConstants.ATTACHMENT_CONTENT_DISPOSITION_PREFIX;
 import static com.drofff.palindrome.constants.ParameterConstants.ERROR_MESSAGE_PARAM;
 import static com.drofff.palindrome.constants.ParameterConstants.VIOLATION_PARAM;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
@@ -43,8 +44,6 @@ public class PaymentController {
 	private static final String PAYMENT_SUCCESS_VIEW = "paymentSuccessPage";
 
 	private static final String PUBLIC_KEY_PARAM = "public_key";
-
-	private static final String ATTACHMENT_CONTENT_DISPOSITION_PREFIX = "attachment; filename=";
 
 	private final ViolationService violationService;
 	private final PaymentService paymentService;

@@ -1,6 +1,7 @@
 package com.drofff.palindrome.utils;
 
 import com.drofff.palindrome.document.Violation;
+import org.json.simple.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -12,6 +13,8 @@ import static com.drofff.palindrome.utils.DateUtils.dateTimeToEpochSeconds;
 import static java.util.Comparator.comparingInt;
 
 public class ViolationUtils {
+
+	private static final String VIOLATION_EXPORT_FILE = "violation_export.json";
 
 	private ViolationUtils() {}
 
@@ -39,6 +42,16 @@ public class ViolationUtils {
 	public static Comparator<Violation> invertedViolationsDateTimeComparator() {
 		ToIntFunction<Violation> violationDateTimeToIntDesc = violation -> -dateTimeToEpochSeconds(violation.getDateTime());
 		return comparingInt(violationDateTimeToIntDesc);
+	}
+
+	public static String getViolationExportTitle() {
+		JSONObject violationExportJson = JsonUtils.loadJsonFileByName(VIOLATION_EXPORT_FILE);
+		return (String) violationExportJson.get("title");
+	}
+
+	public static String getViolationExportBody() {
+		JSONObject violationExportJson = JsonUtils.loadJsonFileByName(VIOLATION_EXPORT_FILE);
+		return (String) violationExportJson.get("body");
 	}
 
 }

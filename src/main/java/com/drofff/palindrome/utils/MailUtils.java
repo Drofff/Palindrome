@@ -1,27 +1,21 @@
 package com.drofff.palindrome.utils;
 
+import com.drofff.palindrome.type.Mail;
+import org.json.simple.JSONObject;
+
 import static com.drofff.palindrome.utils.FormattingUtils.putParamsIntoText;
 import static com.drofff.palindrome.utils.JsonUtils.getJSONObjectFromFileByKey;
-
-import java.util.Arrays;
-import java.util.Deque;
-
-import org.json.simple.JSONObject;
-import org.springframework.data.util.Pair;
-
-import com.drofff.palindrome.collector.PairDequeCollector;
-import com.drofff.palindrome.type.Mail;
 
 public class MailUtils {
 
 	private static final String MAIL_MESSAGES_FILE = "mail_messages.json";
 
-	private static final String LINK_PARAM = "${link}";
-	private static final String USERNAME_PARAM = "${username}";
-	private static final String REASON_PARAM = "${reason}";
-	private static final String PASSWRD_PARAM = "${password}";
-	private static final String NUMBER_PARAM = "${number}";
-	private static final String FIRST_NAME_PARAM = "${firstName}";
+	private static final String LINK_PARAM = "link";
+	private static final String USERNAME_PARAM = "username";
+	private static final String REASON_PARAM = "reason";
+	private static final String PASSWRD_PARAM = "password";
+	private static final String NUMBER_PARAM = "number";
+	private static final String FIRST_NAME_PARAM = "firstName";
 
 	private static final String ACTIVATION_MAIL_KEY = "activation";
 	private static final String REMIND_PASS_MAIL_KEY = "remind-password";
@@ -85,14 +79,9 @@ public class MailUtils {
 	private static Mail mailByKeyWithParams(String key, String ... params) {
 		Mail template = getMailTemplateFromFileByKey(key);
 		String templateText = template.getText();
-		String mailText = putParamsIntoText(templateText, dequeOfParams(params));
+		String mailText = putParamsIntoText(templateText, params);
 		template.setText(mailText);
 		return template;
-	}
-
-	private static Deque<Pair<String, String>> dequeOfParams(String ... params) {
-		return Arrays.stream(params)
-				.collect(new PairDequeCollector<>());
 	}
 
 	public static Mail getAccountUnblockedMail() {

@@ -1,28 +1,41 @@
 package com.drofff.palindrome.utils;
 
-import static com.drofff.palindrome.utils.StringUtils.removeAllNonDigits;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
-
-import java.io.File;
-import java.util.Deque;
-import java.util.List;
-
+import com.drofff.palindrome.collector.PairDequeCollector;
+import com.drofff.palindrome.enums.ByteUnit;
 import org.springframework.data.util.Pair;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
-import com.drofff.palindrome.enums.ByteUnit;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.List;
+
+import static com.drofff.palindrome.utils.StringUtils.removeAllNonDigits;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 
 public class FormattingUtils {
 
 	private static final UriBuilderFactory URI_BUILDER_FACTORY = new DefaultUriBuilderFactory();
 
+	private static final String PARAM_PREFIX = "${";
+	private static final String PARAM_SUFFIX = "}";
+
 	private static final String PATH_DELIMITER = "/";
 
 	private FormattingUtils() {}
 
-	public static String putParamsIntoText(String text, Deque<Pair<String, String>> params) {
+	public static String putParamsIntoText(String text, String ... params) {
+		return putParamsIntoText(text, dequeOfParams(params));
+	}
+
+	private static Deque<Pair<String, String>> dequeOfParams(String ... params) {
+		return Arrays.stream(params)
+				.collect(new PairDequeCollector<>());
+	}
+
+	private static String putParamsIntoText(String text, Deque<Pair<String, String>> params) {
 		if(params.isEmpty()) {
 			return text;
 		}
@@ -32,7 +45,8 @@ public class FormattingUtils {
 	}
 
 	private static String putParamIntoText(String text, Pair<String, String> param) {
-		return text.replace(param.getFirst(), param.getSecond());
+		String paramKey = PARAM_PREFIX + param.getFirst() + PARAM_SUFFIX;
+		return text.replace(paramKey, param.getSecond());
 	}
 
 	public static String uriWithQueryParams(String uri, List<Pair<String, String>> queryParams) {
