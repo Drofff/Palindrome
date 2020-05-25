@@ -27,6 +27,7 @@
             <span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Admin</font></span>
             <a class="mdl-navigation__link" href="/" style="cursor: pointer">Головна</a>
             <a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
+            <a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
             <a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
             <div class="mdl-layout-spacer"></div>
             <a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
