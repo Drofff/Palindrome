@@ -43,6 +43,7 @@
                         <a class="mdl-navigation__link" href="/">Головна</a>
                         <a class="mdl-navigation__link" href="/violation/police">Фіксовані порушення</a>
                         <a class="mdl-navigation__link" href="">Запити</a>
+                        <a class="mdl-navigation__link" href="/change-password">Змінити пароль</a>
                         <a class="mdl-navigation__link" href="/police">Профіль</a>
                     </nav>
                 </div>

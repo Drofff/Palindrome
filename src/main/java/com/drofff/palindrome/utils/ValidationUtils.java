@@ -95,4 +95,14 @@ public class ValidationUtils {
 		return getCurrentUser().getAuthorities().contains(role);
 	}
 
+	public static void validateAreEqual(Object object0, Object object1, String errorMessage) {
+		if(areNotEqual(object0, object1)) {
+			throw new ValidationException(errorMessage);
+		}
+	}
+
+	private static boolean areNotEqual(Object object0, Object object1) {
+		return !object0.equals(object1);
+	}
+
 }

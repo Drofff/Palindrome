@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.drofff.palindrome.utils.MailUtils.getCredentialsMail;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -132,6 +131,24 @@ public class UserServiceImpl implements UserService {
         validateNotNull(username, "Username should be provided");
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ValidationException("User with such username doesn't exist"));
+    }
+
+    @Override
+    public void validateIsPasswordOfUser(String password, User user) {
+        validateNotNullEntityHasId(user);
+        validateNotNull(password, "Password should be provided");
+        if(isNotPasswordOfUser(password, user)) {
+            throw new ValidationException("Incorrect password");
+        }
+    }
+
+    private boolean isNotPasswordOfUser(String password, User user) {
+        return !isPasswordOfUser(password, user);
+    }
+
+    private boolean isPasswordOfUser(String password, User user) {
+        String originalPassword = user.getPassword();
+        return passwordEncoder.matches(password, originalPassword);
     }
 
 }

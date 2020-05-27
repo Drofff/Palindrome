@@ -17,6 +17,8 @@ import java.util.Collections;
 @Document
 public class User implements UserDetails, Entity {
 
+	public static final int MIN_PASSWORD_LENGTH = 8;
+
 	@Id
 	private String id;
 
@@ -25,7 +27,7 @@ public class User implements UserDetails, Entity {
 	private String username;
 
 	@NotBlank(message = "Password is required")
-	@Length(min = 8, message = "Password should be at least 8 characters long")
+	@Length(min = MIN_PASSWORD_LENGTH, message = "Password should be at least 8 characters long")
 	private String password;
 
 	@NotNull(message = "User role is required")

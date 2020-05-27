@@ -26,4 +26,6 @@ public interface UserService {
 
     User getUserByUsername(String username);
 
+    void validateIsPasswordOfUser(String password, User user);
+
 }

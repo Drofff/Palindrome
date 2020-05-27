@@ -36,6 +36,8 @@ public class EndpointConstants {
 
 	public static final String AUTHENTICATE_API_ENDPOINT = "/api/authenticate";
 
+	public static final String TWO_STEP_AUTH_API_ENDPOINT = "/api/two-step-auth";
+
 	public static final String REFRESH_TOKEN_API_ENDPOINT = "/api/tokens/refresh";
 
 	public static final String API_RESOURCE_ENDPOINTS_BASE = "/api/resources/img/";

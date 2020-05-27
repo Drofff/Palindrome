@@ -31,7 +31,13 @@
             <a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
             <a class="mdl-navigation__link" href="/admin/brand" style="cursor: pointer">Дані</a>
             <div class="mdl-layout-spacer"></div>
-            <a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
+            <button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
+                <i class="material-icons">more_vert</i>
+            </button>
+            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-right">
+                <li class="mdl-menu__item" onclick="window.location.href='/change-password'">Змінити пароль</li>
+                <li class="mdl-menu__item" onclick="$('#logout').submit()">Вихід</li>
+            </ul>
         </div>
     </header>
     <main class="mdl-layout__content">

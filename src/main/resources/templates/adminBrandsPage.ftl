@@ -29,7 +29,13 @@
             <a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
             <a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
             <div class="mdl-layout-spacer"></div>
-            <a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
+            <button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
+                <i class="material-icons">more_vert</i>
+            </button>
+            <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-right">
+                <li class="mdl-menu__item" onclick="window.location.href='/change-password'">Змінити пароль</li>
+                <li class="mdl-menu__item" onclick="$('#logout').submit()">Вихід</li>
+            </ul>
         </div>
         <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
             <a href="/admin/brand" class="mdl-layout__tab is-active">Марки автомобілів</a>

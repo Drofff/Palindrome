@@ -25,21 +25,67 @@
 </head>
 <body>
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-	<header class="mdl-layout__header">
-		<div class="mdl-layout__header-row">
-			<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome</span>
-			<div class="mdl-layout-spacer"></div>
-			<nav class="mdl-navigation mdl-layout--large-screen-only">
-				<a class="mdl-navigation__link" href="/">Головна</a>
+	<#if role.name() == "DRIVER">
+		<header class="mdl-layout__header">
+			<div class="mdl-layout__header-row">
+				<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome</span>
+				<div class="mdl-layout-spacer"></div>
+				<nav class="mdl-navigation mdl-layout--large-screen-only">
+					<a class="mdl-navigation__link" href="/">Головна</a>
+					<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
+				</nav>
+			</div>
+		</header>
+		<#include "menu.ftl">
+	</#if>
+	<#if role.name() == "POLICE">
+		<header class="mdl-layout__header">
+			<div class="mdl-layout__header-row">
+				<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Police</font></span>
+				<div class="mdl-layout-spacer"></div>
 				<a class="mdl-navigation__link" onclick="$('#logout').submit()">Вихід</a>
-			</nav>
-		</div>
-	</header>
-    <#include "menu.ftl">
+			</div>
+		</header>
+		<main class="mdl-layout__content">
+			<div class="page-content">
+				<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+					<div class="mdl-layout__drawer">
+								<span class="mdl-layout-title" style="margin-top: 20px">
+									<img src="/api/resources/img/logo.png" width="150px" height="50px">
+								</span>
+						<nav class="mdl-navigation">
+							<a class="mdl-navigation__link" href="/">Головна</a>
+							<a class="mdl-navigation__link" href="/violation/police">Фіксовані порушення</a>
+							<a class="mdl-navigation__link" href="/change-request/sent">Запити</a>
+							<a class="mdl-navigation__link" href="/change-password">Змінити пароль</a>
+							<a class="mdl-navigation__link" href="/police">Профіль</a>
+						</nav>
+					</div>
+	</#if>
+	<#if role.name() == "ADMIN">
+		<header class="mdl-layout__header">
+			<div class="mdl-layout__header-row">
+				<span class="mdl-layout-title" style="font-family: 'Josefin Sans', sans-serif;">Palindrome <font color="#ffd700">Admin</font></span>
+				<a class="mdl-navigation__link" href="/admin/home" style="cursor: pointer">Головна</a>
+				<a class="mdl-navigation__link" href="/admin/users" style="cursor: pointer">Користувачі</a>
+				<a class="mdl-navigation__link" href="/admin/cars" style="cursor: pointer">Автомобілі</a>
+				<a class="mdl-navigation__link" href="/change-request" style="cursor: pointer">Запити</a>
+				<a class="mdl-navigation__link" href="/admin/brand" style="cursor: pointer">Дані</a>
+				<div class="mdl-layout-spacer"></div>
+				<button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon">
+					<i class="material-icons">more_vert</i>
+				</button>
+				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-right">
+					<li class="mdl-menu__item" onclick="window.location.href='/change-password'">Змінити пароль</li>
+					<li class="mdl-menu__item" onclick="$('#logout').submit()">Вихід</li>
+				</ul>
+			</div>
+		</header>
+	</#if>
 	<main class="mdl-layout__content">
 		<div class="page-content">
 
-			<dialog class="mdl-dialog">
+			<dialog class="mdl-dialog" style="z-index: 10000;">
 				<div class="mdl-dialog__content">
 					<p style="color: red">
                         <#if error_message??>
@@ -52,7 +98,7 @@
 				</div>
 			</dialog>
 
-			<div class="demo-card-square mdl-card mdl-shadow--2dp" style="margin-left: 27%; margin-top: 5%;">
+			<div class="demo-card-square mdl-card mdl-shadow--2dp" style="<#if role.name() == "POLICE">margin-left: 11%;<#else>margin-left: 27%;</#if> <#if role.name() == "ADMIN">margin-top: 2%;<#else>margin-top: 5%;</#if>">
 				<div class="mdl-card__title mdl-card--expand">
 					<h2 class="mdl-card__title-text">Зміна паролю</h2>
 				</div>
@@ -103,6 +149,11 @@
 
 		</div>
 	</main>
+	<#if role.name() == "POLICE">
+				</div>
+			</div>
+		</main>
+	</#if>
 	<form action="/logout" method="post" id="logout">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
 	</form>

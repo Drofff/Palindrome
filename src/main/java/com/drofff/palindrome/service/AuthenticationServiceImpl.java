@@ -1,42 +1,39 @@
 package com.drofff.palindrome.service;
 
-import com.drofff.palindrome.cache.PasswordCache;
-import com.drofff.palindrome.cache.TokenCache;
 import com.drofff.palindrome.document.ActivationToken;
 import com.drofff.palindrome.document.User;
 import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ActivationTokenRepository;
 import com.drofff.palindrome.type.Mail;
+import com.drofff.palindrome.utils.MailUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
+import static com.drofff.palindrome.cache.TokenCache.*;
 import static com.drofff.palindrome.constants.EndpointConstants.*;
-import static com.drofff.palindrome.constants.ParameterConstants.TOKEN_PARAM;
-import static com.drofff.palindrome.constants.ParameterConstants.USER_ID_PARAM;
+import static com.drofff.palindrome.constants.MessageConstants.INVALID_TOKEN_MESSAGE;
+import static com.drofff.palindrome.document.User.MIN_PASSWORD_LENGTH;
 import static com.drofff.palindrome.enums.Role.DRIVER;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.FormattingUtils.uriWithQueryParams;
-import static com.drofff.palindrome.utils.MailUtils.*;
-import static com.drofff.palindrome.utils.StringUtils.areNotEqual;
+import static com.drofff.palindrome.utils.MailUtils.getActivationMail;
 import static com.drofff.palindrome.utils.StringUtils.randomString;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
 import static java.lang.Boolean.FALSE;
+import static java.util.Arrays.asList;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
+	private static final String TOKEN_IS_NULL_MESSAGE = "Token is required";
+
 	private final ActivationTokenRepository activationTokenRepository;
 	private final UserService userService;
-	private final PasswordEncoder passwordEncoder;
 	private final MailService mailService;
 
 	@Value("${application.url}")
@@ -44,10 +41,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Autowired
 	public AuthenticationServiceImpl(ActivationTokenRepository activationTokenRepository, UserService userService,
-									 PasswordEncoder passwordEncoder, MailService mailService) {
+									 MailService mailService) {
 		this.activationTokenRepository = activationTokenRepository;
 		this.userService = userService;
-		this.passwordEncoder = passwordEncoder;
 		this.mailService = mailService;
 	}
 
@@ -108,137 +104,88 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	}
 
 	@Override
-	public void remindPasswordToUserWithEmail(String email) {
+	public void requestPasswordRecovery(String email) {
 		User user = userService.getUserByUsername(email);
 		String token = randomString();
-		TokenCache.saveTokenForUser(token, user);
-		String recoveryLink = generateRecoveryLinkForUser(token, user);
-		sendRecoveryLinkToUserByMail(recoveryLink, user);
+		sendPasswordRecoveryMailWithTokenToUser(token, user);
+		doOnTokenReceive(token, (userId, params) -> {
+			validateAreEqual(user.getId(), userId, INVALID_TOKEN_MESSAGE);
+			String newPassword = params[0];
+			userService.updatePasswordForUserWithId(newPassword, userId);
+			removeTokenListener(token);
+		});
 	}
 
-	private String generateRecoveryLinkForUser(String token, User user) {
-		String recoveryUri = applicationUrl + PASS_RECOVERY_ENDPOINT;
-		return tokenAndUserIdToEndpoint(token, user.getId(), recoveryUri);
+	private void sendPasswordRecoveryMailWithTokenToUser(String token, User user) {
+		String recoveryLink = passwordRecoveryLinkOf(token, user.getId());
+		Mail recoveryMail = MailUtils.getRemindPasswordMail(recoveryLink);
+		mailService.sendMailTo(recoveryMail, user.getUsername());
 	}
 
-	private String tokenAndUserIdToEndpoint(String token, String userId, String uri) {
-		List<Pair<String, String>> params = tokenAndUserIdParams(token, userId);
-		return uriWithQueryParams(uri, params);
-	}
-
-	private List<Pair<String, String>> tokenAndUserIdParams(String token, String userId) {
-		Pair<String, String> tokenParam = Pair.of(TOKEN_PARAM, token);
-		Pair<String, String> userIdParam = Pair.of(USER_ID_PARAM, userId);
-		return Arrays.asList(tokenParam, userIdParam);
-	}
-
-	private void sendRecoveryLinkToUserByMail(String link, User user) {
-		Mail remindPasswordMail = getRemindPasswordMail(link);
-		mailService.sendMailTo(remindPasswordMail, user.getUsername());
+	private String passwordRecoveryLinkOf(String token, String userId) {
+		String passwordRecoveryEndpoint = applicationUrl + PASS_RECOVERY_ENDPOINT;
+		return tokenAndUserIdToEndpoint(token, userId, passwordRecoveryEndpoint);
 	}
 
 	@Override
-	public void verifyRecoveryAttemptForUserByToken(String userId, String token) {
-		User user = userService.getUserById(userId);
-		validateRecoveryVerificationTokenForUser(token, user);
+	public void completePasswordRecoveryOfUserWithIdUsingToken(String userId, String token, String newPassword) {
+		validateNotNull(userId, "User id is required");
+		validateNotNull(token, TOKEN_IS_NULL_MESSAGE);
+		validatePassword(newPassword);
+		onReceive(token, userId, newPassword);
 	}
 
 	@Override
-	public void changeUserPasswordByToken(String userId, String token, String newPassword) {
-		User user = userService.getUserById(userId);
-		validateRecoveryVerificationTokenForUser(token, user);
-		userService.updatePasswordForUserWithId(newPassword, userId);
-		TokenCache.removeTokenForUser(user);
-	}
-
-	private void validateRecoveryVerificationTokenForUser(String token, User user) {
-		validateNotNull(token, "Verification token should be provided");
-		String originalToken = getVerificationTokenForUser(user);
-		if(areNotEqual(originalToken, token)) {
-			throw new PalindromeException("Invalid verification token");
-		}
-	}
-
-	private String getVerificationTokenForUser(User user) {
-		return TokenCache.getTokenForUser(user)
-				.orElseThrow(() -> new PalindromeException("No recovery request detected for user"));
-	}
-
-	@Override
-	public void changeUserPassword(String password, String newPassword) {
+	public void requestPasswordChange(String newPassword) {
+		validatePassword(newPassword);
 		User currentUser = getCurrentUser();
-		validateUserObtainsPassword(currentUser, password);
+		String token = randomString();
+		sendConfirmPasswordChangeMailWithTokenToUser(token, currentUser);
+		doOnTokenReceive(token, (userId, params) -> {
+			validateAreEqual(currentUser.getId(), userId, INVALID_TOKEN_MESSAGE);
+			userService.updatePasswordForUserWithId(newPassword, userId);
+			removeTokenListener(token);
+		});
+	}
+
+	private void sendConfirmPasswordChangeMailWithTokenToUser(String token, User user) {
+		String confirmPasswordChangeLink = confirmPasswordChangeLinkOf(token, user.getId());
+		Mail confirmPasswordMail = MailUtils.getPasswordChangeConfirmationMail(confirmPasswordChangeLink);
+		mailService.sendMailTo(confirmPasswordMail, user.getUsername());
+	}
+
+	private String confirmPasswordChangeLinkOf(String token, String userId) {
+		String confirmPasswordChangeUrl = applicationUrl + CONFIRM_PASS_CHANGE_ENDPOINT;
+		return tokenAndUserIdToEndpoint(token, userId, confirmPasswordChangeUrl);
+	}
+
+	private String tokenAndUserIdToEndpoint(String token, String userId, String url) {
+		Pair<String, String> tokenParam = Pair.of("token", token);
+		Pair<String, String> userIdParam = Pair.of("userId", userId);
+		return uriWithQueryParams(url, asList(tokenParam, userIdParam));
+	}
+
+	@Override
+	public void confirmPasswordChangeUsingToken(String token) {
+		validateNotNull(token, TOKEN_IS_NULL_MESSAGE);
+		String userId = getCurrentUser().getId();
+		onReceive(token, userId);
+	}
+
+	@Override
+	public void changePasswordUsingOldPassword(String password, String newPassword) {
+		validateNotNull(password, "Current password should be provided");
+		validatePassword(newPassword);
+		User currentUser = getCurrentUser();
+		userService.validateIsPasswordOfUser(password, currentUser);
 		userService.updatePasswordForUserWithId(newPassword, currentUser.getId());
 	}
 
-	@Override
-	public void changeUserPasswordByMail(String newPassword) {
-		String encodedPassword = encodePassword(newPassword);
-		User currentUser = getCurrentUser();
-		PasswordCache.savePasswordForUser(encodedPassword, currentUser);
-		String confirmationToken = randomString();
-		TokenCache.saveTokenForUser(confirmationToken, currentUser);
-		String confirmationLink = generatePasswordChangeConfirmationLinkWithToken(confirmationToken);
-		sendPasswordChangeConfirmationLinkByMail(confirmationLink, currentUser.getUsername());
-	}
-
-	private String encodePassword(String password) {
-		return passwordEncoder.encode(password);
-	}
-
-	private String generatePasswordChangeConfirmationLinkWithToken(String confirmationToken) {
-		String uri = applicationUrl + CONFIRM_PASS_CHANGE_ENDPOINT;
-		Pair<String, String> tokenParam = Pair.of(TOKEN_PARAM, confirmationToken);
-		return uriWithQueryParams(uri, Collections.singletonList(tokenParam));
-	}
-
-	private void sendPasswordChangeConfirmationLinkByMail(String link, String username) {
-		Mail confirmationMail = getPasswordChangeConfirmationMail(link);
-		mailService.sendMailTo(confirmationMail, username);
-	}
-
-	@Override
-	public void confirmUserPasswordChangeByToken(String token) {
-		User currentUser = getCurrentUser();
-		String originalToken = getConfirmationTokenForUser(currentUser);
-		validatePasswordChangeConfirmationToken(originalToken, token);
-		TokenCache.removeTokenForUser(currentUser);
-		String newPassword = PasswordCache.popPasswordForUser(currentUser);
-		userService.updatePasswordForUserWithId(newPassword, currentUser.getId());
-	}
-
-	private String getConfirmationTokenForUser(User user) {
-		return TokenCache.getTokenForUser(user)
-				.orElseThrow(() -> new ValidationException("No confirmation tokens has been assigned to user"));
-	}
-
-	private void validatePasswordChangeConfirmationToken(String originalToken, String token) {
-		validateNotNull(token, "Confirmation token should be provided");
-		if(areNotEqual(originalToken, token)) {
-			throw new ValidationException("Invalid confirmation token");
+	private void validatePassword(String password) {
+		validateNotNull(password, "Password is required");
+		if(password.length() < MIN_PASSWORD_LENGTH) {
+			throw new ValidationException("Minimal password length is " + MIN_PASSWORD_LENGTH);
 		}
-	}
-
-	@Override
-	public User authenticateUserByCredentials(String username, String password) {
-		User user = userService.getUserByUsername(username);
-		validateUserObtainsPassword(user, password);
-		return user;
-	}
-
-	private void validateUserObtainsPassword(User user, String password) {
-		if(isIncorrectUserPassword(user, password)) {
-			throw new ValidationException("Invalid credentials");
-		}
-	}
-
-	private boolean isIncorrectUserPassword(User user, String password) {
-		return !isCorrectUserPassword(user, password);
-	}
-
-	private boolean isCorrectUserPassword(User user, String password) {
-		String originalPassword = user.getPassword();
-		return passwordEncoder.matches(password, originalPassword);
 	}
 
 }

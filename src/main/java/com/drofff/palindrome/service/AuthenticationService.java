@@ -8,18 +8,14 @@ public interface AuthenticationService {
 
 	void activateUserAccountByToken(String userId, String token);
 
-	void remindPasswordToUserWithEmail(String email);
+	void requestPasswordRecovery(String email);
 
-	void verifyRecoveryAttemptForUserByToken(String userId, String token);
+	void completePasswordRecoveryOfUserWithIdUsingToken(String userId, String token, String newPassword);
 
-	void changeUserPasswordByToken(String userId, String token, String newPassword);
+	void requestPasswordChange(String newPassword);
 
-	void changeUserPassword(String password, String newPassword);
+	void confirmPasswordChangeUsingToken(String token);
 
-	void changeUserPasswordByMail(String newPassword);
-
-	void confirmUserPasswordChangeByToken(String token);
-
-	User authenticateUserByCredentials(String username, String password);
+	void changePasswordUsingOldPassword(String password, String newPassword);
 
 }

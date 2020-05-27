@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static com.drofff.palindrome.constants.EndpointConstants.*;
 import static com.drofff.palindrome.constants.ParameterConstants.*;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.ModelUtils.putValidationExceptionIntoModel;
 import static com.drofff.palindrome.utils.ModelUtils.redirectToWithMessage;
 
@@ -32,6 +33,8 @@ public class AuthenticationController {
 	private static final String CHANGE_PASS_VIEW = "changePasswordPage";
 
 	private static final String CHANGE_PASS_ENDPOINT = "/change-password";
+
+	private static final String ROLE_PARAM = "role";
 
 	private static final String PASS_CHANGED_MESSAGE = "Password has been successfully changed";
 
@@ -89,7 +92,7 @@ public class AuthenticationController {
 	@PostMapping(FORGOT_PASS_ENDPOINT)
 	public String remindPassword(String email, Model model) {
 		try {
-			authenticationService.remindPasswordToUserWithEmail(email);
+			authenticationService.requestPasswordRecovery(email);
 			return "recoveryStartedPage";
 		} catch(PalindromeException e) {
 			model.addAttribute(ERROR_MESSAGE_PARAM, e.getMessage());
@@ -99,7 +102,6 @@ public class AuthenticationController {
 
 	@GetMapping(PASS_RECOVERY_ENDPOINT)
 	public String verifyPasswordRecovery(String token, String userId, Model model) {
-		authenticationService.verifyRecoveryAttemptForUserByToken(userId, token);
 		model.addAttribute(TOKEN_PARAM, token);
 		model.addAttribute(USER_ID_PARAM, userId);
 		return PASS_RECOVERY_VIEW;
@@ -108,7 +110,7 @@ public class AuthenticationController {
 	@PostMapping(PASS_RECOVERY_ENDPOINT)
 	public String recoverPassword(String userId, String token, String password, Model model) {
 		try {
-			authenticationService.changeUserPasswordByToken(userId, token, password);
+			authenticationService.completePasswordRecoveryOfUserWithIdUsingToken(userId, token, password);
 			return redirectToWithMessage(HOME_ENDPOINT, "Successfully changed password");
 		} catch(ValidationException e) {
 			model.addAttribute(TOKEN_PARAM, token);
@@ -119,7 +121,8 @@ public class AuthenticationController {
 	}
 
 	@GetMapping(CHANGE_PASS_ENDPOINT)
-	public String getChangePasswordPage() {
+	public String getChangePasswordPage(Model model) {
+		model.addAttribute(ROLE_PARAM, getCurrentUser().getRole());
 		return CHANGE_PASS_VIEW;
 	}
 
@@ -127,22 +130,23 @@ public class AuthenticationController {
 	public String changePassword(ChangePasswordDto changePasswordDto, Model model) {
 		try {
 			if(changePasswordDto.isByMail()) {
-				authenticationService.changeUserPasswordByMail(changePasswordDto.getNewPassword());
+				authenticationService.requestPasswordChange(changePasswordDto.getNewPassword());
 				model.addAttribute(MESSAGE_PARAM, "Confirmation token has been sent to you by mail");
 			} else {
-				authenticationService.changeUserPassword(changePasswordDto.getPassword(), changePasswordDto.getNewPassword());
+				authenticationService.changePasswordUsingOldPassword(changePasswordDto.getPassword(), changePasswordDto.getNewPassword());
 				model.addAttribute(MESSAGE_PARAM, PASS_CHANGED_MESSAGE);
 			}
 		} catch(ValidationException e) {
 			model.addAttribute("passwords", changePasswordDto);
 			putValidationExceptionIntoModel(e, model);
 		}
+		model.addAttribute(ROLE_PARAM, getCurrentUser().getRole());
 		return CHANGE_PASS_VIEW;
 	}
 
 	@GetMapping(CONFIRM_PASS_CHANGE_ENDPOINT)
 	public String confirmPasswordChange(String token) {
-		authenticationService.confirmUserPasswordChangeByToken(token);
+		authenticationService.confirmPasswordChangeUsingToken(token);
 		return redirectToWithMessage(HOME_ENDPOINT, PASS_CHANGED_MESSAGE);
 	}
 
