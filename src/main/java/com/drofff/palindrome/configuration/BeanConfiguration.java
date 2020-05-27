@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
 
@@ -67,7 +68,15 @@ public class BeanConfiguration {
 		javaMailSender.setPort(mailProperties.getPort());
 		javaMailSender.setUsername(mailProperties.getUsername());
 		javaMailSender.setPassword(mailProperties.getPassword());
+		javaMailSender.setJavaMailProperties(mailConnectionProperties());
 		return javaMailSender;
+	}
+
+	private Properties mailConnectionProperties() {
+		Properties connectionProperties = new Properties();
+		connectionProperties.put("mail.smtp.auth", true);
+		connectionProperties.put("mail.smtp.starttls.enable", true);
+		return connectionProperties;
 	}
 
 	@Bean
