@@ -32,7 +32,7 @@
 
             <dialog class="mdl-dialog" style="z-index: 100000">
                 <div class="mdl-dialog__content">
-                        ${message}
+                        <#if message??>${message}</#if>
                 </div>
                 <div class="mdl-dialog__actions">
                     <button type="button" class="mdl-button close">Закрити</button>
@@ -41,7 +41,7 @@
 
             <div class="demo-card-wide mdl-card mdl-shadow--2dp" style="margin-left: 27%; margin-top: 2%; margin-bottom: 2%;">
                 <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text">Авторизація в застосунок&nbsp;<b>${userApp.name}</b></h2>
+                    <h2 class="mdl-card__title-text">Авторизація в застосунок&nbsp;<b onclick="window.open('${userApp.baseUrl}')" style="cursor: pointer;">${userApp.name}</b></h2>
                 </div>
                 <div class="mdl-card__supporting-text">
                     <p>${userApp.name} отримає інформацію про адресу вашої електронної скринька, ваше ПІБ та фото</p>

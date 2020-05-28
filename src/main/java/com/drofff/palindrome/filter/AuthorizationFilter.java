@@ -6,19 +6,12 @@ import com.drofff.palindrome.service.AuthorizationTokenService;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.List;
 
-import static com.drofff.palindrome.constants.EndpointConstants.*;
-import static com.drofff.palindrome.constants.RegexConstants.ANY_SYMBOL;
 import static com.drofff.palindrome.utils.AuthenticationUtils.setCurrentUser;
 import static com.drofff.palindrome.utils.AuthorizationUtils.getAuthorizationTokenFromHeader;
-import static java.util.Arrays.asList;
+import static com.drofff.palindrome.utils.AuthorizationUtils.isOpenEndpoint;
 
 public class AuthorizationFilter implements Filter {
-
-    private static final List<String> OPEN_ENDPOINT_PATTERNS = asList(AUTHENTICATE_API_ENDPOINT,
-		    REFRESH_TOKEN_API_ENDPOINT, TWO_STEP_AUTH_API_ENDPOINT, "/api/drivers/.*/photo",
-            "/api/polices/.*/photo", API_RESOURCE_ENDPOINTS_BASE + ANY_SYMBOL);
 
     private final AuthorizationTokenService authorizationTokenService;
 
@@ -38,11 +31,6 @@ public class AuthorizationFilter implements Filter {
 
     private boolean requiresAuthorization(String uri) {
     	return !isOpenEndpoint(uri);
-    }
-
-    private boolean isOpenEndpoint(String uri) {
-    	return OPEN_ENDPOINT_PATTERNS.stream()
-			    .anyMatch(uri::matches);
     }
 
     private void authorizeUserByToken(HttpServletRequest httpServletRequest) {

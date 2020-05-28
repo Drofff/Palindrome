@@ -50,6 +50,8 @@
 
                     <hr style="height: 1px; width: 70%;" />
 
+                    <#if userApp?? && userApp.id??><p>Ідентифікатор застосунку: ${userApp.id}</p></#if>
+
                     <form  method="post" action="/user-app/<#if userApp?? && userApp.id??>update/${userApp.id}"<#else>create"</#if>>
 
                         <p>

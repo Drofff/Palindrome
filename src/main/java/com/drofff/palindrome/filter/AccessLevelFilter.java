@@ -11,6 +11,7 @@ import java.util.List;
 
 import static com.drofff.palindrome.utils.AuthenticationUtils.isAuthenticated;
 import static com.drofff.palindrome.utils.AuthorizationUtils.getAuthorizationTokenFromHeader;
+import static com.drofff.palindrome.utils.AuthorizationUtils.isOpenEndpoint;
 import static java.util.Collections.singletonList;
 
 public class AccessLevelFilter implements Filter {
@@ -25,13 +26,21 @@ public class AccessLevelFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(isAuthenticated()) {
-            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        if(isApplicableToRequest(httpServletRequest)) {
             String authorizationToken = getAuthorizationTokenFromHeader(httpServletRequest);
             AccessLevel accessLevel = authorizationTokenService.getAccessLevelOfAuthorizationToken(authorizationToken);
             validateUriIsOfAccessLevel(httpServletRequest.getRequestURI(), accessLevel);
         }
         chain.doFilter(request, response);
+    }
+
+    private boolean isApplicableToRequest(HttpServletRequest httpServletRequest) {
+        return !shouldIgnoreRequest(httpServletRequest);
+    }
+
+    private boolean shouldIgnoreRequest(HttpServletRequest httpServletRequest) {
+        return !isAuthenticated() || isOpenEndpoint(httpServletRequest.getRequestURI());
     }
 
     private void validateUriIsOfAccessLevel(String uri, AccessLevel accessLevel) {
