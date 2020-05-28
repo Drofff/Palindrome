@@ -28,10 +28,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		String apiEndpointsPattern = API_ENDPOINTS + PATH_ANY_SEGMENTS;
+		String userAppEndpointsPattern = USER_APP_ENDPOINTS_BASE + PATH_ANY_SEGMENTS;
 		http.authorizeRequests()
 				.antMatchers(HOME_ENDPOINT, REGISTRATION_ENDPOINT, ACTIVATE_ACCOUNT_ENDPOINT,
 						FORGOT_PASS_ENDPOINT, PASS_RECOVERY_ENDPOINT, ERROR_ENDPOINT, FAVICON_ENDPOINT,
-						apiEndpointsPattern)
+						apiEndpointsPattern, userAppEndpointsPattern)
 				.permitAll()
 				.anyRequest()
 				.authenticated()

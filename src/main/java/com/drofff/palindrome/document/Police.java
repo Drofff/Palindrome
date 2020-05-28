@@ -1,19 +1,17 @@
 package com.drofff.palindrome.document;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.constraints.NotBlank;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import com.drofff.palindrome.annotation.FromRepository;
 import com.drofff.palindrome.annotation.NonEditable;
 import com.drofff.palindrome.repository.DepartmentRepository;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.validation.constraints.NotBlank;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document
-public class Police implements Entity {
+public class Police implements UserProfile {
 
 	@Id
 	private String id;
@@ -55,6 +53,7 @@ public class Police implements Entity {
 		this.id = id;
 	}
 
+	@Override
 	public String getFirstName() {
 		return firstName;
 	}
@@ -63,6 +62,7 @@ public class Police implements Entity {
 		this.firstName = firstName;
 	}
 
+	@Override
 	public String getLastName() {
 		return lastName;
 	}
@@ -71,6 +71,7 @@ public class Police implements Entity {
 		this.lastName = lastName;
 	}
 
+	@Override
 	public String getMiddleName() {
 		return middleName;
 	}
@@ -95,6 +96,7 @@ public class Police implements Entity {
 		this.tokenNumber = tokenNumber;
 	}
 
+	@Override
 	public String getPhotoUri() {
 		return photoUri;
 	}

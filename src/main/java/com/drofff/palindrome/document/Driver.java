@@ -14,7 +14,7 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 
 @Document
-public class Driver implements Entity {
+public class Driver implements UserProfile {
 
 	@Id
 	private String id;
@@ -52,6 +52,7 @@ public class Driver implements Entity {
 		this.id = id;
 	}
 
+	@Override
 	public String getFirstName() {
 		return firstName;
 	}
@@ -60,6 +61,7 @@ public class Driver implements Entity {
 		this.firstName = firstName;
 	}
 
+	@Override
 	public String getLastName() {
 		return lastName;
 	}
@@ -68,6 +70,7 @@ public class Driver implements Entity {
 		this.lastName = lastName;
 	}
 
+	@Override
 	public String getMiddleName() {
 		return middleName;
 	}
@@ -92,6 +95,7 @@ public class Driver implements Entity {
 		this.licenceNumber = licenceNumber;
 	}
 
+	@Override
 	public String getPhotoUri() {
 		return photoUri;
 	}

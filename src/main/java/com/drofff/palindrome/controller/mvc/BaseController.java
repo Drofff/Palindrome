@@ -43,8 +43,7 @@ public class BaseController {
 
 	private String getRelativeHomePageUri() {
 		Role role = getCurrentUser().getRole();
-		String roleSegment = role.name().toLowerCase();
-		return "/" + roleSegment + RELATIVE_HOME_ENDPOINT;
+		return "/" + role.toString() + RELATIVE_HOME_ENDPOINT;
 	}
 
 	@GetMapping(USER_IS_BLOCKED_ENDPOINT)

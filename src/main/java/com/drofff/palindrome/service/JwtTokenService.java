@@ -3,7 +3,10 @@ package com.drofff.palindrome.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.drofff.palindrome.document.User;
+import com.drofff.palindrome.enums.AccessLevel;
 import com.drofff.palindrome.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,12 +17,15 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import static com.drofff.palindrome.utils.DateUtils.localDateTimeToDate;
+import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class JwtTokenService implements AuthorizationTokenService {
 
 	private static final Duration JWT_TIME_TO_LIVE = Duration.of(2, DAYS);
+
+	private static final String ACCESS_LEVEL_PARAM = "acc_lev";
 
 	private final UserService userService;
 
@@ -33,10 +39,20 @@ public class JwtTokenService implements AuthorizationTokenService {
 
 	@Override
 	public String generateAuthorizationTokenForUser(User user) {
+		return generateJwtForUserWithAccessLevel(user, AccessLevel.FULL);
+	}
+
+	@Override
+	public String generateAuthorizationTokenOfAccessLevelForUser(AccessLevel accessLevel, User user) {
+		return generateJwtForUserWithAccessLevel(user, accessLevel);
+	}
+
+	private String generateJwtForUserWithAccessLevel(User user, AccessLevel accessLevel) {
 		Date expirationDate = getNextTokenExpirationDate();
 		Algorithm signatureAlgorithm = getSignatureAlgorithm();
 		return JWT.create()
 				.withSubject(user.getId())
+				.withClaim(ACCESS_LEVEL_PARAM, accessLevel.getLevelCode())
 				.withExpiresAt(expirationDate)
 				.sign(signatureAlgorithm);
 	}
@@ -53,13 +69,21 @@ public class JwtTokenService implements AuthorizationTokenService {
 
 	@Override
 	public User getUserByAuthorizationToken(String token) {
-		String userId = getUserIdFromJwtToken(token);
+		String userId = decodeJwtToken(token).getSubject();
 		return userService.getUserById(userId);
 	}
 
-	private String getUserIdFromJwtToken(String token) {
+	@Override
+	public AccessLevel getAccessLevelOfAuthorizationToken(String token) {
+		validateNotNull(token, "Token should not be null");
+		Claim accessLevelClaim = decodeJwtToken(token).getClaim(ACCESS_LEVEL_PARAM);
+		int accessLevelCode = accessLevelClaim.asInt();
+		return AccessLevel.ofCode(accessLevelCode);
+	}
+
+	private DecodedJWT decodeJwtToken(String token) {
 		try {
-			return JWT.decode(token).getSubject();
+			return JWT.decode(token);
 		} catch(JWTDecodeException e) {
 			throw new ValidationException("Invalid JWT token");
 		}

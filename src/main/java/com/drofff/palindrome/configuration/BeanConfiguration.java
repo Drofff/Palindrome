@@ -1,6 +1,7 @@
 package com.drofff.palindrome.configuration;
 
 import com.drofff.palindrome.configuration.properties.MailProperties;
+import com.drofff.palindrome.filter.AccessLevelFilter;
 import com.drofff.palindrome.filter.AuthorizationFilter;
 import com.drofff.palindrome.filter.TwoStepAuthFilter;
 import com.drofff.palindrome.repository.UserRepository;
@@ -21,11 +22,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
 import static com.drofff.palindrome.constants.EndpointConstants.API_ENDPOINTS;
+import static java.util.Collections.singletonList;
 
 @Configuration
 public class BeanConfiguration {
@@ -85,10 +86,26 @@ public class BeanConfiguration {
 		AuthorizationFilter filter = new AuthorizationFilter(authorizationService);
 		FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(filter);
-		String apiEndpointsPattern = API_ENDPOINTS + SERVLET_PATH_WILDCARD;
-		List<String> urlPatterns = Collections.singletonList(apiEndpointsPattern);
+		List<String> urlPatterns = singletonList(apiEndpointsPattern());
 		registrationBean.setUrlPatterns(urlPatterns);
+		registrationBean.setOrder(1);
 		return registrationBean;
+	}
+
+	@Bean
+	@Autowired
+	public FilterRegistrationBean<AccessLevelFilter> accessLevelFilter(AuthorizationTokenService authorizationTokenService) {
+		AccessLevelFilter accessLevelFilter = new AccessLevelFilter(authorizationTokenService);
+		FilterRegistrationBean<AccessLevelFilter> registrationBean = new FilterRegistrationBean<>();
+		registrationBean.setFilter(accessLevelFilter);
+		List<String> urlPatterns = singletonList(apiEndpointsPattern());
+		registrationBean.setUrlPatterns(urlPatterns);
+		registrationBean.setOrder(2);
+		return registrationBean;
+	}
+
+	private String apiEndpointsPattern() {
+		return API_ENDPOINTS + SERVLET_PATH_WILDCARD;
 	}
 
 	@Bean
@@ -97,6 +114,7 @@ public class BeanConfiguration {
 		TwoStepAuthFilter authFilter = new TwoStepAuthFilter(policeService);
 		FilterRegistrationBean<TwoStepAuthFilter> registrationBean = new FilterRegistrationBean<>();
 		registrationBean.setFilter(authFilter);
+		registrationBean.setOrder(3);
 		return registrationBean;
 	}
 
