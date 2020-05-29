@@ -64,7 +64,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public CorsConfiguration corsConfiguration() {
-		return new CorsConfiguration().applyPermitDefaultValues();
+		CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
+		corsConfiguration.addAllowedOrigin("*");
+		return corsConfiguration;
 	}
 
 }
