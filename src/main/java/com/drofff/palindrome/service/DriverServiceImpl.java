@@ -20,8 +20,8 @@ import java.util.stream.Stream;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.EntityUtils.copyNonEditableFields;
 import static com.drofff.palindrome.utils.ListUtils.containsStrIgnoreCase;
-import static com.drofff.palindrome.utils.ValidationUtils.validate;
-import static com.drofff.palindrome.utils.ValidationUtils.validateNotNull;
+import static com.drofff.palindrome.utils.ValidationUtils.*;
+import static java.time.LocalDateTime.now;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -110,6 +110,14 @@ public class DriverServiceImpl implements DriverService, EntityManager {
 
 	private void validatePhoto(MultipartFile photo) {
 		validateNotNull(photo, "Photo is required");
+	}
+
+	@Override
+	public void updateDriverLastNotificationDateTime(Driver driver) {
+		validateNotNullEntityHasId(driver);
+		Driver originalDriver = getDriverById(driver.getId());
+		originalDriver.setLastNotificationDateTime(now());
+		driverRepository.save(originalDriver);
 	}
 
 	@Override

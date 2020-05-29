@@ -2,7 +2,7 @@ package com.drofff.palindrome.service;
 
 import com.drofff.palindrome.type.Mail;
 
-interface MailService {
+public interface MailService {
 
 	void sendMailTo(Mail mail, String ... receivers);
 

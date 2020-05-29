@@ -17,6 +17,7 @@ public class MailUtils {
 	private static final String NUMBER_PARAM = "number";
 	private static final String FIRST_NAME_PARAM = "firstName";
 	private static final String TOKEN_PARAM = "token";
+	private static final String VIOLATIONS_COUNT_PARAM = "violationsCount";
 
 	private static final String ACTIVATION_MAIL_KEY = "activation";
 	private static final String REMIND_PASS_MAIL_KEY = "remind-password";
@@ -30,12 +31,18 @@ public class MailUtils {
 	private static final String CHANGE_PASS_CONFIRMATION_MAIL_KEY = "change-password";
 	private static final String VIOLATION_ADDED_MAIL_KEY = "violation-added";
 	private static final String TWO_STEP_AUTH_MAIL_KEY = "two-step-auth";
-	private static final String REST_TWO_STEP_AUTH_KEY = "rest-two-step-auth";
+	private static final String REST_TWO_STEP_AUTH_MAIL_KEY = "rest-two-step-auth";
+	private static final String UNPAID_VIOLATIONS_NOTIFICATION_MAIL_KEY = "unpaid-violations-notification";
 
 	private MailUtils() {}
 
+	public static Mail getUnpaidViolationsNotificationMail(String firstName, Long violationsCount) {
+		return mailByKeyWithParams(UNPAID_VIOLATIONS_NOTIFICATION_MAIL_KEY, FIRST_NAME_PARAM, firstName,
+				VIOLATIONS_COUNT_PARAM, violationsCount.toString());
+	}
+
 	public static Mail getRestTwoStepAuthMail(String token) {
-		return mailByKeyWithParams(REST_TWO_STEP_AUTH_KEY, TOKEN_PARAM, token);
+		return mailByKeyWithParams(REST_TWO_STEP_AUTH_MAIL_KEY, TOKEN_PARAM, token);
 	}
 
 	public static Mail getTwoStepAuthMail(String firstName, String link) {

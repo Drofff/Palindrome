@@ -15,6 +15,8 @@ public interface DriverService {
 
 	void updateDriverPhoto(MultipartFile photo);
 
+	void updateDriverLastNotificationDateTime(Driver driver);
+
 	boolean hasNoDriverProfile(User user);
 
 	Driver getCurrentDriver();

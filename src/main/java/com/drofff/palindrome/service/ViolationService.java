@@ -15,6 +15,8 @@ public interface ViolationService {
 
 	List<Violation> getDriverViolations(Driver driver);
 
+	long countUnpaidViolationsOfDriver(Driver driver);
+
 	Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable);
 
 	Page<Violation> getPageOfViolationsAddedByPolice(Police police, Pageable pageable);

@@ -22,6 +22,8 @@ public interface ViolationRepository extends MongoRepository<Violation, String> 
 
 	List<Violation> findByDateTimeAfterAndOfficerId(LocalDateTime threshold, String officerId);
 
+	long countByViolatorIdAndPaid(String violatorId, boolean paid);
+
 	boolean existsByViolationTypeId(String id);
 
 }

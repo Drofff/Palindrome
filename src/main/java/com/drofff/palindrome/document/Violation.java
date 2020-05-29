@@ -80,6 +80,10 @@ public class Violation implements Entity, Hronable {
 		this.paid = paid;
 	}
 
+	public boolean isUnpaid() {
+		return !paid;
+	}
+
 	public String getCarId() {
 		return carId;
 	}

@@ -74,6 +74,13 @@ public class ViolationServiceImpl implements ViolationService {
 	}
 
 	@Override
+	public long countUnpaidViolationsOfDriver(Driver driver) {
+		validateNotNullEntityHasId(driver);
+		validateNotNull(driver.getUserId(), "Driver should obtain a user id");
+		return violationRepository.countByViolatorIdAndPaid(driver.getUserId(), false);
+	}
+
+	@Override
 	public Page<Violation> getPageOfDriverViolations(Driver driver, Pageable pageable) {
 		validateNotNullEntityHasId(driver);
 		return violationRepository.findByViolatorId(driver.getUserId(), pageable);
@@ -214,7 +221,7 @@ public class ViolationServiceImpl implements ViolationService {
 	private ViolationsStatistic statisticOfViolations(List<Violation> violations) {
 		return new ViolationsStatistic.Builder()
 				.violationsCount(violations.size())
-				.unpaidViolationsCount(countElementsMatchingFilter(violations, this::isUnpaid))
+				.unpaidViolationsCount(countElementsMatchingFilter(violations, Violation::isUnpaid))
 				.longestUnpaidViolationDateTime(getLongestUnpaidViolationDateTime(violations))
 				.mostFrequentViolationTypes(getMostFrequentViolationTypes(violations))
 				.violationsCountPerLastMonths(countViolationsPerLastMonths(violations))
@@ -223,14 +230,10 @@ public class ViolationServiceImpl implements ViolationService {
 
 	private LocalDateTime getLongestUnpaidViolationDateTime(List<Violation> violations) {
 		return violations.stream()
-				.filter(this::isUnpaid)
+				.filter(Violation::isUnpaid)
 				.min(violationsDateTimeComparator())
 				.map(Violation::getDateTime)
 				.orElse(null);
-	}
-
-	private boolean isUnpaid(Violation violation) {
-		return !violation.isPaid();
 	}
 
 	private Map<ViolationType, Integer> getMostFrequentViolationTypes(List<Violation> violations) {

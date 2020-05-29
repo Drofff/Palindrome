@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,9 @@ public class Driver implements UserProfile {
 
 	@NonEditable
 	private Set<String> ownedCarIds = new HashSet<>();
+
+	@NonEditable
+	private LocalDateTime lastNotificationDateTime;
 
 	@NonEditable
 	@FromRepository(UserRepository.class)
@@ -110,6 +114,14 @@ public class Driver implements UserProfile {
 
 	public void setOwnedCarIds(Set<String> ownedCarIds) {
 		this.ownedCarIds = ownedCarIds;
+	}
+
+	public LocalDateTime getLastNotificationDateTime() {
+		return lastNotificationDateTime;
+	}
+
+	public void setLastNotificationDateTime(LocalDateTime lastNotificationDateTime) {
+		this.lastNotificationDateTime = lastNotificationDateTime;
 	}
 
 	public String getUserId() {
