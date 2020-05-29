@@ -2,6 +2,7 @@ package com.drofff.palindrome.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,6 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.cors.CorsConfiguration;
 
 import static com.drofff.palindrome.constants.EndpointConstants.*;
 
@@ -29,7 +31,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		String apiEndpointsPattern = API_ENDPOINTS + PATH_ANY_SEGMENTS;
 		String userAppEndpointsPattern = USER_APP_ENDPOINTS_BASE + PATH_ANY_SEGMENTS;
-		http.authorizeRequests()
+		http.cors()
+				.and()
+				.authorizeRequests()
 				.antMatchers(HOME_ENDPOINT, REGISTRATION_ENDPOINT, ACTIVATE_ACCOUNT_ENDPOINT,
 						FORGOT_PASS_ENDPOINT, PASS_RECOVERY_ENDPOINT, ERROR_ENDPOINT, FAVICON_ENDPOINT,
 						apiEndpointsPattern, userAppEndpointsPattern)
@@ -56,6 +60,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) {
 		auth.authenticationProvider(authenticationProvider);
+	}
+
+	@Bean
+	public CorsConfiguration corsConfiguration() {
+		return new CorsConfiguration().applyPermitDefaultValues();
 	}
 
 }
