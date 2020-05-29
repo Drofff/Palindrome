@@ -28,20 +28,8 @@ public class PdfServiceImpl implements PdfService {
 
     private static final String FONT_ENCODING = "Identity-H";
 
-    private final PdfFont font;
-
-    public PdfServiceImpl(@Value("${application.font}") String fontPath) {
-        font = loadFontAtPath(fontPath);
-    }
-
-    private PdfFont loadFontAtPath(String fontPath) {
-        try {
-            String absoluteFontPath = relativeToAbsolutePath(fontPath);
-            return PdfFontFactory.createFont(absoluteFontPath, FONT_ENCODING, false);
-        } catch(IOException e) {
-            throw new PalindromeException("Error while loading font");
-        }
-    }
+    @Value("${application.font}")
+    private String fontPath;
 
     @Override
     public Document newPdfDocument(String path) {
@@ -81,8 +69,17 @@ public class PdfServiceImpl implements PdfService {
     @Override
     public Paragraph paragraphOfText(String text) {
         Paragraph paragraph = new Paragraph(text);
-        paragraph.setFont(font);
+        paragraph.setFont(applicationFont());
         return paragraph;
+    }
+
+    private PdfFont applicationFont() {
+        try {
+            String absoluteFontPath = relativeToAbsolutePath(fontPath);
+            return PdfFontFactory.createFont(absoluteFontPath, FONT_ENCODING, false);
+        } catch(IOException e) {
+            throw new PalindromeException("Error while loading font");
+        }
     }
 
 }
