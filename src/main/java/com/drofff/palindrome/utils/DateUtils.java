@@ -62,11 +62,17 @@ public class DateUtils {
 	}
 
 	private static <T extends Hronable> void countHronablesPerDayIntoCounter(List<T> hronables, Map<LocalDate, Integer> counter) {
-		hronables.forEach(hronable -> {
-			LocalDate date = hronable.getDateTime().toLocalDate();
-			int hronablesCounter = counter.get(date);
-			counter.put(date, ++hronablesCounter);
-		});
+		hronables.stream()
+				.map(DateUtils::getDateOfHronable)
+				.filter(counter::containsKey)
+				.forEach(day -> {
+					int hronablesCounter = counter.get(day);
+					counter.put(day, ++hronablesCounter);
+				});
+	}
+
+	private static LocalDate getDateOfHronable(Hronable hronable) {
+		return hronable.getDateTime().toLocalDate();
 	}
 
 	public static LocalDateTime endOfDay(LocalDateTime dateTime) {

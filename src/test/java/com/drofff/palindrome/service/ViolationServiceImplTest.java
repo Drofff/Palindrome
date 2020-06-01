@@ -1,6 +1,7 @@
 package com.drofff.palindrome.service;
 
 import com.drofff.palindrome.document.*;
+import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ViolationRepository;
 import com.drofff.palindrome.type.ViolationsStatistic;
@@ -21,7 +22,9 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.drofff.palindrome.enums.Role.POLICE;
+import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.DateUtils.inSameMonth;
+import static java.time.Month.MAY;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.*;
@@ -33,7 +36,8 @@ public class ViolationServiceImplTest {
 
     private static final String DEFAULT_VIOLATION_TYPE_ID = "testIdOfViolationType";
 
-    private static final LocalDateTime LATE_DATE_TIME = LocalDateTime.now().minusWeeks(1);
+    private static final LocalDateTime NOW = LocalDateTime.of(2020, MAY, 30, 13, 0);
+    private static final LocalDateTime LATE_DATE_TIME = NOW.minusWeeks(1);
 
     @Mock
     private ViolationRepository violationRepository;
@@ -105,7 +109,7 @@ public class ViolationServiceImplTest {
         Driver testDriver = testDriver();
         List<Violation> testViolations = testViolations();
 
-        when(violationRepository.findByViolatorId(testDriver.getId()))
+        when(violationRepository.findByViolatorId(testDriver.getUserId()))
                 .thenReturn(testViolations);
         when(violationTypeService.getById(DEFAULT_VIOLATION_TYPE_ID))
                 .thenReturn(defaultTestViolationType());
@@ -120,8 +124,7 @@ public class ViolationServiceImplTest {
     }
 
     private List<Violation> testViolations() {
-        LocalDateTime now = LocalDateTime.now();
-        return Stream.of(now, now.minusDays(3), LATE_DATE_TIME)
+        return Stream.of(NOW, NOW.minusDays(3), LATE_DATE_TIME)
                 .map(this::testViolationWithDateTime)
                 .collect(toList());
     }
@@ -157,14 +160,12 @@ public class ViolationServiceImplTest {
     }
 
     private int getViolationsCountForCurrentMonth(ViolationsStatistic violationsStatistic) {
+        LocalDate today = NOW.toLocalDate();
         Map<LocalDate, Integer> violationsCountPerLastMonths = violationsStatistic.getViolationsCountPerLastMonths();
-        LocalDate now = LocalDate.now();
-        Optional<Integer> violationCountForCurrentMonthOptional = violationsCountPerLastMonths.entrySet().stream()
-                .filter(entry -> inSameMonth(now, entry.getKey()))
-                .map(Map.Entry::getValue)
-                .findFirst();
-        assertTrue(violationCountForCurrentMonthOptional.isPresent());
-        return violationCountForCurrentMonthOptional.get();
+        LocalDate currentMonth = violationsCountPerLastMonths.keySet().stream()
+                .filter(month -> inSameMonth(month, today))
+                .findFirst().orElseThrow(() -> new PalindromeException("Missing violations count for the current month"));
+        return violationsCountPerLastMonths.get(currentMonth);
     }
 
     @Test
@@ -178,6 +179,8 @@ public class ViolationServiceImplTest {
     private Driver testDriver() {
         Driver driver = new Driver();
         driver.setId(UUID.randomUUID().toString());
+        String testUserId = getCurrentUser().getId();
+        driver.setUserId(testUserId);
         return driver;
     }
 
