@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.drofff.palindrome.utils.DateUtils.countHronablesPerDayForDays;
-import static com.drofff.palindrome.utils.DateUtils.inSameMonth;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.assertEquals;
@@ -38,7 +37,7 @@ public class DateUtilsTest {
     private int getHronablesCountForToday(Map<LocalDate, Integer> hronablesPerDays) {
         LocalDate today = LocalDate.now();
         return hronablesPerDays.keySet().stream()
-                .filter(day -> inSameMonth(today, day))
+                .filter(today::isEqual)
                 .map(hronablesPerDays::get)
                 .findFirst().orElseThrow(() -> new PalindromeException("Missing hronables count for today"));
     }

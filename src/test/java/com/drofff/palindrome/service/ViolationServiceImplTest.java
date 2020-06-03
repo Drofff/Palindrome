@@ -1,7 +1,6 @@
 package com.drofff.palindrome.service;
 
 import com.drofff.palindrome.document.*;
-import com.drofff.palindrome.exception.PalindromeException;
 import com.drofff.palindrome.exception.ValidationException;
 import com.drofff.palindrome.repository.ViolationRepository;
 import com.drofff.palindrome.type.ViolationsStatistic;
@@ -24,7 +23,7 @@ import java.util.stream.Stream;
 import static com.drofff.palindrome.enums.Role.POLICE;
 import static com.drofff.palindrome.utils.AuthenticationUtils.getCurrentUser;
 import static com.drofff.palindrome.utils.DateUtils.inSameMonth;
-import static java.time.Month.MAY;
+import static java.time.LocalDateTime.now;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.*;
@@ -36,8 +35,7 @@ public class ViolationServiceImplTest {
 
     private static final String DEFAULT_VIOLATION_TYPE_ID = "testIdOfViolationType";
 
-    private static final LocalDateTime NOW = LocalDateTime.of(2020, MAY, 30, 13, 0);
-    private static final LocalDateTime LATE_DATE_TIME = NOW.minusWeeks(1);
+    private static final LocalDateTime LATE_DATE_TIME = now().minusWeeks(1);
 
     @Mock
     private ViolationRepository violationRepository;
@@ -120,11 +118,13 @@ public class ViolationServiceImplTest {
         assertEquals(testViolations.size(), violationsStatistic.getUnpaidViolationsCount());
         assertEquals(LATE_DATE_TIME, violationsStatistic.getLongestUnpaidViolationDateTime());
         assertEquals(testViolations.size(), getFrequencyOfDefaultViolationType(violationsStatistic));
-        assertEquals(testViolations.size(), getViolationsCountForCurrentMonth(violationsStatistic));
+
+        int violationsOfCurrentMonthCount = countViolationsOfCurrentMonth(testViolations);
+        assertEquals(violationsOfCurrentMonthCount, getViolationsOfCurrentMonthCountFromStatistic(violationsStatistic));
     }
 
     private List<Violation> testViolations() {
-        return Stream.of(NOW, NOW.minusDays(3), LATE_DATE_TIME)
+        return Stream.of(now(), now().minusDays(3), LATE_DATE_TIME)
                 .map(this::testViolationWithDateTime)
                 .collect(toList());
     }
@@ -159,13 +159,22 @@ public class ViolationServiceImplTest {
         return violationType.getId().equals(DEFAULT_VIOLATION_TYPE_ID);
     }
 
-    private int getViolationsCountForCurrentMonth(ViolationsStatistic violationsStatistic) {
-        LocalDate today = NOW.toLocalDate();
-        Map<LocalDate, Integer> violationsCountPerLastMonths = violationsStatistic.getViolationsCountPerLastMonths();
-        LocalDate currentMonth = violationsCountPerLastMonths.keySet().stream()
-                .filter(month -> inSameMonth(month, today))
-                .findFirst().orElseThrow(() -> new PalindromeException("Missing violations count for the current month"));
-        return violationsCountPerLastMonths.get(currentMonth);
+    private int countViolationsOfCurrentMonth(List<Violation> violations) {
+        LocalDate today = LocalDate.now();
+        return (int) violations.stream()
+                .map(violation -> violation.getDateTime().toLocalDate())
+                .filter(violationDate -> inSameMonth(today, violationDate))
+                .count();
+    }
+
+    private int getViolationsOfCurrentMonthCountFromStatistic(ViolationsStatistic violationsStatistic) {
+        LocalDate today = LocalDate.now();
+        Optional<Integer> violationsOfCurrentMonthCount = violationsStatistic.getViolationsCountPerLastMonths().entrySet()
+                .stream().filter(monthCountEntry -> inSameMonth(monthCountEntry.getKey(), today))
+                .map(Map.Entry::getValue)
+                .findFirst();
+        assertTrue(violationsOfCurrentMonthCount.isPresent());
+        return violationsOfCurrentMonthCount.get();
     }
 
     @Test
