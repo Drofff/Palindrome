@@ -32,7 +32,7 @@
     <main class="mdl-layout__content">
         <div class="page-content">
 
-            <dialog class="mdl-dialog">
+            <dialog class="mdl-dialog" style="z-index: 100000">
                 <div class="mdl-dialog__content">
                     <p style="color: red" id="messages">
                         <#if error_message??>
